@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GRG",
+    "NCN",
+    "GQG"
+  ],
+  "key": {
+    "G": { "item": "minecraft:gold_ingot" },
+    "R": { "tag": "jsgzpm:compat/red_crystal" },
+    "N": { "tag": "forge:ingots/naquadah_alloy" },
+    "C": { "tag": "jsgzpm:compat/circuit_control_naquadah" },
+    "Q": { "item": "minecraft:redstone_block" }
+  },
+  "result": {
+    "item": "jsgzpm:central_power_regulator"
+  }
+}
