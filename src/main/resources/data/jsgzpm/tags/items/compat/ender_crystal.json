@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "jsg:ender_crystal", "required": false },
+    { "id": "jsg_core:ender_crystal", "required": false }
+  ]
+}
