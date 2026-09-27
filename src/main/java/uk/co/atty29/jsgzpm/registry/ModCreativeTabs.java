@@ -25,6 +25,7 @@ public final class ModCreativeTabs {
                         output.accept(ModRegistries.ATLANTIS_ZPM_HUB_ITEM.get());
                         output.accept(ModRegistries.ANCIENT_ZPM_ARRAY_ITEM.get());
                         output.accept(ModRegistries.ANCIENT_ZPM_COLUMN_ITEM.get());
+                        output.accept(ModRegistries.ANCIENT_POWER_CONTROLLER_ITEM.get());
                     })
                     .build()
     );

@@ -12,7 +12,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import uk.co.atty29.jsgzpm.JSGZPM;
+import uk.co.atty29.jsgzpm.block.AncientPowerControllerBlock;
 import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
+import uk.co.atty29.jsgzpm.blockentity.AncientPowerControllerBlockEntity;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
@@ -28,6 +30,7 @@ public final class ModRegistries {
     public static final RegistryObject<Block> ATLANTIS_ZPM_HUB = BLOCKS.register("atlantis_zpm_hub", () -> new ZPMHolderBlock(ZPMHolderLayout.HUB));
     public static final RegistryObject<Block> ANCIENT_ZPM_ARRAY = BLOCKS.register("ancient_zpm_array", () -> new ZPMHolderBlock(ZPMHolderLayout.ARRAY));
     public static final RegistryObject<Block> ANCIENT_ZPM_COLUMN = BLOCKS.register("ancient_zpm_column", () -> new ZPMHolderBlock(ZPMHolderLayout.COLUMN));
+    public static final RegistryObject<Block> ANCIENT_POWER_CONTROLLER = BLOCKS.register("ancient_power_controller", AncientPowerControllerBlock::new);
 
     public static final RegistryObject<Item> ZERO_POINT_MODULE = ITEMS.register("zero_point_module", () -> new ZPMItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> CRYSTAL_BINDER = ITEMS.register("crystal_binder", () -> new Item(new Item.Properties()));
@@ -37,6 +40,7 @@ public final class ModRegistries {
     public static final RegistryObject<Item> ATLANTIS_ZPM_HUB_ITEM = ITEMS.register("atlantis_zpm_hub", () -> new BlockItem(ATLANTIS_ZPM_HUB.get(), new Item.Properties()));
     public static final RegistryObject<Item> ANCIENT_ZPM_ARRAY_ITEM = ITEMS.register("ancient_zpm_array", () -> new BlockItem(ANCIENT_ZPM_ARRAY.get(), new Item.Properties()));
     public static final RegistryObject<Item> ANCIENT_ZPM_COLUMN_ITEM = ITEMS.register("ancient_zpm_column", () -> new BlockItem(ANCIENT_ZPM_COLUMN.get(), new Item.Properties()));
+    public static final RegistryObject<Item> ANCIENT_POWER_CONTROLLER_ITEM = ITEMS.register("ancient_power_controller", () -> new BlockItem(ANCIENT_POWER_CONTROLLER.get(), new Item.Properties()));
 
     public static final RegistryObject<BlockEntityType<ZPMHolderBlockEntity>> ZPM_HOLDER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
             "zpm_holder",
@@ -45,6 +49,14 @@ public final class ModRegistries {
                     ATLANTIS_ZPM_HUB.get(),
                     ANCIENT_ZPM_ARRAY.get(),
                     ANCIENT_ZPM_COLUMN.get()
+            ).build(null)
+    );
+
+    public static final RegistryObject<BlockEntityType<AncientPowerControllerBlockEntity>> ANCIENT_POWER_CONTROLLER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+            "ancient_power_controller",
+            () -> BlockEntityType.Builder.of(
+                    AncientPowerControllerBlockEntity::new,
+                    ANCIENT_POWER_CONTROLLER.get()
             ).build(null)
     );
 

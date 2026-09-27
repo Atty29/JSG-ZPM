@@ -4,41 +4,42 @@ JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)*
 
 This repository is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 3
+## Current status — Phase 4
 
-The Phase 1 foundation, Phase 2 Zero Point Module gameplay layer, and Phase 3 ZPM holder family are now implemented.
+Phases 1-3 are implemented, and Phase 4 adds coordinated large-bank power management.
 
 Current features:
 
 - Minecraft 1.20.1 / Forge 47.4.x / Java 17
 - mod id: `jsgzpm`
 - explicit runtime dependency on Just Stargate Mod (`jsg`)
-- long-backed energy storage for capacities above the normal 32-bit Forge Energy range
 - server-configurable standard ZPM capacity, defaulting to `100,000,000,000 FE` (100 GFE)
 - Zero Point Module item with percentage and human-readable stored-energy tooltip
-- loose ZPMs expose their stored-energy state but cannot be charged/discharged through arbitrary generic FE item chargers; charging/discharging is reserved for JSG-ZPM infrastructure
-- Crystal Binder
-- Zero-Point Containment Matrix
-- Central Power Regulator
-- staged component recipes using JSG and vanilla materials
-- custom final ZPM assembly recipe using two Basic, two Advanced and two Ultimate JSG energy crystals
-- energy stored in those six JSG crystals is inherited by the crafted ZPM, capped at the ZPM's configured capacity
-- Atlantis ZPM Hub with three independently controlled ZPM positions
-- Ancient ZPM Array as a physical three-block horizontal structure
-- Ancient ZPM Column as a physical three-block vertical structure
-- ZPMs may only be inserted/removed while their slot is raised
-- independent 20-tick raise/lower state machines for all three slots
-- lowered ZPMs provide Forge Energy through the holder and drain sequentially instead of all modules being flattened together
-- actively supplying lowered ZPMs enter a distinct supplying state for visual feedback
-- holder inventory/state/animation data persists through NBT and synchronises to clients
-- purpose-built first-pass Ancient-style holder textures and a new 3D ZPM item model; no JSG models/textures are copied
-- compatibility tags support the current `jsg` / `jsg_core` registry split without bundling JSG code or assets
+- staged ZPM component recipes and custom final assembly with inherited JSG energy-crystal charge
+- Atlantis ZPM Hub, Ancient ZPM Array and Ancient ZPM Column
+- three independent ZPM slots per holder with raise/lower animation state and insertion/removal restrictions
+- sequential discharge within each holder
+- Ancient Power Controller for combining multiple holders into one managed power bank
+- configurable controller radius (default 32 blocks) and holder limit (default 64 holders / 192 ZPM slots)
+- controller scans only loaded chunks and never acts as a chunk loader
+- holders persist their controller claim across save/reload and suppress their own external FE output while networked
+- the controller becomes the single Forge Energy output for its claimed bank, preventing duplicate cable extraction paths
+- bank-wide sequential discharge keeps as few ZPMs partially depleted as possible
+- controller status readout reports linked/online holders, active/installed ZPMs and total available energy/capacity
 - dedicated-server-safe common/client separation
 - automated GitHub Actions build validation
 
-The Phase 3 visual assets are an original first-pass implementation and can be refined as the art direction develops. The holder mechanics are now separated cleanly from later power-management logic.
+Phase 3/4 visuals are original first-pass development assets. They will continue to be refined during the visual polish phase; no JSG models or textures are copied into this repository.
 
-Not yet implemented: cross-holder/large-bank Phase 4 power management, the Zero Point Energy Generator, Atlantis Pegasus DHD, or alarm system.
+Not yet implemented: Zero Point Energy Generator, Atlantis Pegasus DHD, alarms, advanced power-management modes or final visual polish.
+
+## Ancient Power Controller
+
+Place one controller near the ZPM holders that should form a bank. Every 40 ticks it scans loaded chunks inside its configured radius and claims unclaimed JSG-ZPM holders, up to the configured holder limit. Claimed holders no longer expose their own FE output; connect your power network to the controller instead.
+
+Right-click the controller to force an immediate rescan and show its current bank status.
+
+The default 32-block radius and 64-holder limit allow one controller to manage up to 192 ZPM slots without loading chunks that are otherwise inactive.
 
 ## Development dependency
 

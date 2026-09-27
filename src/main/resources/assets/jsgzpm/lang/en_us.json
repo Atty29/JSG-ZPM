@@ -7,9 +7,11 @@
   "block.jsgzpm.atlantis_zpm_hub": "Atlantis ZPM Hub",
   "block.jsgzpm.ancient_zpm_array": "Ancient ZPM Array",
   "block.jsgzpm.ancient_zpm_column": "Ancient ZPM Column",
+  "block.jsgzpm.ancient_power_controller": "Ancient Power Controller",
   "tooltip.jsgzpm.zpm.charge": "Charge: %s",
   "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE",
   "message.jsgzpm.holder.inserted": "ZPM inserted into slot %s",
   "message.jsgzpm.holder.removed": "ZPM removed from slot %s",
-  "message.jsgzpm.holder.toggled": "ZPM slot %s moving"
+  "message.jsgzpm.holder.toggled": "ZPM slot %s moving",
+  "message.jsgzpm.controller.status": "Bank: %s holders (%s online) — ZPMs: %s active / %s installed — Energy: %s / %s FE"
 }
