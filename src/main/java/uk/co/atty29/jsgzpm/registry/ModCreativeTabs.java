@@ -4,7 +4,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -18,9 +17,12 @@ public final class ModCreativeTabs {
             "main",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("creativetab.jsgzpm.main"))
-                    .icon(() -> new ItemStack(Items.NETHER_STAR))
+                    .icon(() -> new ItemStack(ModRegistries.ZERO_POINT_MODULE.get()))
                     .displayItems((parameters, output) -> {
-                        // Phase 1 has no gameplay items yet.
+                        output.accept(ModRegistries.ZERO_POINT_MODULE.get());
+                        output.accept(ModRegistries.CRYSTAL_BINDER.get());
+                        output.accept(ModRegistries.ZERO_POINT_CONTAINMENT_MATRIX.get());
+                        output.accept(ModRegistries.CENTRAL_POWER_REGULATOR.get());
                     })
                     .build()
     );
