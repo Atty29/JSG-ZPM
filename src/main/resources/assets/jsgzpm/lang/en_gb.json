@@ -1,0 +1,9 @@
+{
+  "creativetab.jsgzpm.main": "JSG-ZPM",
+  "item.jsgzpm.zero_point_module": "Zero Point Module",
+  "item.jsgzpm.crystal_binder": "Crystal Binder",
+  "item.jsgzpm.zero_point_containment_matrix": "Zero-Point Containment Matrix",
+  "item.jsgzpm.central_power_regulator": "Central Power Regulator",
+  "tooltip.jsgzpm.zpm.charge": "Charge: %s",
+  "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE"
+}
