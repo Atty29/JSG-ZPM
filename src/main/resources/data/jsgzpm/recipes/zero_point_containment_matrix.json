@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TGT",
+    "NCN",
+    "TET"
+  ],
+  "key": {
+    "T": { "tag": "forge:ingots/titanium" },
+    "G": { "item": "minecraft:amethyst_block" },
+    "N": { "tag": "forge:ingots/naquadah_alloy" },
+    "C": { "tag": "jsgzpm:compat/circuit_control_crystal" },
+    "E": { "tag": "jsgzpm:compat/ender_crystal" }
+  },
+  "result": {
+    "item": "jsgzpm:zero_point_containment_matrix"
+  }
+}
