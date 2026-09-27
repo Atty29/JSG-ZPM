@@ -4,11 +4,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -26,6 +28,7 @@ import uk.co.atty29.jsgzpm.registry.ModRegistries;
 public final class ZPMHolderBlockEntity extends BlockEntity {
     public static final int SLOT_COUNT = 3;
     private static final float ANIMATION_STEP = 1.0F / 20.0F;
+    private static final int NETWORK_VALIDATION_INTERVAL = 40;
 
     private final ItemStackHandler items = new ItemStackHandler(SLOT_COUNT) {
         @Override
@@ -50,7 +53,10 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     private final float[] animationProgress = {0.0F, 0.0F, 0.0F};
     private final int[] supplyingTicks = {0, 0, 0};
 
-    private final LazyOptional<IEnergyStorage> energyCapability = LazyOptional.of(HolderEnergyStorage::new);
+    private LazyOptional<IEnergyStorage> energyCapability = LazyOptional.of(HolderEnergyStorage::new);
+    @Nullable
+    private BlockPos networkController;
+    private int networkValidationTicker;
 
     public ZPMHolderBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.ZPM_HOLDER_BLOCK_ENTITY.get(), pos, state);
@@ -68,6 +74,13 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
             }
         }
         changed |= holder.advanceAnimations();
+
+        holder.networkValidationTicker++;
+        if (holder.networkValidationTicker >= NETWORK_VALIDATION_INTERVAL) {
+            holder.networkValidationTicker = 0;
+            holder.validateNetworkController();
+        }
+
         if (changed) holder.sync();
     }
 
@@ -147,6 +160,48 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         return validSlot(slot) ? animationProgress[slot] : 0.0F;
     }
 
+    public int getInstalledZPMCount() {
+        int count = 0;
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            if (!items.getStackInSlot(i).isEmpty()) count++;
+        }
+        return count;
+    }
+
+    public int getActiveZPMCount() {
+        int count = 0;
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            if (!items.getStackInSlot(i).isEmpty() && slotStates[i].isDown()) count++;
+        }
+        return count;
+    }
+
+    @Nullable
+    public BlockPos getNetworkController() {
+        return networkController;
+    }
+
+    public boolean isNetworked() {
+        return networkController != null;
+    }
+
+    public boolean claimController(BlockPos controllerPos) {
+        if (networkController != null && !networkController.equals(controllerPos)) return false;
+        if (networkController == null) {
+            networkController = controllerPos.immutable();
+            refreshEnergyCapability();
+            sync();
+        }
+        return true;
+    }
+
+    public void releaseController(BlockPos controllerPos) {
+        if (networkController == null || !networkController.equals(controllerPos)) return;
+        networkController = null;
+        refreshEnergyCapability();
+        sync();
+    }
+
     public long getAvailableEnergyLong() {
         long total = 0L;
         for (int i = 0; i < SLOT_COUNT; i++) {
@@ -219,7 +274,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
 
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ENERGY) return energyCapability.cast();
+        if (cap == ForgeCapabilities.ENERGY && networkController == null) return energyCapability.cast();
         return super.getCapability(cap, side);
     }
 
@@ -227,6 +282,12 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     public void invalidateCaps() {
         super.invalidateCaps();
         energyCapability.invalidate();
+    }
+
+    @Override
+    public void reviveCaps() {
+        super.reviveCaps();
+        energyCapability = LazyOptional.of(HolderEnergyStorage::new);
     }
 
     @Override
@@ -239,6 +300,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
             tag.putFloat("Progress" + i, animationProgress[i]);
         }
         tag.putIntArray("SlotStates", states);
+        if (networkController != null) tag.putLong("NetworkController", networkController.asLong());
     }
 
     @Override
@@ -258,6 +320,8 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
                 animationProgress[i] = 0.0F;
             }
         }
+        networkController = tag.contains("NetworkController") ? BlockPos.of(tag.getLong("NetworkController")) : null;
+        refreshEnergyCapability();
     }
 
     @Override
@@ -291,6 +355,23 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
             return new AABB(worldPosition.below()).minmax(new AABB(worldPosition.above(2))).inflate(0.5D);
         }
         return new AABB(worldPosition).inflate(0.75D, 1.25D, 0.75D);
+    }
+
+    private void validateNetworkController() {
+        if (!(level instanceof ServerLevel serverLevel) || networkController == null) return;
+        LevelChunk chunk = serverLevel.getChunkSource().getChunkNow(networkController.getX() >> 4, networkController.getZ() >> 4);
+        if (chunk == null) return;
+        BlockEntity blockEntity = chunk.getBlockEntity(networkController);
+        if (!(blockEntity instanceof AncientPowerControllerBlockEntity)) {
+            networkController = null;
+            refreshEnergyCapability();
+            sync();
+        }
+    }
+
+    private void refreshEnergyCapability() {
+        energyCapability.invalidate();
+        energyCapability = LazyOptional.of(HolderEnergyStorage::new);
     }
 
     private void sync() {
