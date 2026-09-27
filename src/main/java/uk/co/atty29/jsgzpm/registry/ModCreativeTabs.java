@@ -10,8 +10,7 @@ import net.minecraftforge.registries.RegistryObject;
 import uk.co.atty29.jsgzpm.JSGZPM;
 
 public final class ModCreativeTabs {
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JSGZPM.MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JSGZPM.MOD_ID);
 
     public static final RegistryObject<CreativeModeTab> MAIN = CREATIVE_TABS.register(
             "main",
@@ -23,6 +22,9 @@ public final class ModCreativeTabs {
                         output.accept(ModRegistries.CRYSTAL_BINDER.get());
                         output.accept(ModRegistries.ZERO_POINT_CONTAINMENT_MATRIX.get());
                         output.accept(ModRegistries.CENTRAL_POWER_REGULATOR.get());
+                        output.accept(ModRegistries.ATLANTIS_ZPM_HUB_ITEM.get());
+                        output.accept(ModRegistries.ANCIENT_ZPM_ARRAY_ITEM.get());
+                        output.accept(ModRegistries.ANCIENT_ZPM_COLUMN_ITEM.get());
                     })
                     .build()
     );
