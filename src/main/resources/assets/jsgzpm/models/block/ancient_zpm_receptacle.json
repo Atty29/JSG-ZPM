@@ -1,0 +1,9 @@
+{
+  "ambientocclusion": false,
+  "textures": {"panel":"jsgzpm:block/ancient_panel","dark":"jsgzpm:block/ancient_panel_dark"},
+  "elements": [
+    {"from":[0,0,0],"to":[16,4,16],"faces":{"down":{"texture":"#dark"},"up":{"texture":"#panel"},"north":{"texture":"#dark"},"south":{"texture":"#dark"},"west":{"texture":"#dark"},"east":{"texture":"#dark"}}},
+    {"from":[2,4,2],"to":[14,8,14],"faces":{"up":{"texture":"#panel"},"north":{"texture":"#panel"},"south":{"texture":"#panel"},"west":{"texture":"#panel"},"east":{"texture":"#panel"}}},
+    {"from":[4,8,4],"to":[12,9,12],"faces":{"up":{"texture":"#dark"},"north":{"texture":"#panel"},"south":{"texture":"#panel"},"west":{"texture":"#panel"},"east":{"texture":"#panel"}}}
+  ]
+}

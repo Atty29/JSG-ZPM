@@ -4,6 +4,12 @@
   "item.jsgzpm.crystal_binder": "Crystal Binder",
   "item.jsgzpm.zero_point_containment_matrix": "Zero-Point Containment Matrix",
   "item.jsgzpm.central_power_regulator": "Central Power Regulator",
+  "block.jsgzpm.atlantis_zpm_hub": "Atlantis ZPM Hub",
+  "block.jsgzpm.ancient_zpm_array": "Ancient ZPM Array",
+  "block.jsgzpm.ancient_zpm_column": "Ancient ZPM Column",
   "tooltip.jsgzpm.zpm.charge": "Charge: %s",
-  "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE"
+  "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE",
+  "message.jsgzpm.holder.inserted": "ZPM inserted into slot %s",
+  "message.jsgzpm.holder.removed": "ZPM removed from slot %s",
+  "message.jsgzpm.holder.toggled": "ZPM slot %s moving"
 }

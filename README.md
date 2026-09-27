@@ -4,9 +4,9 @@ JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)*
 
 This repository is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 2
+## Current status — Phase 3
 
-The Phase 1 foundation and Phase 2 Zero Point Module gameplay layer are now implemented.
+The Phase 1 foundation, Phase 2 Zero Point Module gameplay layer, and Phase 3 ZPM holder family are now implemented.
 
 Current features:
 
@@ -23,13 +23,22 @@ Current features:
 - staged component recipes using JSG and vanilla materials
 - custom final ZPM assembly recipe using two Basic, two Advanced and two Ultimate JSG energy crystals
 - energy stored in those six JSG crystals is inherited by the crafted ZPM, capped at the ZPM's configured capacity
+- Atlantis ZPM Hub with three independently controlled ZPM positions
+- Ancient ZPM Array as a physical three-block horizontal structure
+- Ancient ZPM Column as a physical three-block vertical structure
+- ZPMs may only be inserted/removed while their slot is raised
+- independent 20-tick raise/lower state machines for all three slots
+- lowered ZPMs provide Forge Energy through the holder and drain sequentially instead of all modules being flattened together
+- actively supplying lowered ZPMs enter a distinct supplying state for visual feedback
+- holder inventory/state/animation data persists through NBT and synchronises to clients
+- purpose-built first-pass Ancient-style holder textures and a new 3D ZPM item model; no JSG models/textures are copied
 - compatibility tags support the current `jsg` / `jsg_core` registry split without bundling JSG code or assets
 - dedicated-server-safe common/client separation
 - automated GitHub Actions build validation
 
-The current Phase 2 inventory models are deliberately temporary vanilla-backed placeholders. Original ZPM and component models/textures will replace them during the visual asset phase; no JSG models or textures are copied into this repository.
+The Phase 3 visual assets are an original first-pass implementation and can be refined as the art direction develops. The holder mechanics are now separated cleanly from later power-management logic.
 
-Not yet implemented: ZPM hubs/arrays/columns, the Zero Point Energy Generator, Atlantis Pegasus DHD, alarms, or final custom models/textures.
+Not yet implemented: cross-holder/large-bank Phase 4 power management, the Zero Point Energy Generator, Atlantis Pegasus DHD, or alarm system.
 
 ## Development dependency
 
