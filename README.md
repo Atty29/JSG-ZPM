@@ -4,19 +4,32 @@ JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)*
 
 This repository is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Phase 1 status
+## Current status — Phase 2
 
-Current foundation scope:
+The Phase 1 foundation and Phase 2 Zero Point Module gameplay layer are now implemented.
+
+Current features:
 
 - Minecraft 1.20.1 / Forge 47.4.x / Java 17
 - mod id: `jsgzpm`
 - explicit runtime dependency on Just Stargate Mod (`jsg`)
-- DeferredRegister scaffolding for items, blocks, block entities and menu types
-- server config scaffolding with default future ZPM capacity of `100,000,000,000 FE`
-- long-backed energy storage abstraction with safe Forge Energy compatibility
+- long-backed energy storage for capacities above the normal 32-bit Forge Energy range
+- server-configurable standard ZPM capacity, defaulting to `100,000,000,000 FE` (100 GFE)
+- Zero Point Module item with percentage and human-readable stored-energy tooltip
+- loose ZPMs expose their stored-energy state but cannot be charged/discharged through arbitrary generic FE item chargers; charging/discharging is reserved for JSG-ZPM infrastructure
+- Crystal Binder
+- Zero-Point Containment Matrix
+- Central Power Regulator
+- staged component recipes using JSG and vanilla materials
+- custom final ZPM assembly recipe using two Basic, two Advanced and two Ultimate JSG energy crystals
+- energy stored in those six JSG crystals is inherited by the crafted ZPM, capped at the ZPM's configured capacity
+- compatibility tags support the current `jsg` / `jsg_core` registry split without bundling JSG code or assets
 - dedicated-server-safe common/client separation
+- automated GitHub Actions build validation
 
-Phase 1 intentionally does **not** add the ZPM item, recipes, models, hubs, charger, DHD, or alarms yet.
+The current Phase 2 inventory models are deliberately temporary vanilla-backed placeholders. Original ZPM and component models/textures will replace them during the visual asset phase; no JSG models or textures are copied into this repository.
+
+Not yet implemented: ZPM hubs/arrays/columns, the Zero Point Energy Generator, Atlantis Pegasus DHD, alarms, or final custom models/textures.
 
 ## Development dependency
 
