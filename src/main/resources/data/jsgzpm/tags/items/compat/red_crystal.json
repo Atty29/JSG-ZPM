@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "jsg:red_crystal", "required": false },
+    { "id": "jsg_core:red_crystal", "required": false }
+  ]
+}
