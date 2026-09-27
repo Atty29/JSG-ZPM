@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "jsg:circuit_control_naquadah", "required": false },
+    { "id": "jsg_core:circuit_control_naquadah", "required": false }
+  ]
+}
