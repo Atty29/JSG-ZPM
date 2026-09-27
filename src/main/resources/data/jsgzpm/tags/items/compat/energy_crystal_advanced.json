@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "jsg:crystal_energy_advanced", "required": false },
+    { "id": "jsg_core:crystal_energy_advanced", "required": false }
+  ]
+}
