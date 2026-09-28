@@ -6,14 +6,16 @@
   "flip_v": false,
   "ambientocclusion": false,
   "textures": {
-    "panel": "jsgzpm:ancient/panel",
-    "trim": "jsgzpm:ancient/trim",
-    "recess": "jsgzpm:ancient/recess",
-    "binder": "jsgzpm:ancient/binder",
-    "crystal": "jsgzpm:ancient/crystal",
-    "regulator": "jsgzpm:ancient/regulator",
-    "light": "jsgzpm:ancient/light",
-    "particle": "jsgzpm:ancient/panel"
+    "panel": "jsgzpm:block/ancient/panel",
+    "trim": "jsgzpm:block/ancient/trim",
+    "recess": "jsgzpm:block/ancient/recess",
+    "binder": "jsgzpm:block/ancient/binder",
+    "crystal": "jsgzpm:block/ancient/crystal",
+    "crystal_warm": "jsgzpm:block/ancient/crystal_warm",
+    "crystal_pale": "jsgzpm:block/ancient/crystal_pale",
+    "regulator": "jsgzpm:block/ancient/regulator",
+    "light": "jsgzpm:block/ancient/light",
+    "particle": "jsgzpm:block/ancient/panel"
   },
   "parent": "minecraft:block/block",
   "display": {

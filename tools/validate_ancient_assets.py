@@ -1,19 +1,50 @@
 """Check the resource links and mesh data that Gradle compilation cannot check."""
 from pathlib import Path
+import argparse
+import hashlib
 import json
 import math
 import struct
 import sys
 import zipfile
 import zlib
+import urllib.request
 
 ROOT=Path(__file__).resolve().parents[1]
-ASSETS=ROOT/'src/main/resources/assets/jsgzpm'
+parser=argparse.ArgumentParser()
+parser.add_argument('--assets-root',type=Path,default=ROOT/'src/main/resources/assets/jsgzpm')
+parser.add_argument('--jar',action='store_true')
+parser.add_argument('--check-vanilla-atlas',action='store_true')
+options=parser.parse_args()
+ASSETS=options.assets_root
 required=set()
+
+# This project's model textures must use vanilla's block/item directory sources.
+# Presence in the JAR is insufficient: sprites outside the atlas appear magenta.
+atlas_prefixes=('block/','item/')
+if options.check_vanilla_atlas:
+    cache=ROOT/'build/asset-validation'
+    cache.mkdir(parents=True,exist_ok=True)
+    client=cache/'minecraft-1.20.1-client.jar'
+    manifest=json.load(urllib.request.urlopen('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json',timeout=60))
+    version=next(v for v in manifest['versions'] if v['id']=='1.20.1')
+    metadata=json.load(urllib.request.urlopen(version['url'],timeout=60))
+    download=metadata['downloads']['client']
+    if not client.exists() or hashlib.sha1(client.read_bytes()).hexdigest()!=download['sha1']:
+        client.write_bytes(urllib.request.urlopen(download['url'],timeout=60).read())
+    assert hashlib.sha1(client.read_bytes()).hexdigest()==download['sha1'], 'Invalid vanilla client download'
+    with zipfile.ZipFile(client) as archive:
+        sources=json.loads(archive.read('assets/minecraft/atlases/blocks.json'))['sources']
+    atlas_prefixes=tuple(s['prefix'] for s in sources if s['type'] in ('directory','minecraft:directory')
+                         and s['source'] in ('block','item') and s['prefix']==s['source']+'/')
+    assert set(atlas_prefixes)=={'block/','item/'}, sources
+    print('Verified block/item atlas directory sources against SHA-checked Minecraft 1.20.1 client.')
 
 def resource(ref, prefix='', suffix=''):
     namespace, name=ref.split(':',1)
     if namespace!='jsgzpm': return None
+    if prefix=='textures':
+        assert name.startswith(atlas_prefixes), f'Texture exists but is not covered by the block/item atlas: {ref}'
     path=ASSETS/prefix/(name+suffix)
     assert path.is_file(), f'Missing resource: {ref} ({path})'
     required.add(path)
@@ -71,7 +102,9 @@ for path in (ASSETS/'models').rglob('*.json'):
         assert 1.16 < bounds[1][1]-bounds[1][0] < 1.19
     print(f'{obj.name}: {len(faces)} faces, bounds {bounds}')
 
-for path in (ASSETS/'textures/ancient').glob('*.png'):
+textures=list((ASSETS/'textures/block/ancient').glob('*.png'))
+assert len(textures)==9, 'Expected nine Ancient material textures in the stitched block directory'
+for path in textures:
     raw=path.read_bytes(); assert raw[:8]==b'\x89PNG\r\n\x1a\n'
     width,height=struct.unpack('!II',raw[16:24]); assert width==height==32
     offset=8; compressed=b''
@@ -84,7 +117,7 @@ for path in (ASSETS/'textures/ancient').glob('*.png'):
         offset+=12+length
     assert len(zlib.decompress(compressed))==32*(1+32*3), path
 
-if '--jar' in sys.argv:
+if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'
     for jar in jars:
         with zipfile.ZipFile(jar) as archive:

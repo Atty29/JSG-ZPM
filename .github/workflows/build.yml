@@ -31,7 +31,7 @@ jobs:
         run: gradle build --stacktrace
 
       - name: Verify packaged model and texture resources
-        run: python3 tools/validate_ancient_assets.py --jar
+        run: python3 tools/validate_ancient_assets.py --jar --check-vanilla-atlas
 
       - name: Upload test JARs
         uses: actions/upload-artifact@v4
