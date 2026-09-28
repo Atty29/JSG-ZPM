@@ -50,6 +50,23 @@ def resource(ref, prefix='', suffix=''):
     required.add(path)
     return path
 
+def ray_hit(origin,direction,face):
+    # Moller-Trumbore, outward faces only: disappearing backfaces do not count.
+    def sub(a,b):return [a[i]-b[i] for i in range(3)]
+    def cross(a,b):return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+    def dot(a,b):return sum(x*y for x,y in zip(a,b))
+    for i in range(1,len(face)-1):
+        a,b,c=face[0],face[i],face[i+1]
+        e1,e2=sub(b,a),sub(c,a);h=cross(direction,e2);det=dot(e1,h)
+        if det<1e-9:continue
+        delta=sub(origin,a);u=dot(delta,h)/det
+        if not 0<=u<=1:continue
+        q=cross(delta,e1);v=dot(direction,q)/det
+        if v<0 or u+v>1:continue
+        t=dot(e2,q)/det
+        if 0<t<.8:return True
+    return False
+
 for path in (ASSETS/'models').rglob('*.json'):
     data=json.loads(path.read_text())
     if 'parent' in data: resource(data['parent'],'models','.json')
@@ -58,7 +75,7 @@ for path in (ASSETS/'models').rglob('*.json'):
     if data.get('loader')!='forge:obj': continue
     required.add(path)
     obj=resource(data['model'])
-    vertices=[]; uvs=[]; normals=[]; faces=[]; mats=set(); active=None
+    vertices=[]; uvs=[]; normals=[]; faces=[]; mats=set(); used_mats=set(); active=None
     for line in obj.read_text().splitlines():
         parts=line.split()
         if not parts: continue
@@ -75,7 +92,9 @@ for path in (ASSETS/'models').rglob('*.json'):
                 if ml.startswith('map_Kd '):
                     key=ml.split()[1]; assert key.startswith('#'), ml
                     resource(data['textures'][key[1:]],'textures','.png')
-        elif cmd=='usemtl': active=args[0]; assert active in mats, active
+        elif cmd=='usemtl':
+            active=args[0]; assert active in mats, active
+            used_mats.add(active)
         elif cmd=='f':
             assert active and len(args) in (3,4), line
             face=[]
@@ -93,6 +112,7 @@ for path in (ASSETS/'models').rglob('*.json'):
     bounds=[(min(v[i] for v in vertices),max(v[i] for v in vertices)) for i in range(3)]
     if obj.stem=='zero_point_module':
         assert abs(bounds[1][1]-bounds[1][0]-1.05)<1e-5
+        assert {'crystal_olive','crystal_red'} <= used_mats, 'Missing coloured crystal blades'
         # The gem face is flat; stepped crystal ends belong underneath it.
         for low,high,floor,ceiling in [(.07,.12,-.03,.04),(.13,.19,.11,.17),(.20,.25,.30,.37)]:
             ends=[v[1] for v in vertices if low<math.hypot(v[0]-.5,v[2]-.5)<high]
@@ -103,6 +123,13 @@ for path in (ASSETS/'models').rglob('*.json'):
         assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5
     else:
+        # Rays into each console's lower gap and upper recess sides must hit an
+        # outward-facing wall before reaching the hub centre or opposite side.
+        for angle in [-math.pi/2,math.pi/6,5*math.pi/6]:
+            nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
+            for lateral,y in [(0,.40),(-.12,.40),(.12,.40),(-.17,1.09),(.17,1.09),(0,1.09)]:
+                origin=(.5+nx+ux*lateral,y,.5+nz+uz*lateral)
+                assert any(ray_hit(origin,(-nx,0,-nz),f) for f in faces), ('Open console wall',angle,lateral,y)
         assert 1.45 < bounds[0][1]-bounds[0][0] < 1.56
         assert 1.38 < bounds[2][1]-bounds[2][0] < 1.50
         assert 1.16 < bounds[1][1]-bounds[1][0] < 1.19

@@ -14,10 +14,10 @@ ASSETS = ROOT / 'src/main/resources/assets/jsgzpm'
 PALETTE = {
     'panel': (105, 73, 55), 'trim': (139, 101, 77),
     'recess': (43, 32, 28), 'binder': (22, 24, 22),
-    'crystal': (187, 116, 22), 'crystal_warm': (151, 78, 17),
-    'crystal_pale': (205, 139, 35), 'regulator': (135, 37, 26),
+    'crystal': (220, 143, 25), 'crystal_warm': (184, 81, 12),
+    'crystal_pale': (249, 189, 53), 'regulator': (135, 37, 26),
     'light': (184, 207, 213),
-    'crystal_olive': (99, 105, 29), 'crystal_red': (139, 59, 23),
+    'crystal_olive': (45, 139, 42), 'crystal_red': (180, 35, 23),
 }
 TEXTURE_SIZE = 256
 
@@ -36,8 +36,15 @@ def png(path, name):
             shade=noise(x,y,11)*17+noise(x//3,y//3,23)*10+noise(x//13,y//13,7)*7
             shade+=4*math.sin(x*.043+y*.027)*math.cos(y*.061)
             if name.startswith('crystal'):
-                shade=shade*.55+11*math.sin(x*.036+y*.012)+7*math.cos(y*.047)
-                shade+=10*max(0,math.sin(x*.085-y*.023))**10
+                # Clean angular internal planes and thin bright reflections.
+                # No sinusoidal grain: that looked like wood stretched along blades.
+                u,v=x/(size-1),y/(size-1)
+                facet=math.floor(u*5+v*1.4)
+                shade=(-24,12,-7,30,-16,5,18)[facet%7]
+                shade+=18*(1-v)+noise(x//2,y//2,31)*2
+                reflection=abs(u-(.22+.10*v))
+                if reflection<.018:shade+=65*(1-reflection/.018)
+                if abs(u-(.73-.16*v))<.009:shade+=32
             elif name=='binder':shade*=.3
             elif name=='regulator':shade=shade*.3+12*math.sin(x/size*math.pi)*math.sin(y/size*math.pi)
             elif name=='light':shade=8+18*math.sin(x/size*math.pi)
@@ -116,6 +123,9 @@ class Mesh:
                 axis = max(range(3), key=lambda i: abs(normal[i]))
                 uvs = [((p[2] if axis == 0 else p[0]) / 1.6 + .1875,
                         (p[2] / 1.6 + .1875) if axis == 1 else (1-p[1]/1.2)) for p in pts]
+            elif mat.startswith('crystal') and abs(normal[1])<.9:
+                axis=0 if abs(normal[2])>abs(normal[0]) else 2
+                uvs=[((p[axis]-.22)/.56,1-(p[1]+.025)/1.05) for p in pts]
             elif normal[1] > .9 and min(p[1] for p in pts) > .95:
                 uvs = [((p[0]-.2)/.6,(p[2]-.2)/.6) for p in pts]
             indices = []
@@ -171,6 +181,10 @@ def build_zpm():
             # Unequal slanted tip planes produce the chipped crystal termination.
             levels[0]=[(x,y+.017*(.5+.5*math.sin(i+j*1.9)),z) for j,(x,y,z) in enumerate(levels[0])]
             material=['crystal','crystal_pale','crystal','crystal_warm'][i%4]
+            if course==2 and i in (1,5,9):material='crystal_olive'
+            elif course==2 and i in (3,7,11):material='crystal_red'
+            elif course==1 and i in (2,8):material='crystal_olive'
+            elif course==1 and i==5:material='crystal_red'
             for low,high in zip(levels,levels[1:]):
                 for j in range(5):
                     k=(j+1)%5
@@ -258,6 +272,21 @@ def build_hub():
     prism(m,inner,1.160,1.184,'trim','panel')
 
     for poly,(cx,cz) in zip([left,back,right],bays):
+        # Continuous closed lower shell behind the decorative plates. Short notch
+        # edges must be present even when too narrow to carry a relief panel.
+        for a,b in zip(poly,poly[1:]+poly[:1]):
+            if a==(0,0) or b==(0,0):continue
+            A=(.5+a[0]*.835,.5+a[1]*.835)
+            B=(.5+b[0]*.835,.5+b[1]*.835)
+            m.face([(A[0],.016,A[1]),(A[0],.925,A[1]),
+                    (B[0],.925,B[1]),(B[0],.016,B[1])],'panel')
+            # Shoulder seals the inset body to the overhanging skirt.
+            m.face([(A[0],.924,A[1]),(B[0],.924,B[1]),
+                    (b[0]+.5,.924,b[1]+.5),(a[0]+.5,.924,a[1]+.5)],'recess')
+        # Lower closure only: do not put a ceiling across the animated sockets.
+        for a,b in zip(poly,poly[1:]+poly[:1]):
+            m.face([(.5,.016,.5),(.5+a[0]*.835,.016,.5+a[1]*.835),
+                    (.5+b[0]*.835,.016,.5+b[1]*.835)],'recess') if a!=(0,0) and b!=(0,0) else None
         # Top skin has a true open socket and recessed dark shaft.
         outer=[]
         for a,b in zip(poly,poly[1:]+poly[:1]):
@@ -343,11 +372,12 @@ def build_hub():
         nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
         def transform(pts):return[(.5+ux*x+nx*z,y,.5+uz*x+nz*z) for x,y,z in pts]
         temp=Mesh()
+        temp.box((-.144,.016,.385),(.144,.851,.63),'panel')
         temp.box((-.13,.85,.43),(.13,1.05,.68),'panel')
         # Solid recess walls hide the lowered modules behind each console.
-        temp.box((-.144,1.05,.420),(.144,1.145,.441),'panel')
-        for x in [-.144,.128]:
-            temp.box((x,1.05,.441),(x+.016,1.145,.575),'panel')
+        temp.box((-.205,1.05,.420),(.205,1.143,.441),'panel')
+        for lo,hi in [(-.205,-.128),(.128,.205)]:
+            temp.box((lo,.85,.441),(hi,1.143,.575),'panel')
         temp.box((-.113,.867,.681),(.113,1.031,.687),'recess')
         # Frame and hexagonal centre on the vertical projecting face.
         for A,B in [((-.116,.871),(.116,.871)),((-.116,1.027),(.116,1.027)),

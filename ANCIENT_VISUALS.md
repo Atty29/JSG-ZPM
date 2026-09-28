@@ -12,7 +12,7 @@ The previous near-planar surface overlays have been replaced with closed extrude
 
 Hub bounds including relief: 1.530 × 1.470 × 1.168 blocks. Installed ZPM height remains 0.420 blocks with 0.300-block independent travel. Socket centres remain (-0.265,-0.204), (0,+0.246), (+0.265,-0.204) relative to the block centre facing north. Well radius is 0.136 blocks; mounted crown radius is approximately 0.110 blocks. Array/column/generator mounting compensation is preserved.
 
-The hub has 5,813 authored faces and the module 2,460. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
+The hub has 5,888 authored faces and the module 2,460. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
 
 ## Materials
 
@@ -24,13 +24,13 @@ Eleven original 256×256 textures live in `textures/block/ancient/`, within the 
 | trim | 139, 101, 77 |
 | recess | 43, 32, 28 |
 | binder | 22, 24, 22 |
-| crystal | 187, 116, 22 |
-| crystal_warm | 151, 78, 17 |
-| crystal_pale | 205, 139, 35 |
+| crystal | 220, 143, 25 |
+| crystal_warm | 184, 81, 12 |
+| crystal_pale | 249, 189, 53 |
 | regulator | 135, 37, 26 |
 | light | 184, 207, 213 |
-| crystal_olive | 99, 105, 29 |
-| crystal_red | 139, 59, 23 |
+| crystal_olive | 45, 139, 42 |
+| crystal_red | 180, 35, 23 |
 
 ## Preservation and verification
 
@@ -48,3 +48,10 @@ Inspect the new relief at eye level and from above, all four facings, raised/low
 The ZPM has 36 separate faceted blades in three concentric courses extending DOWN from the flat gem face. Inner blades extend furthest (nominal lower end -0.025), middle blades end at 0.12 and outer blades at 0.31 model units, with unequal bevelled ends. The broad amber gem face is coplanar at 1.012; only its fine black rings and red regulator sit slightly above it. The regulator remains at 1.025 and the lowest tip at -0.025, preserving the 0.42-block installed height and existing lift travel. All three courses clear the current sockets. This corrects the previous reversed interpretation, which stepped the gem end instead of the underside.
 
 Console placement uses a reflected local basis. Its faces now reverse winding so the outward walls and glyphs remain visible under back-face culling. Solid rear/side recess walls conceal lowered modules. The skirt and cooling ribs stop around each control opening rather than intersecting the lights and glyph deck. No textures, renderer transforms, animation code or gameplay systems change in this repair.
+
+
+## Crystal materials and sealed hub shell
+
+Amber, green and red blades use clean angular internal shading, narrow baked highlights and very low grain. Physical-coordinate UVs keep this shading continuous across side triangles. These opaque Minecraft materials suggest polished crystal without introducing translucency sorting or a new shader. The warm brown hub textures are unchanged.
+
+The hub has continuous backing around short perimeter edges, shoulders joining the inset body to the skirt, solid console supports and wider recess return walls. Backing is offset from existing panels to avoid coplanar overlap. The automated validator casts outward-face-only rays at 18 sample points across all three console areas; these checks fail on the prior hub and pass on the repair. They complement rather than replace live multi-angle inspection.

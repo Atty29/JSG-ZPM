@@ -168,3 +168,11 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Inspect the ZPM in inventory, in hand and raised: the gem face must be broad and flat; underneath it, the inner crystal course must extend furthest, with the outer courses shorter and their ends irregularly bevelled.
 - Exercise each bay independently through the full lift travel; check socket clearance at every position.
 - Automated resource validation checks the outer/middle/inner course heights and unchanged installed height. Live Minecraft validation remains required.
+
+
+### Coloured crystal and hub shell repair
+
+- Confirm green and red crystal blades appear among the amber from multiple angles, with clear facet highlights and no stretched wood-like grain.
+- Inspect below each of the three consoles and around its light recess from both sides: no ground, sky or blocks behind the hub should show through its body.
+- Confirm no flickering at the backing/relief seams while moving the camera, in daylight and darkness.
+- Verify the flat gem face, stepped underside and independent bay travel are unchanged.
