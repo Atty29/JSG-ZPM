@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "tools",
+  "pattern": [
+    " R ",
+    "ACA",
+    " R "
+  ],
+  "key": {
+    "R": { "item": "minecraft:redstone" },
+    "A": { "item": "minecraft:amethyst_shard" },
+    "C": { "item": "minecraft:compass" }
+  },
+  "result": {
+    "item": "jsgzpm:ancient_alarm_linker",
+    "count": 1
+  }
+}

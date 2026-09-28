@@ -4,6 +4,7 @@
   "item.jsgzpm.crystal_binder": "Crystal Binder",
   "item.jsgzpm.zero_point_containment_matrix": "Zero-Point Containment Matrix",
   "item.jsgzpm.central_power_regulator": "Central Power Regulator",
+  "item.jsgzpm.ancient_alarm_linker": "Ancient Alarm Linker",
   "block.jsgzpm.atlantis_zpm_hub": "Atlantis ZPM Hub",
   "block.jsgzpm.ancient_zpm_array": "Ancient ZPM Array",
   "block.jsgzpm.ancient_zpm_column": "Ancient ZPM Column",
@@ -12,6 +13,7 @@
   "block.jsgzpm.zero_point_generator_casing": "Zero Point Generator Casing",
   "block.jsgzpm.atlantis_pegasus_dhd": "Atlantis Pegasus DHD",
   "block.jsgzpm.atlantis_pegasus_dhd_part": "Atlantis Pegasus DHD Console",
+  "block.jsgzpm.atlantis_alarm_emitter": "Atlantis Alarm Emitter",
   "tooltip.jsgzpm.zpm.charge": "Charge: %s",
   "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE",
   "message.jsgzpm.holder.inserted": "ZPM inserted into slot %s",
@@ -39,5 +41,12 @@
   "message.jsgzpm.dhd.iris_open": "Stargate iris OPEN",
   "message.jsgzpm.dhd.general_alarm_on": "Atlantis general alarm ACTIVATED",
   "message.jsgzpm.dhd.general_alarm_off": "Atlantis general alarm cancelled",
-  "message.jsgzpm.dhd.alarms_reset": "Alarm controls reset"
+  "message.jsgzpm.dhd.alarms_reset": "Alarm controls reset",
+  "message.jsgzpm.alarm_linker.dhd_saved": "Alarm Linker stored Atlantis DHD at %s, %s, %s",
+  "message.jsgzpm.alarm_linker.no_dhd": "Linker has no stored Atlantis DHD — use it on the DHD first",
+  "message.jsgzpm.alarm_linker.wrong_dimension": "Stored DHD is in a different dimension",
+  "message.jsgzpm.alarm_linker.dhd_missing": "Stored Atlantis DHD is missing or not loaded",
+  "message.jsgzpm.alarm_linker.emitter_linked": "Alarm Emitter linked to the stored Atlantis DHD",
+  "message.jsgzpm.alarm_linker.emitter_cleared": "Alarm Emitter link cleared",
+  "message.jsgzpm.alarm_linker.memory_cleared": "Alarm Linker memory cleared"
 }

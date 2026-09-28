@@ -1,0 +1,7 @@
+{
+  "multipart": [
+    {
+      "apply": { "model": "jsgzpm:block/atlantis_alarm_emitter" }
+    }
+  ]
+}

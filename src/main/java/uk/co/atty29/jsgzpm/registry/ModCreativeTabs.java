@@ -29,6 +29,8 @@ public final class ModCreativeTabs {
                         output.accept(ModRegistries.ZERO_POINT_ENERGY_GENERATOR_CONTROLLER_ITEM.get());
                         output.accept(ModRegistries.ZERO_POINT_GENERATOR_CASING_ITEM.get());
                         output.accept(ModRegistries.ATLANTIS_PEGASUS_DHD_ITEM.get());
+                        output.accept(ModRegistries.ATLANTIS_ALARM_EMITTER_ITEM.get());
+                        output.accept(ModRegistries.ANCIENT_ALARM_LINKER.get());
                     })
                     .build()
     );
