@@ -43,3 +43,13 @@ Kd 1 1 1
 d 1
 map_Kd #light
 
+newmtl crystal_olive
+Kd 1 1 1
+d 1
+map_Kd #crystal_olive
+
+newmtl crystal_red
+Kd 1 1 1
+d 1
+map_Kd #crystal_red
+

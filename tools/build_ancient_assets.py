@@ -12,35 +12,36 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/jsgzpm'
 PALETTE = {
-    'panel': (139, 151, 158), 'trim': (177, 186, 190),
-    'recess': (39, 48, 55), 'binder': (24, 26, 28),
-    'crystal': (244, 174, 31), 'crystal_warm': (219, 119, 22), 'crystal_pale': (255, 214, 79), 'regulator': (210, 43, 24),
-    'light': (107, 179, 194),
+    'panel': (105, 73, 55), 'trim': (139, 101, 77),
+    'recess': (43, 32, 28), 'binder': (22, 24, 22),
+    'crystal': (187, 116, 22), 'crystal_warm': (151, 78, 17),
+    'crystal_pale': (205, 139, 35), 'regulator': (135, 37, 26),
+    'light': (184, 207, 213),
+    'crystal_olive': (99, 105, 29), 'crystal_red': (139, 59, 23),
 }
+TEXTURE_SIZE = 256
 
 
 def png(path, name):
-    size = 32
+    size = TEXTURE_SIZE
     rows = []
+    def noise(x,y,seed):
+        n=(x*374761393+y*668265263+seed*1442695041)&0xffffffff
+        n=((n^(n>>13))*1274126177)&0xffffffff
+        return ((n^(n>>16))&65535)/65535-.5
     for y in range(size):
         row = bytearray([0])
         for x in range(size):
-            noise = ((x * 17 + y * 29 + x * y * 3) % 7) - 3
-            shade = noise
-            if name in ('panel', 'trim', 'recess', 'binder'):
-                if x in (0, 31) or y in (0, 31): shade -= 22
-                if x == 1 or y == 1: shade += 15
-                if y in (15, 16) and 5 < x < 26: shade -= 10
-                if x == 7 and 7 < y < 13: shade -= 14
-            elif name.startswith('crystal'):
-                shade += [0, 12, 30, 18, -6, -20, -10, 0][x // 4]
-                shade += round(12 * math.sin(y * .19 + x * .09))
-                shade += 12 if (y + x // 8 * 3) % 16 < 2 else 0
-            elif name == 'regulator':
-                shade += 22 if x in (2, 3, 28, 29) else -4
-            else:
-                shade += 25 if 8 < x < 23 else -25
-            row.extend(max(0, min(255, v + shade)) for v in PALETTE[name])
+            # Original multi-scale mineral grain, without large painted panel outlines.
+            shade=noise(x,y,11)*17+noise(x//3,y//3,23)*10+noise(x//13,y//13,7)*7
+            shade+=4*math.sin(x*.043+y*.027)*math.cos(y*.061)
+            if name.startswith('crystal'):
+                shade=shade*.55+11*math.sin(x*.036+y*.012)+7*math.cos(y*.047)
+                shade+=10*max(0,math.sin(x*.085-y*.023))**10
+            elif name=='binder':shade*=.3
+            elif name=='regulator':shade=shade*.3+12*math.sin(x/size*math.pi)*math.sin(y/size*math.pi)
+            elif name=='light':shade=8+18*math.sin(x/size*math.pi)
+            row.extend(max(0,min(255,round(v+shade))) for v in PALETTE[name])
         rows.append(bytes(row))
     def chunk(tag, data):
         return struct.pack('!I', len(data)) + tag + data + struct.pack('!I', zlib.crc32(tag + data))
@@ -132,7 +133,7 @@ class Mesh:
 def model(stem, **extra):
     data = {'loader':'forge:obj', 'model':f'jsgzpm:models/{stem}.obj',
             'automatic_culling':False, 'shade_quads':True, 'flip_v':False,
-            'ambientocclusion':False,
+            'ambientocclusion':True,
             'textures':{m:f'jsgzpm:block/ancient/{m}' for m in PALETTE}}
     data['textures']['particle'] = 'jsgzpm:block/ancient/panel'
     data.update(extra)
@@ -144,14 +145,14 @@ def build_zpm():
     # Twelve irregular crystal lobes; inset alternating vertices make real grooves.
     # Authored from the supplied prop references, not sampled or traced.
     n=24
-    heights=[.025,.19,.41,.68,.91,1.0]
-    radii=[.14,.19,.211,.228,.253,.269]
+    heights=[.025,.19,.41,.72,.87,.94,1.0]
+    radii=[.158,.184,.190,.192,.195,.269,.269]
     rings=[]
     for k,(y,r) in enumerate(zip(heights,radii)):
         ring=[]
         for i in range(n):
             angle=i*2*math.pi/n
-            groove=1.0 if i%2==0 else .86
+            groove=1.0 if i%2==0 else .965
             variation=1+.025*math.sin(i*2.3+k*.9)
             ry=y
             if k==0: ry=-.025 if i==0 else .012+.043*(1+math.sin(i*1.7))/2
@@ -163,7 +164,7 @@ def build_zpm():
     for k,(low,high) in enumerate(zip(rings,rings[1:])):
         for i in range(n):
             j=(i+1)%n
-            material=['crystal','crystal_warm','crystal','crystal_pale'][(i//2+k)%4]
+            material=['crystal','crystal','crystal_warm','crystal_pale'][i//2%4]
             # Triangles preserve the crystalline, deliberately non-planar facets.
             m.face([low[i],high[i],high[j]],material)
             m.face([low[i],high[j],low[j]],material)
@@ -185,7 +186,7 @@ def build_zpm():
             p=[rings[k][i][v]*(1-f)+rings[k+1][j][v]*frac+rings[k][j][v]*(f-frac) for v in range(3)]
         p[0]+=lift*math.cos(a); p[2]+=lift*math.sin(a)
         return p
-    def seam(points, width=.023):
+    def seam(points, width=.034):
         for (t,a),(T,A) in zip(points,points[1:]):
             steps=max(2,math.ceil(abs(T-t)*5+abs(A-a)*12))
             for step in range(steps):
@@ -193,12 +194,14 @@ def build_zpm():
                 t0,t1=t+(T-t)*f,t+(T-t)*g
                 a0,a1=a+(A-a)*f,a+(A-a)*g
                 # Split at the surface to avoid ribbons tunnelling through grooves.
-                pts=[surface(t0,a0-width),surface(t1,a1-width),
-                     surface(t1,a1+width),surface(t0,a0+width)]
+                pts=[surface(t0,a0-width,.004),surface(t1,a1-width,.004),
+                     surface(t1,a1+width,.004),surface(t0,a0+width,.004)]
                 m.face(pts if t1 >= t0 else list(reversed(pts)),'binder')
     for i in range(12):
         a=i*math.pi/6
-        seam([(0,a),(.9,a+.05),(1.8,a-.05),(3.0,a+.07),(4,a),(5,a)])
+        seam([(0,a),(.9,a+.09),(1.8,a-.09),(3.0,a+.08),(4,a),(5,a),(6,a)])
+        for h in [1.3,2.3,3.5]:
+            seam([(h,a),(h+.25,a+math.pi/12),(h+.08,a+math.pi/6)])
         # Offset branch junctions form unequal polygon cells, not uniform X bands.
         if i%2==0:
             seam([(1.0+(i%3)*.12,a),(1.35+(i%3)*.12,a+math.pi/12),
@@ -212,23 +215,23 @@ def build_zpm():
         for step in range(8):
             f,g=step/8,(step+1)/8
             t,T=start+1.65*f,start+1.65*g
-            w=.06*min(1,f*5,(1-f)*5)
-            W=.06*min(1,g*5,(1-g)*5)
+            w=.11*min(1,f*5,(1-f)*5)
+            W=.11*min(1,g*5,(1-g)*5)
             if step==0:
                 pts=[surface(t,a,.006),surface(T,a-W,.006),surface(T,a+W,.006)]
             elif step==7:
                 pts=[surface(t,a-w,.006),surface(T,a,.006),surface(t,a+w,.006)]
             else:
                 pts=[surface(t,a-w,.006),surface(T,a-W,.006),surface(T,a+W,.006),surface(t,a+w,.006)]
-            m.face(pts,'binder')
+            m.face(pts,'crystal_olive' if i%2==0 else 'crystal_red')
     # Glowing amber crown divided by fine concentric rings and radial binder spokes.
-    for radius in [.087,.17,.238]:
-        m.ring(.5,.5,1.018,radius-.0035,radius+.0035,'binder',n=24)
-    for i in range(12):
-        a=i*math.pi/6
+    for radius in [.085,.168]:
+        m.ring(.5,.5,1.018,radius-.006,radius+.006,'binder',n=24)
+    for i in range(8):
+        a=i*math.pi/4
         def crown(r,theta):return (.5+r*math.cos(theta),1.019,.5+r*math.sin(theta))
-        m.face([crown(.056,a-.018),crown(.056,a+.018),
-                crown(.265,a+.018),crown(.265,a-.018)],'binder')
+        m.face([crown(.056,a-.030),crown(.056,a+.030),
+                crown(.265,a+.030),crown(.265,a-.030)],'binder')
     m.lathe(.5,.5,[(1.015,.062),(1.022,.057)],'binder',n=16)
     m.lathe(.5,.5,[(1.022,.047),(1.025,.039)],'regulator',n=16)
     m.save('item/zero_point_module')
@@ -242,98 +245,150 @@ def build_zpm():
         'thirdperson_lefthand':{'translation':[0,2,0],'scale':[.3,.3,.3]}})
 
 
+def prism(mesh, poly, low, high, material, side=None):
+    """Closed extruded polygon; use convex or star-shaped polygons with a central kernel."""
+    area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(poly,poly[1:]+poly[:1]))
+    if area<0:poly=list(reversed(poly))
+    cx=sum(p[0] for p in poly)/len(poly);cz=sum(p[1] for p in poly)/len(poly)
+    for a,b in zip(poly,poly[1:]+poly[:1]):
+        mesh.face([(a[0],low,a[1]),(a[0],high,a[1]),(b[0],high,b[1]),(b[0],low,b[1])],side or material)
+        mesh.face([(cx,high,cz),(b[0],high,b[1]),(a[0],high,a[1])],material)
+        mesh.face([(cx,low,cz),(a[0],low,a[1]),(b[0],low,b[1])],side or material)
+
+
+def stroke(mesh,a,b,width,low,high,material,side=None):
+    dx,dz=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dz)
+    nx,nz=dz/length*width/2,-dx/length*width/2
+    prism(mesh,[(a[0]+nx,a[1]+nz),(b[0]+nx,b[1]+nz),
+                (b[0]-nx,b[1]-nz),(a[0]-nx,a[1]-nz)],low,high,material,side)
+
+
 def build_hub():
     m=Mesh()
-    # Clipped triangular table, partitioned into three independently occupied bays.
-    left=[(0,0),(-.385,.13),(-.744,-.50),(-.61,-.712),(0,-.712)]
+    # Three wing-shaped regions with notched gaps for the projecting controls.
+    left=[(0,0),(-.20,.25),(-.38,.28),(-.72,.02),(-.72,-.34),
+          (-.47,-.69),(-.17,-.69),(-.13,-.49),(0,-.49)]
     right=[(-x,z) for x,z in reversed(left)]
-    back=[(0,0),(.385,.13),(.12,.62),(0,.712),(-.12,.62),(-.385,.13)]
-    bays=[(-.265,-.204),(.0,.246),(.265,-.204)]
-    def top_line(a,b,width,y,material):
-        dx,dz=b[0]-a[0],b[1]-a[1]
-        length=math.hypot(dx,dz); nx,nz=dz/length*width/2,-dx/length*width/2
-        m.face([(a[0]+.5+nx,y,a[1]+.5+nz),(a[0]+.5-nx,y,a[1]+.5-nz),
-                (b[0]+.5-nx,y,b[1]+.5-nz),(b[0]+.5+nx,y,b[1]+.5+nz)],material)
-    # A small six-spoke junction and angular inset tracks, authored as geometry.
-    for radius,y,material in [(.126,1.162,'recess'),(.110,1.164,'trim')]:
-        star=[]
-        for i in range(12):
-            a=i*math.pi/6
-            r=radius if i%2==0 else radius*.38
-            star.append((r*math.cos(a)+.5,y,r*math.sin(a)+.445))
-        for i in range(12):m.face([(.5,y,.445),star[(i+1)%12],star[i]],material)
+    back=[(0,0),(.20,.25),(.32,.43),(.22,.69),(-.22,.69),(-.32,.43),(-.20,.25)]
+    bays=[(-.265,-.204),(0,.246),(.265,-.204)]
+    def world(p):return(p[0]+.5,p[1]+.5)
+    # Six broad, solid spokes. Two levels provide a dark plinth and raised brown face.
+    star=[]
+    for i in range(24):
+        a=i*math.pi/12
+        r=.175 if i%4 in (0,1) else .064
+        star.append((.5+r*math.cos(a),.45+r*math.sin(a)))
+    prism(m,star,1.145,1.161,'recess')
+    inner=[(.5+(x-.5)*.9,.45+(z-.45)*.9) for x,z in star]
+    prism(m,inner,1.160,1.184,'trim','panel')
+
     for poly,(cx,cz) in zip([left,back,right],bays):
-        for a,b in zip(poly,poly[1:]+poly[:1]):
-            if a == (0,0) or b == (0,0):continue
-            top_line((a[0]*.94,a[1]*.94),(b[0]*.94,b[1]*.94),.016,1.162,'recess')
-            top_line((a[0]*.905,a[1]*.905),(b[0]*.905,b[1]*.905),.009,1.164,'trim')
-        # Geometric arrow detailing points outwards from each socket.
-        length=math.hypot(cx,cz); ux,uz=cx/length,cz/length
-        def mark(forward,side):return (cx+ux*forward-uz*side,cz+uz*forward+ux*side)
-        for a,b in [(mark(.20,-.065),mark(.30,-.045)),(mark(.30,-.045),mark(.36,0)),
-                    (mark(.36,0),mark(.30,.045)),(mark(.30,.045),mark(.20,.065))]:
-            top_line(a,b,.019,1.163,'recess')
-            top_line(a,b,.009,1.165,'trim')
-        # External relief: raised frames, recessed seams and stepped foot plates.
-        for a,b in zip(poly,poly[1:]+poly[:1]):
-            if a == (0,0) or b == (0,0): continue
-            dx,dz=b[0]-a[0],b[1]-a[1]
-            length=math.hypot(dx,dz)
-            nx,nz=dz/length,-dx/length
-            def plate(t0,t1,y0,y1,depth,mat):
-                x,z=a[0]*.84+.5+nx*depth,a[1]*.84+.5+nz*depth
-                X,Z=dx*.84,dz*.84
-                m.face([(x+X*t0,y0,z+Z*t0),(x+X*t0,y1,z+Z*t0),
-                        (x+X*t1,y1,z+Z*t1),(x+X*t1,y0,z+Z*t1)],mat)
-            plate(.08,.92,.05,.90,.004,'recess')
-            plate(.14,.86,.10,.84,.007,'panel')
-            plate(.12,.18,.08,.86,.010,'trim')
-            plate(.82,.88,.08,.86,.010,'trim')
-            plate(.22,.78,.18,.20,.011,'recess')
-            plate(.22,.78,.70,.72,.011,'recess')
-            plate(.36,.42,.25,.62,.011,'recess')
-            plate(.42,.65,.60,.63,.011,'recess')
-            plate(.0,1.0,.016,.065,.012,'trim')
-        for a,b in zip(poly,poly[1:]+poly[:1]):
-            if a == (0,0) or b == (0,0): continue
-            m.face([(.5,.016,.5),(a[0]*.84+.5,.016,a[1]*.84+.5),
-                    (b[0]*.84+.5,.016,b[1]*.84+.5)],'recess')
-        # Subdivide straight outer edges; join to a circular inner shaft.
+        # Top skin has a true open socket and recessed dark shaft.
         outer=[]
         for a,b in zip(poly,poly[1:]+poly[:1]):
-            for t in range(4): outer.append((a[0]+(b[0]-a[0])*t/4,a[1]+(b[1]-a[1])*t/4))
+            for i in range(4):outer.append((a[0]+(b[0]-a[0])*i/4,a[1]+(b[1]-a[1])*i/4))
         for i,(x,z) in enumerate(outer):
             X,Z=outer[(i+1)%len(outer)]
-            def inner(px,pz):
-                a=math.atan2(pz-cz,px-cx)
-                return (cx+.145*math.cos(a),cz+.145*math.sin(a))
-            ix,iz=inner(x,z); jx,jz=inner(X,Z)
-            def p(x,y,z):return (x+.5,y,z+.5)
-            # Polygon winding is CCW in XZ; reverse for upward facing surfaces.
-            m.face([p(ix,1.16,iz),p(jx,1.16,jz),p(X,1.16,Z),p(x,1.16,z)],'panel')
-            m.face([p(ix,.76,iz),p(jx,.76,jz),p(jx,1.16,jz),p(ix,1.16,iz)],'recess')
-            m.face([p(x,.94,z),p(x,1.16,z),p(X,1.16,Z),p(X,.94,Z)],'trim')
-            # Recessed column follows the table's outline and keeps its three-lobed silhouette.
-            m.face([p(x*.84,.016,z*.84),p(x*.84,.94,z*.84),p(X*.84,.94,Z*.84),p(X*.84,.016,Z*.84)],'panel')
-            # Ribbed skirt around external perimeter only.
-            if abs(x)+abs(z)>.55 and abs(X)+abs(Z)>.55:
-                mx,mz=(x+X)/2,(z+Z)/2
-                m.box((mx+.485,.935,mz+.485),(mx+.515,1.18,mz+.515),'recess')
-        m.lathe(cx+.5,cz+.5,[(.75,.144),(.765,.144)],'recess')
-        m.ring(cx+.5,cz+.5,1.181,.145,.176,'trim')
-        # Three external vertical frame rails and stepped foot around each bay.
-        angle=math.atan2(cz,cx)
-        x,z=cx+.20*math.cos(angle)+.5,cz+.20*math.sin(angle)+.5
-        m.box((x-.055,.02,z-.055),(x+.055,.945,z+.055),'recess')
-        for y in [.10,.28,.46,.64,.82]:
-            m.box((x-.062,y,z-.062),(x+.062,y+.025,z+.062),'trim')
-        # Restrained socket status accent, not a large luminous tabletop panel.
-        m.box((cx+.475,1.179,cz+.662),(cx+.525,1.184,cz+.668),'light')
+            def inner(x,z):
+                a=math.atan2(z-cz,x-cx)
+                return (cx+.136*math.cos(a),cz+.136*math.sin(a))
+            ix,iz=inner(x,z);jx,jz=inner(X,Z)
+            m.face([(ix+.5,1.145,iz+.5),(jx+.5,1.145,jz+.5),(X+.5,1.145,Z+.5),(x+.5,1.145,z+.5)],'panel')
+            m.face([(ix+.5,.76,iz+.5),(jx+.5,.76,jz+.5),(jx+.5,1.145,jz+.5),(ix+.5,1.145,iz+.5)],'recess')
+        m.lathe(cx+.5,cz+.5,[(.75,.135),(.761,.135)],'recess')
+        m.ring(cx+.5,cz+.5,1.146,.136,.148,'recess')
+        # Subtle bevel lip around each well (not a large white ring).
+        m.ring(cx+.5,cz+.5,1.148,.136,.140,'trim')
+        for a,b in zip(poly,poly[1:]+poly[:1]):
+            if a==(0,0) or b==(0,0):continue
+            dx,dz=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dz)
+            ux,uz=dx/length,dz/length;nx,nz=uz,-ux
+            # Solid table skirt and dense brown cooling ribs; gaps reveal the dark back.
+            if length >= .25:
+                stroke(m,world(a),world(b),.040,.905,1.145,'panel','recess')
+                count=max(2,round(length/.045))
+                for i in range(count):
+                    t=(i+.5)/count
+                    x,z=a[0]+dx*t+.5,a[1]+dz*t+.5
+                    stroke(m,(x+nx*.017-ux*.011,z+nz*.017-uz*.011),
+                           (x+nx*.017+ux*.011,z+nz*.017+uz*.011),.056,.91,1.158,'panel','panel')
+            # Raised continuous top perimeter trim, deliberately several pixels high.
+            stroke(m,world((a[0]*.93,a[1]*.93)),world((b[0]*.93,b[1]*.93)),.018,1.145,1.163,'trim','panel')
+            # Each outer wall is a closed dark backing plus substantial inset plates.
+            if length<.17:continue
+            mx,mz=(a[0]+b[0])*.42+.5,(a[1]+b[1])*.42+.5
+            L=length*.84
+            def wall(poly2,low,high,mat,side=None):
+                temp=Mesh();prism(temp,poly2,low,high,mat,side)
+                for pts,material in temp.faces:
+                    m.face([(mx+ux*u+nx*d,y,mz+uz*u+nz*d) for u,d,y in pts],material)
+            wall([(-L/2,.016),(L/2,.016),(L/2,.923),(-L/2,.923)],-.02,.0,'recess')
+            panel=[(-L*.46,.04),(L*.23,.04),(L*.46,.18),(L*.46,.73),(-L*.46,.885)]
+            wall(panel,.002,.037,'panel','recess')
+            # Angular relief channels and a smaller inset plate, with exposed depth.
+            inner=[(-L*.39,.11),(L*.17,.11),(L*.35,.22),(L*.35,.66),(-L*.39,.79)]
+            wall(inner,.038,.052,'trim','recess')
+            inset=[(-L*.35,.14),(L*.14,.14),(L*.30,.24),(L*.30,.62),(-L*.35,.74)]
+            wall(inset,.053,.059,'panel','recess')
+            for sign in [-1,1]:
+                u=sign*L*.47
+                wall([(u-.012,.025),(u+.012,.025),(u+.012,.90),(u-.012,.90)],.005,.052,'panel','recess')
+            # Stepped secondary rail, distinct from the inset plate.
+            path=[(-L*.13,.16),(-L*.13,.33),(-L*.03,.39),(-L*.03,.51),(-L*.13,.56),(-L*.13,.70)]
+            for A,B in zip(path,path[1:]):
+                du,dy=B[0]-A[0],B[1]-A[1];le=math.hypot(du,dy)
+                wu,wy=dy/le*.012,-du/le*.012
+                wall([(A[0]+wu,A[1]+wy),(B[0]+wu,B[1]+wy),(B[0]-wu,B[1]-wy),(A[0]-wu,A[1]-wy)],.060,.077,'trim','panel')
+        # Raised arrow emblems point away from the socket, with a separate terminal hexagon.
+        length=math.hypot(cx,cz);ux,uz=cx/length,cz/length
+        def mark(f,s):return(cx+.5+ux*f-uz*s,cz+.5+uz*f+ux*s)
+        for A,B in [(mark(.11,-.18),mark(.29,-.12)),(mark(.29,-.12),mark(.34,0)),
+                    (mark(.34,0),mark(.29,.12)),(mark(.29,.12),mark(.11,.18)),
+                    (mark(.11,.18),mark(.19,.05))]:
+            stroke(m,A,B,.037,1.145,1.174,'trim','panel')
+        h=mark(.40,0)
+        points=[(h[0]+.046*math.cos(i*math.pi/3),h[1]+.046*math.sin(i*math.pi/3)) for i in range(6)]
+        for A,B in zip(points,points[1:]+points[:1]):stroke(m,A,B,.012,1.145,1.171,'trim','panel')
+
+    # Three recessed consoles at the gaps: a real projecting box, framed hexagon,
+    # cool white inward-facing light strips and original geometric glyph relief.
+    for angle in [-math.pi/2,math.pi/6,5*math.pi/6]:
+        nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
+        def transform(pts):return[(.5+ux*x+nx*z,y,.5+uz*x+nz*z) for x,y,z in pts]
+        temp=Mesh()
+        temp.box((-.13,.85,.43),(.13,1.05,.68),'panel')
+        temp.box((-.113,.867,.681),(.113,1.031,.687),'recess')
+        # Frame and hexagonal centre on the vertical projecting face.
+        for A,B in [((-.116,.871),(.116,.871)),((-.116,1.027),(.116,1.027)),
+                    ((-.116,.871),(-.116,1.027)),((.116,.871),(.116,1.027))]:
+            temp.box((min(A[0],B[0])-.005,min(A[1],B[1])-.005,.687),
+                     (max(A[0],B[0])+.005,max(A[1],B[1])+.005,.700),'trim')
+        hexagon=[(.053*math.cos(i*math.pi/3),.949+.039*math.sin(i*math.pi/3)) for i in range(6)]
+        for A,B in zip(hexagon,hexagon[1:]+hexagon[:1]):
+            strip=Mesh();stroke(strip,A,B,.008,.687,.701,'trim','panel')
+            for pts,mat in strip.faces:temp.face([(x,z,y) for x,y,z in reversed(pts)],mat)
+        for low,high in [((-.112,.945,.687),(-.053,.953,.701)),((.053,.945,.687),(.112,.953,.701)),
+                         ((-.004,.988,.687),(.004,1.027,.701)),((-.004,.871,.687),(.004,.910,.701))]:
+            temp.box(low,high,'trim')
+        for x in [-.128,.116]:temp.box((x,1.055,.45),(x+.012,1.079,.57),'light')
+        temp.box((-.12,1.055,.442),(.12,1.079,.454),'light')
+        # Not traced glyphs: original short angular bars in two rows.
+        for row in range(2):
+            for col in range(6):
+                x=-.10+col*.036;z=.585+row*.043
+                temp.box((x,1.05,z),(x+.024,1.063,z+.006),'trim')
+                temp.box((x+(col%2)*.018,1.05,z),(x+(col%2)*.018+.006,1.063,z+.026),'trim')
+                if (col+row)%3!=0:temp.box((x+.009,1.05,z+.019),(x+.029,1.063,z+.025),'trim')
+        for pts,mat in temp.faces:m.face(transform(pts),mat)
     m.save('block/atlantis_zpm_hub')
     model('block/atlantis_zpm_hub',parent='minecraft:block/block',display={
         'gui':{'rotation':[30,225,0],'translation':[0,-1,0],'scale':[.5,.5,.5]},
-        'ground':{'scale':[.25,.25,.25]},
-        'fixed':{'scale':[.5,.5,.5]},
+        'ground':{'scale':[.25,.25,.25]},'fixed':{'scale':[.5,.5,.5]},
+        'thirdperson_righthand':{'rotation':[75,45,0],'scale':[.3,.3,.3]}})
+    # Declare the custom geometry explicitly for the inventory item as well.
+    model('item/atlantis_zpm_hub',**{'model':'jsgzpm:models/block/atlantis_zpm_hub.obj'},parent='minecraft:block/block',display={
+        'gui':{'rotation':[30,225,0],'translation':[0,-1,0],'scale':[.5,.5,.5]},
+        'ground':{'scale':[.25,.25,.25]},'fixed':{'scale':[.5,.5,.5]},
         'thirdperson_righthand':{'rotation':[75,45,0],'scale':[.3,.3,.3]}})
 
 

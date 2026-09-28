@@ -1,53 +1,43 @@
-# Ancient hardware visual contract
+# Classic Ancient visual contract
 
-This pass replaces the Zero Point Module and Atlantis ZPM Hub placeholders with original, reproducible meshes and textures. All gameplay systems and the released-JSG runtime compatibility hotfix remain in place. The only interaction adjustment is mapping hub clicks to the visible, rotated bay centres. Slot numbering, insert/remove/toggle operations, independent animation progress, energy and bank selection are unchanged.
+The user's supplied JSG 1.12 screenshots are the primary appearance target. They supersede the earlier cool-grey, simplified triangular interpretation: use warm brown, finely mottled metal; a notched three-wing hub; substantial raised emblems and dense ribs; recessed side panels; projecting consoles with embossed original glyphs and pale lights; and a ZPM with a broad collar, dense dark lattice and muted olive/red facets.
 
-## Reference and authorship
+## Original authorship
 
-Visual reference: [classic JSG 1.12.2](https://github.com/Tau-ri-Dev/Mod-JSG-1.12.2/tree/4f35bf464558c44f6f78506ca45430f54a3559e1), inspected outside this repository. Measurements came from the bounds of `models/tesr/zpm/zpm.obj`, `pg_zpm_hub.obj` and the transforms in `ZPMHubRenderer.java`. The old texture sheets and a local shape preview informed material and silhouette decisions only. No old OBJ vertices, topology, UVs, texture pixels, files or renderer code were copied into these assets.
+The classic source at https://github.com/Tau-ri-Dev/Mod-JSG-1.12.2/tree/4f35bf464558c44f6f78506ca45430f54a3559e1 was inspected outside this repository for dimensions and visual reference. The user also supplied classic in-game screenshots, an MGM Tech Journal image and prop photographs. No source OBJ vertices, topology, UVs, texture pixels or files are copied, traced or packaged. The deterministic standard-library generator reads no reference files. The reconstruction aims for a close visual match; it is not asserted to be pixel-identical.
 
-The user-supplied MGM Tech Journal and prop design/finished-prop photographs additionally guide the revised crystal lobes, amber crown, thin lattice, red regulator and triangular table detailing. No image pixels are sampled, traced or packaged.
+## Solid detail and dimensions
 
-`tools/build_ancient_assets.py` authors every mesh vertex, UV and texture pixel from primitives and a hand-selected palette, with no external input files or packages. The output is original artwork inspired by these references; it is not a conversion, recolour or claim of pixel-perfect reproduction. Forge's built-in OBJ loader supports the faceted shapes and genuinely open wells without linking any JSG classes.
+The previous near-planar surface overlays have been replaced with closed extruded geometry: layered side panels extend up to 0.077 blocks from their dark backing, top symbols stand roughly 0.03 blocks above the table, skirt ribs have distinct side faces and three control boxes project from notched gaps. The central six-spoke emblem has a dark plinth and a raised brown face. The console relief contains original geometric glyphs, not copied lettering. The item model declares its OBJ geometry explicitly for inventory rendering.
 
-| Measurement | Classic reference | Recreated asset |
-| --- | --- | --- |
-| Hub width/depth/height | 1.487 / 1.424 / 1.169 blocks | 1.488 / 1.443 / 1.168 blocks, including skirt ribs |
-| Installed ZPM width/depth/height | 0.220 / 0.216 / 0.420 blocks | 0.215 / 0.216 / 0.420 blocks |
-| Hub lift travel | 0.30 blocks | 0.30 blocks per independent slot |
-| Installed vertical extent, lowered | approximately 0.767–1.188 | 0.768–1.188 |
-| Installed vertical extent, raised | approximately 1.067–1.488 | 1.068–1.488 |
+Hub bounds including relief: 1.530 × 1.470 × 1.168 blocks. Installed ZPM height remains 0.420 blocks with 0.300-block independent travel. Socket centres remain (-0.265,-0.204), (0,+0.246), (+0.265,-0.204) relative to the block centre facing north. Well radius is 0.136 blocks; mounted crown radius is approximately 0.110 blocks. Array/column/generator mounting compensation is preserved.
 
-The classic mesh has an off-centre origin. This recreation centres the item and uses a nearly symmetric triangular bay layout. Hub bay centres, relative to the block centre when facing north, are (-0.265,-0.204), (0,+0.246), (+0.265,-0.204). `HubGeometry` shares these positions between rendering and click selection. Table shaft radius is 0.145 blocks; the mounted crown radius is 0.110. The module item has identity FIXED transforms so holder scale has an explicit meaning. Array/column and generator renderer scales compensate for the new item height and retain their previous installed heights.
+The hub has 5,807 authored faces and the module 1,484. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
 
-## Reusable materials
+## Materials
 
-Seven 32×32 original textures live in `textures/block/ancient/`. New hardware can reference these names directly from its model JSON/MTL:
+Eleven original 256×256 textures live in `textures/block/ancient/`, within the default Minecraft atlas coverage. Multi-scale deterministic grain supplies fine mineral/weathering variation; silhouettes, panel relief and motifs come from geometry rather than painted outlines. Future Array, Column, Controller, Generator, Pegasus DHD and Alarm Emitter models should reuse this material vocabulary. Their body models are not replaced in this pass.
 
-| Material | Base RGB | Use |
-| --- | --- | --- |
-| panel | 139,151,158 | Muted Ancient grey-blue stone-metal |
-| trim | 177,186,190 | Raised edges, frame rails, socket lips |
-| recess | 39,48,55 | Shafts, machinery, inset seams |
-| binder | 24,26,28 | ZPM lattice and dark fittings |
-| crystal | 244,174,31 | Main amber crystal |
-| crystal_warm | 219,119,22 | Deep amber facets |
-| crystal_pale | 255,214,79 | Pale gold facets and crown |
-| regulator | 210,43,24 | Restrained red crown regulator |
-| light | 107,179,194 | Small cyan indicators |
+| Material | Base RGB |
+| --- | --- |
+| panel | 105, 73, 55 |
+| trim | 139, 101, 77 |
+| recess | 43, 32, 28 |
+| binder | 22, 24, 22 |
+| crystal | 187, 116, 22 |
+| crystal_warm | 151, 78, 17 |
+| crystal_pale | 205, 139, 35 |
+| regulator | 135, 37, 26 |
+| light | 184, 207, 213 |
+| crystal_olive | 99, 105, 29 |
+| crystal_red | 139, 59, 23 |
 
-The user-requested cool grey palette intentionally replaces the classic hub sheet's warmer brown cast. Pixel shading is restrained and deterministic. Geometry supplies irregular crystal lobes, fine binder cells, concentric crown rings, pointed dark fittings, the clipped triangular tabletop, inset tracks, a six-spoke junction, recessed panel frames, stepped feet and ribbed skirt. Existing active-module full-bright behaviour is preserved; the new textures do not introduce shader or emissive-layer dependencies.
+## Preservation and verification
 
-Future Ancient ZPM Array, Ancient ZPM Column, Ancient Power Controller, Zero Point Energy Generator, Pegasus DHD and Alarm Emitter models should reuse this palette, scale their pixel density consistently, and use stepped frames and dark recesses with sparse cyan indicators. This pass does not replace their body models or legacy shared textures. They display the recreated ZPM wherever they already render the module item.
+No recipes, energy logic, balance, block-entity state, bank modes, alarms, gate integration, runtime dependency or released-JSG hotfix code is changed by this relief revision. The previous independent slot animations and facing-aware click mapping remain intact.
 
-## Verification and remaining runtime checks
+Regenerate with `python tools/build_ancient_assets.py`. Validate with `python tools/validate_ancient_assets.py --check-vanilla-atlas`. CI compiles with Java 17 / Gradle 8.14.4 and adds `--jar` to check exact packaged resources. Checks cover OBJ references, normals, nondegenerate faces, dimensions, crown/well clearance, PNG integrity and actual atlas directory coverage against Mojang's SHA-checked 1.20.1 client.
 
-Run `python tools/build_ancient_assets.py` to regenerate, and `python tools/validate_ancient_assets.py` to check resource links, OBJ material/vertex/UV/normal references, nondegenerate faces, dimensions, socket clearance and PNG integrity. The generator requires only Python's standard library. CI runs the validator before compilation, builds with Java 17 / Gradle 8.14.4, then runs `--jar --check-vanilla-atlas` to verify exact resource bytes in the test JAR and confirm sprite directory coverage against the SHA-checked official Minecraft 1.20.1 client atlas definition.
+The original f228a00 texture-folder error remains fixed: sprite files and references use `block/ancient/`. The validator rejects the former `ancient/` paths even when PNGs exist in the JAR. The user has confirmed textures render in-game after this correction.
 
-These checks and the software asset preview do not replace a Forge client model bake or an in-game test. On a released-JSG installation, check inventory/hand/ground views, resource reload (F3+T), all four hub facings, each slot independently raised/lowered/transitioning, charged and empty modules, neighbour placement, and the existing array/column/generator mounts. Keep the full gameplay regression checklist in TESTING.md. Hub collision and placement remain the original single-block footprint; the classic-size visual table overhangs it. No recipes, balance, energy logic, alarms, bank modes or gate integration changed.
-
-## Missing-texture correction
-
-The first test build rendered magenta/black despite valid OBJ geometry and packaged PNGs. Its `textures/ancient/` directory was not covered by vanilla 1.20.1's block/item atlas sources. All new sprite resources now live under `textures/block/ancient/`, and every model reference uses `jsgzpm:block/ancient/...`. The MTL aliases resolve through these updated model texture dictionaries.
-
-The validator now rejects project model sprites outside the block/item directories, even if their files exist. A regression run against commit f228a00 reproduced the old failure (`jsgzpm:ancient/panel` is not covered by the atlas); the corrected assets pass. CI also verifies the actual atlas directory sources using Mojang's SHA-checked client archive. This establishes resource coverage, not an in-game model-bake or screenshot test. A fresh client check remains necessary.
+Inspect the new relief at eye level and from above, all four facings, raised/lowered/transitioning independent bays, inventory and hand views, and F3+T. Software previews and CI do not establish identical in-game lighting or visual acceptance. TESTING.md retains the gameplay/runtime checklist.

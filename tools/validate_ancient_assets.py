@@ -93,20 +93,20 @@ for path in (ASSETS/'models').rglob('*.json'):
     bounds=[(min(v[i] for v in vertices),max(v[i] for v in vertices)) for i in range(3)]
     if obj.stem=='zero_point_module':
         assert abs(bounds[1][1]-bounds[1][0]-1.05)<1e-5
-        # Installed module clears a 0.145-radius well at every height.
-        assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.145
+        # Installed module clears a 0.136-radius well at every height.
+        assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5
     else:
-        assert 1.48 < bounds[0][1]-bounds[0][0] < 1.53
-        assert 1.42 < bounds[2][1]-bounds[2][0] < 1.46
+        assert 1.45 < bounds[0][1]-bounds[0][0] < 1.56
+        assert 1.38 < bounds[2][1]-bounds[2][0] < 1.50
         assert 1.16 < bounds[1][1]-bounds[1][0] < 1.19
     print(f'{obj.name}: {len(faces)} faces, bounds {bounds}')
 
 textures=list((ASSETS/'textures/block/ancient').glob('*.png'))
-assert len(textures)==9, 'Expected nine Ancient material textures in the stitched block directory'
+assert len(textures)==11, 'Expected eleven Ancient material textures in the stitched block directory'
 for path in textures:
     raw=path.read_bytes(); assert raw[:8]==b'\x89PNG\r\n\x1a\n'
-    width,height=struct.unpack('!II',raw[16:24]); assert width==height==32
+    width,height=struct.unpack('!II',raw[16:24]); assert width==height==256
     offset=8; compressed=b''
     while offset<len(raw):
         length=struct.unpack('!I',raw[offset:offset+4])[0]
@@ -115,7 +115,7 @@ for path in textures:
         assert zlib.crc32(tag+payload)==crc, path
         if tag==b'IDAT': compressed+=payload
         offset+=12+length
-    assert len(zlib.decompress(compressed))==32*(1+32*3), path
+    assert len(zlib.decompress(compressed))==256*(1+256*3), path
 
 if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'

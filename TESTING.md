@@ -1,3 +1,10 @@
+## Classic relief acceptance
+
+- Compare against the supplied 1.12 screenshots at eye level and from above: warm brown grain, notched wings, projecting control panels, thick raised emblems, close ribs and visibly recessed side panels.
+- Inspect the wider ZPM collar, denser lattice and olive/red facets. Check raised, lowered and moving modules for clearance.
+- Check the hub inventory icon and reload resources with F3+T.
+- This is original reconstructed artwork; record remaining appearance differences rather than treating a passing build as visual approval.
+
 # JSG-ZPM In-Game Validation Checklist
 
 This checklist is for development builds. Test in a disposable world first.
@@ -85,8 +92,8 @@ This checklist is for development builds. Test in a disposable world first.
 
 ## 6. Zero Point Energy Generator
 
-- Place the **Zero Point Energy Generator Controller** and surround it with eight **Zero Point Generator Casings** in a 3×3 plane.
-- Test the 3×3 plane on a floor, wall and ceiling.
+- Place the **Zero Point Energy Generator Controller** and surround it with eight **Zero Point Generator Casings** in a 3Ã—3 plane.
+- Test the 3Ã—3 plane on a floor, wall and ceiling.
 - Insert one, two and three partially empty ZPMs.
 - Start charging and confirm the shield closes before charging begins.
 - Confirm the cosmic-field state appears during charging.
