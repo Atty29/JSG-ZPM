@@ -18,6 +18,7 @@ public final class ModItemTags {
     public static final TagKey<Item> CIRCUIT_CONTROL_NAQUADAH = compat("circuit_control_naquadah");
     public static final TagKey<Item> RED_CRYSTAL = compat("red_crystal");
     public static final TagKey<Item> ENDER_CRYSTAL = compat("ender_crystal");
+    public static final TagKey<Item> EFFICIENCY_UPGRADE_CRYSTAL = compat("efficiency_upgrade_crystal");
 
     private ModItemTags() {
     }
