@@ -1,8 +1,5 @@
 package uk.co.atty29.jsgzpm.block;
 
-import dev.tauri.jsg.common.block.dialhomedevice.DHDAbstractBlock;
-import dev.tauri.jsg.core.common.blockstate.JSGProperties;
-import dev.tauri.jsg.core.common.item.JSGBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -12,15 +9,22 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -30,11 +34,24 @@ import uk.co.atty29.jsgzpm.blockentity.AtlantisPegasusDHDBlockEntity;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 /** Master/control block for the five-block Atlantis Pegasus DHD console. */
-public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
+public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 10, 16);
+
+    public AtlantisPegasusDHDBlock() {
+        super(BlockBehaviour.Properties.of()
+                .strength(3.0F, 30.0F)
+                .sound(SoundType.METAL)
+                .noOcclusion());
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+        builder.add(FACING);
+    }
 
     @Nullable
     @Override
@@ -43,21 +60,18 @@ public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
         return new AtlantisPegasusDHDBlockEntity(pos, state);
     }
 
+    @Nullable
     @Override
-    public JSGBlockItem getItemBlock() {
-        return new JSGBlockItem(this, new Item.Properties(), List.of());
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide) return null;
+        return createTickerHelper(type, ModRegistries.ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY.get(), AtlantisPegasusDHDBlockEntity::serverTick);
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        BlockState state = super.getStateForPlacement(ctx);
-        if (state == null) return null;
-
-        int rotation = state.getValue(JSGProperties.ROTATION_PROPERTY);
-        int snapped = ((rotation + 2) / 4 * 4) & 15;
-        state = state.setValue(JSGProperties.ROTATION_PROPERTY, snapped);
-
+        Direction front = ctx.getHorizontalDirection().getOpposite();
+        BlockState state = defaultBlockState().setValue(FACING, front);
         for (PartPlacement part : getParts(ctx.getClickedPos(), state)) {
             if (!ctx.getLevel().getBlockState(part.pos()).canBeReplaced(ctx)) return null;
         }
@@ -141,8 +155,7 @@ public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
     }
 
     public static Direction frontDirection(BlockState state) {
-        int rotation = state.getValue(JSGProperties.ROTATION_PROPERTY);
-        return Direction.from2DDataValue(Math.round(rotation / 4.0F)).getOpposite();
+        return state.getValue(FACING);
     }
 
     public static BlockPos masterFromPart(BlockPos partPos, Direction front, int part) {
@@ -168,7 +181,7 @@ public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
     }
 
     private static void removeParts(Level level, BlockPos master, BlockState state) {
-        if (!state.hasProperty(JSGProperties.ROTATION_PROPERTY)) return;
+        if (!state.hasProperty(FACING)) return;
         for (PartPlacement part : getParts(master, state)) {
             BlockState child = level.getBlockState(part.pos());
             if (child.is(ModRegistries.ATLANTIS_PEGASUS_DHD_PART.get())) {

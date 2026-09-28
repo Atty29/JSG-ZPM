@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "jsgzpm:block/atlantis_pegasus_dhd" }
+    "facing=north": { "model": "jsgzpm:block/atlantis_pegasus_dhd" },
+    "facing=east":  { "model": "jsgzpm:block/atlantis_pegasus_dhd", "y": 90 },
+    "facing=south": { "model": "jsgzpm:block/atlantis_pegasus_dhd", "y": 180 },
+    "facing=west":  { "model": "jsgzpm:block/atlantis_pegasus_dhd", "y": 270 }
   }
 }

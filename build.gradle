@@ -52,11 +52,11 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // JSG and JSG Core are not bundled. These are published compile-time integration targets only.
-    // JSG's public API inherits several base types from JSG Core, so addons that directly subclass
-    // the DHD/block-entity APIs need Core on their compile classpath as well.
-    compileOnly(fg.deobf("eu.tauridev:jsg-core-1.20.1:${jsg_core_version}") { transitive = false })
-    compileOnly(fg.deobf("eu.tauridev:jsg-1.20.1:${jsg_version}") { transitive = false })
+    // JSG is a required runtime mod (declared in mods.toml), but is intentionally
+    // not a Java compile dependency. JSG-ZPM uses registry IDs/tags plus its
+    // release-safe reflection bridge instead of linking to JSG private classes.
+    // This prevents a dev-build API from producing NoClassDefFoundError on the
+    // normal released JSG 5.1.x runtime.
 }
 
 tasks.named('processResources', ProcessResources).configure {

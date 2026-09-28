@@ -2,7 +2,7 @@
 
 JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**. It is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 9
+## Current status — Phase 9 + released-JSG compatibility hotfix
 
 Implemented systems now include:
 
@@ -18,9 +18,8 @@ Implemented systems now include:
 - five JSG Efficiency Upgrade Crystal slots with 20%, 36%, 52%, 68%, 84% and 100% efficiency progression
 - external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
 - Atlantis Pegasus DHD implemented as a solid five-block C/horseshoe floor console
-- genuine Pegasus-only JSG DHD linking and dialling behaviour
-- 42-position physical Pegasus-symbol control grid
-- JSG notebook/address data drives the next-symbol guidance glow
+- release-safe Pegasus Stargate discovery/linking and symbol dialling bridge
+- 42-position physical Pegasus-symbol control grid with button-press feedback
 - linked Stargate iris OPEN/CLOSE controls or shield ON/OFF controls as appropriate
 - automatic Off-World Activation alarm state when the linked Pegasus gate reports an incoming connection
 - manual Atlantis General Alarm and alarm-reset controls
@@ -65,12 +64,15 @@ Development interaction:
 
 The DHD is placed as a five-block floor-integrated horseshoe with an open step-in position.
 
-- centre console: Pegasus symbol controls for normal JSG dialling
-- holding a compatible JSG notebook: next Pegasus address symbol is highlighted
+- centre console: Pegasus symbol controls for JSG gate dialling
 - side protection controls: iris open/close or shield off/on depending on the linked Stargate
 - alarm control: toggles the Atlantis General Alarm
 - alarm reset: clears the General Alarm; the Off-World Activation alarm remains active while the linked gate is genuinely incoming
-- sneak + right-click centre console: force a JSG relink attempt to a compatible Pegasus Stargate
+- sneak + right-click centre console: force a relink attempt to the nearest compatible Pegasus Stargate
+
+The DHD no longer subclasses JSG's private DHD implementation. Released JSG 5.1.x builds do not expose the 6.0-development `dev.tauri.jsg.common.block.dialhomedevice` classes, so JSG-ZPM now owns the console block/entity and operates the installed Pegasus gate through a release-safe compatibility bridge.
+
+**Notebook next-symbol guidance is temporarily disabled by this hotfix.** The previous renderer linked directly to JSG 6.0-development notebook/Core classes. It will be restored through the compatibility layer after the released JSG notebook data format is verified in-game.
 
 ### Atlantis alarm network
 
@@ -85,7 +87,7 @@ Each emitter only checks its explicitly linked DHD, so large bases can use many 
 
 The current block models, ZPM visuals, generator shield/cosmic field, DHD console and alarm emitter are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
 
-Not yet implemented: final model/texture/audio polish driven by in-game testing.
+Not yet implemented: restored notebook guidance on the released JSG runtime, and final model/texture/audio polish driven by in-game testing.
 
 ## Testing development builds
 
@@ -95,9 +97,11 @@ Use the step-by-step validation plan in [`TESTING.md`](TESTING.md) when checking
 
 Screenshots are especially useful for the next pass because the current 3D models and effects are intentionally first-pass development visuals.
 
-## Development dependency
+## JSG runtime dependency
 
-JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 and JSG Core artifacts from Tau'ri Development. Users need a compatible JSG 1.20.1 installation at runtime.
+JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Users need a compatible JSG 1.20.1 installation at runtime; Forge enforces this through `mods.toml`.
+
+The addon deliberately does not use JSG as a Java compile dependency. JSG-facing recipes use registry IDs/tags, while DHD/gate interaction goes through the runtime compatibility bridge. This prevents private package changes between released JSG 5.1.x and newer development builds from crashing the entire addon during class loading.
 
 JSG source/project: https://github.com/Tau-ri-Dev/Mod-JSG
 
@@ -109,7 +113,7 @@ Use Java 17 and Gradle 8.14.4:
 gradle build
 ```
 
-The project follows JSG's current 1.20.1 development baseline: Forge 47.4.10 and Parchment 2023.09.03-1.20.1.
+The project uses Forge 47.4.10 and Parchment 2023.09.03-1.20.1.
 
 ## License
 

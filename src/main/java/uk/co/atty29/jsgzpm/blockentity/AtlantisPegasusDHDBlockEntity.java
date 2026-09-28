@@ -1,166 +1,134 @@
 package uk.co.atty29.jsgzpm.blockentity;
 
-import dev.tauri.jsg.api.item.IDHDFluidTank;
-import dev.tauri.jsg.api.item.IDHDPartItem;
-import dev.tauri.jsg.api.registry.JSGSymbolTypes;
-import dev.tauri.jsg.api.stargate.network.address.symbol.types.SymbolPegasusEnum;
-import dev.tauri.jsg.common.blockentity.dialhomedevice.DHDAbstractBE;
-import dev.tauri.jsg.common.blockentity.stargate.StargateClassicBaseBE;
-import dev.tauri.jsg.common.dialhomedevice.manager.state.DHDAbstractStateManager;
-import dev.tauri.jsg.common.registry.JSGItems;
-import dev.tauri.jsg.common.registry.JSGSoundEvents;
-import dev.tauri.jsg.common.registry.tags.JSGBlockTags;
-import dev.tauri.jsg.core.common.sound.ISoundEvent;
-import dev.tauri.jsg.core.common.symbol.SymbolType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
-import uk.co.atty29.jsgzpm.dhd.AtlantisPegasusDHDStateManager;
+import uk.co.atty29.jsgzpm.compat.JSGGateCompat;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
- * Functional Pegasus-only DHD core for the Atlantis floor console.
+ * Atlantis Pegasus DHD state owned entirely by JSG-ZPM.
  *
- * Dialling/linking is provided by JSG's DHD implementation; JSG-ZPM only adds
- * the new physical console, side-panel controls and alarm state.
+ * Gate interaction is delegated to JSGGateCompat so released JSG 5.1.x builds
+ * do not need to contain the private DHD implementation classes used by newer
+ * JSG development builds.
  */
-public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
-    private static final List<SymbolPegasusEnum> PRESSABLE_SYMBOLS = Arrays.stream(SymbolPegasusEnum.values())
-            .filter(SymbolPegasusEnum::canBePressed)
-            .toList();
+public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
+    public static final int DISPLAY_BUTTON_COUNT = 42;
+    private static final int AUTO_RELINK_INTERVAL = 100;
+    private static final int INCOMING_CHECK_INTERVAL = 5;
 
+    @Nullable
+    private BlockPos linkedGatePos;
     private boolean generalAlarmActive;
     private boolean offworldAlarmActive;
     private boolean lastIncoming;
+    private int lastPressedIndex = -1;
+    private int pressFlashTicks;
+    private int relinkTicker;
 
     public AtlantisPegasusDHDBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY.get(), pos, state);
     }
 
-    @Override
-    protected DHDAbstractStateManager<?, ?> createStateManager() {
-        return new AtlantisPegasusDHDStateManager(this);
-    }
+    public static void serverTick(Level level, BlockPos pos, BlockState state, AtlantisPegasusDHDBlockEntity dhd) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
 
-    @Override
-    public SymbolType<SymbolPegasusEnum> getSymbolType() {
-        return JSGSymbolTypes.PEGASUS.get();
-    }
-
-    @Override
-    public TagKey<Block> getLinkableBlocks() {
-        return JSGBlockTags.DHD_PEGASUS_LINKABLE_BLOCKS;
-    }
-
-    @Override
-    public IDHDFluidTank getFluidTankItemPart() {
-        return JSGItems.DHD_NAQUADAH_TANK.get();
-    }
-
-    @Override
-    public ISoundEvent getButtonPressSound() {
-        return JSGSoundEvents.DHD_PEGASUS_PRESS;
-    }
-
-    @Override
-    public ISoundEvent getBRBPressSound() {
-        return JSGSoundEvents.DHD_PEGASUS_PRESS_BRB;
-    }
-
-    @Override
-    public Item getControlCrystal() {
-        return JSGItems.PEGASUS_DHD_MAIN_CRYSTAL.get();
-    }
-
-    /** The custom console is manufactured as a complete control station. */
-    @Override
-    public boolean hasControlCrystal() {
-        return true;
-    }
-
-    @Override
-    public boolean isAssembled(IDHDPartItem part) {
-        return true;
-    }
-
-    @Override
-    public boolean isAssembled() {
-        return true;
-    }
-
-    @Override
-    public LinkedList<IDHDPartItem> getAllParts() {
-        return new LinkedList<>();
-    }
-
-    @Override
-    public void tick(Level level) {
-        super.tick(level);
-        if (level.isClientSide || level.getGameTime() % 5L != 0L) return;
-
-        boolean incoming = getLinkedDeviceOptional()
-                .map(gate -> gate.getDialingManager().getStargateState().incoming())
-                .orElse(false);
-        if (incoming != lastIncoming) {
-            lastIncoming = incoming;
-            offworldAlarmActive = incoming;
-            syncCustomState();
+        boolean changed = false;
+        if (dhd.pressFlashTicks > 0) {
+            dhd.pressFlashTicks--;
+            if (dhd.pressFlashTicks == 0 && dhd.lastPressedIndex != -1) {
+                dhd.lastPressedIndex = -1;
+                changed = true;
+            }
         }
-    }
 
-    public static List<SymbolPegasusEnum> getPressableSymbols() {
-        return PRESSABLE_SYMBOLS;
+        dhd.relinkTicker++;
+        if (dhd.linkedGatePos == null && dhd.relinkTicker >= AUTO_RELINK_INTERVAL) {
+            dhd.relinkTicker = 0;
+            BlockPos found = JSGGateCompat.findNearestPegasusGate(serverLevel, pos);
+            if (found != null) {
+                dhd.linkedGatePos = found;
+                changed = true;
+            }
+        }
+
+        if (level.getGameTime() % INCOMING_CHECK_INTERVAL == 0L) {
+            BlockEntity gate = JSGGateCompat.getLinkedGate(serverLevel, dhd.linkedGatePos);
+            if (gate == null && dhd.linkedGatePos != null) {
+                dhd.linkedGatePos = null;
+                dhd.lastIncoming = false;
+                if (dhd.offworldAlarmActive) {
+                    dhd.offworldAlarmActive = false;
+                }
+                changed = true;
+            } else {
+                boolean incoming = JSGGateCompat.isIncoming(gate);
+                if (incoming != dhd.lastIncoming) {
+                    dhd.lastIncoming = incoming;
+                    dhd.offworldAlarmActive = incoming;
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) dhd.syncCustomState();
     }
 
     public boolean pressSymbol(int index, ServerPlayer player) {
-        if (index < 0 || index >= PRESSABLE_SYMBOLS.size()) return false;
-        pushSymbolButton(PRESSABLE_SYMBOLS.get(index), player, false);
+        if (!(level instanceof ServerLevel serverLevel)) return false;
+        BlockEntity gate = JSGGateCompat.getLinkedGate(serverLevel, linkedGatePos);
+        if (gate == null) {
+            BlockPos found = JSGGateCompat.findNearestPegasusGate(serverLevel, worldPosition);
+            if (found == null) return false;
+            linkedGatePos = found;
+            gate = JSGGateCompat.getLinkedGate(serverLevel, linkedGatePos);
+        }
+        if (!JSGGateCompat.pressPegasusSymbol(gate, index, player)) return false;
+
+        lastPressedIndex = index;
+        pressFlashTicks = 20;
+        syncCustomState();
         return true;
     }
 
+    public int getLastPressedIndex() {
+        return lastPressedIndex;
+    }
+
     public boolean hasLinkedGate() {
-        return getLinkedDevice() != null;
+        return linkedGatePos != null;
     }
 
     public boolean hasProtection() {
-        StargateClassicBaseBE<?> gate = getClassicGate();
-        return gate != null && gate.getIrisManager().hasIris();
+        return JSGGateCompat.hasProtection(getServerGate());
     }
 
     public boolean linkedGateUsesShield() {
-        StargateClassicBaseBE<?> gate = getClassicGate();
-        return gate != null && gate.getIrisManager().hasShield();
+        return JSGGateCompat.usesShield(getServerGate());
     }
 
     public boolean isProtectionClosed() {
-        StargateClassicBaseBE<?> gate = getClassicGate();
-        return gate != null && gate.getIrisManager().isIrisClosed();
+        return JSGGateCompat.isProtectionClosed(getServerGate());
     }
 
     public Component setProtectionClosed(boolean closed) {
-        StargateClassicBaseBE<?> gate = getClassicGate();
+        BlockEntity gate = getServerGate();
         if (gate == null) return Component.translatable("message.jsgzpm.dhd.not_linked");
-        if (!gate.getIrisManager().hasIris()) return Component.translatable("message.jsgzpm.dhd.no_protection");
+        if (!JSGGateCompat.hasProtection(gate)) return Component.translatable("message.jsgzpm.dhd.no_protection");
 
-        boolean shield = gate.getIrisManager().hasShield();
-        boolean already = closed ? gate.getIrisManager().isIrisClosed() : gate.getIrisManager().isIrisOpened();
-        if (!already) {
-            boolean toggled = gate.getIrisManager().toggleIris();
-            gate.setChanged();
-            if (!toggled) return Component.translatable("message.jsgzpm.dhd.protection_busy");
+        boolean shield = JSGGateCompat.usesShield(gate);
+        if (!JSGGateCompat.setProtectionClosed(gate, closed)) {
+            return Component.translatable("message.jsgzpm.dhd.protection_busy");
         }
 
         if (shield) {
@@ -179,8 +147,6 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
 
     public Component resetAlarms() {
         generalAlarmActive = false;
-        // The off-world alarm follows the actual incoming-gate state and cannot
-        // be permanently silenced while an incoming activation is still active.
         offworldAlarmActive = lastIncoming;
         syncCustomState();
         return Component.translatable("message.jsgzpm.dhd.alarms_reset");
@@ -199,16 +165,25 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
     }
 
     public Component relink() {
-        if (level == null || level.isClientSide) return Component.empty();
-        updateLinkStatus(level, worldPosition);
-        return Component.translatable(isLinked()
+        if (!(level instanceof ServerLevel serverLevel)) return Component.empty();
+        linkedGatePos = JSGGateCompat.findNearestPegasusGate(serverLevel, worldPosition);
+        lastIncoming = false;
+        offworldAlarmActive = false;
+        syncCustomState();
+        return Component.translatable(linkedGatePos != null
                 ? "message.jsgzpm.dhd.linked"
                 : "message.jsgzpm.dhd.not_linked");
     }
 
     @Nullable
-    private StargateClassicBaseBE<?> getClassicGate() {
-        return getLinkedDevice() instanceof StargateClassicBaseBE<?> gate ? gate : null;
+    public BlockPos getLinkedGatePos() {
+        return linkedGatePos;
+    }
+
+    @Nullable
+    private BlockEntity getServerGate() {
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+        return JSGGateCompat.getLinkedGate(serverLevel, linkedGatePos);
     }
 
     private void syncCustomState() {
@@ -220,36 +195,37 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+        if (linkedGatePos != null) tag.putLong("LinkedGate", linkedGatePos.asLong());
         tag.putBoolean("GeneralAlarm", generalAlarmActive);
         tag.putBoolean("OffworldAlarm", offworldAlarmActive);
         tag.putBoolean("LastIncoming", lastIncoming);
+        tag.putInt("LastPressedIndex", lastPressedIndex);
+        tag.putInt("PressFlashTicks", pressFlashTicks);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        linkedGatePos = tag.contains("LinkedGate") ? BlockPos.of(tag.getLong("LinkedGate")) : null;
         generalAlarmActive = tag.getBoolean("GeneralAlarm");
         offworldAlarmActive = tag.getBoolean("OffworldAlarm");
         lastIncoming = tag.getBoolean("LastIncoming");
+        lastPressedIndex = tag.contains("LastPressedIndex") ? tag.getInt("LastPressedIndex") : -1;
+        pressFlashTicks = tag.getInt("PressFlashTicks");
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        tag.putBoolean("GeneralAlarm", generalAlarmActive);
-        tag.putBoolean("OffworldAlarm", offworldAlarmActive);
-        tag.putBoolean("LastIncoming", lastIncoming);
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag) {
-        super.handleUpdateTag(tag);
-        generalAlarmActive = tag.getBoolean("GeneralAlarm");
-        offworldAlarmActive = tag.getBoolean("OffworldAlarm");
-        lastIncoming = tag.getBoolean("LastIncoming");
+        load(tag);
     }
 
     @Nullable
