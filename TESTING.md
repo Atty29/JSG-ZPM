@@ -159,3 +159,12 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Check empty, partially populated and full hubs; charged/depleted modules; mixed raised/lowered/transitioning slots; active brightness in daylight and darkness.
 - Check the table overhang beside neighbouring blocks. Collision and placement intentionally retain the existing one-block footprint.
 - Re-run the gameplay and released-JSG compatibility checks below. Resource validation and a successful compile do not establish in-game runtime compatibility.
+
+
+### Crystal-course / console regression pass
+
+- Inspect all three consoles from above, the front, and both sides: their box faces, glyph deck, recess walls and lights must remain visible, with no cooling ribs crossing the opening.
+- Lower all three modules: the shafts must not be visible through the console walls.
+- Inspect the ZPM in inventory, in hand and raised: three concentric crystal courses must step down toward the outside, with the centre regulator tallest.
+- Exercise each bay independently through the full lift travel; check socket clearance at every position.
+- Automated resource validation checks the outer/middle/inner course heights and unchanged installed height. Live Minecraft validation remains required.

@@ -93,6 +93,11 @@ for path in (ASSETS/'models').rglob('*.json'):
     bounds=[(min(v[i] for v in vertices),max(v[i] for v in vertices)) for i in range(3)]
     if obj.stem=='zero_point_module':
         assert abs(bounds[1][1]-bounds[1][0]-1.05)<1e-5
+        # Three courses must remain stepped, not collapse into one flat crown.
+        for low,high,ceiling in [(.20,.28,.81),(.13,.195,.92)]:
+            tips=[v[1] for v in vertices if low<math.hypot(v[0]-.5,v[2]-.5)<high]
+            assert tips and max(tips)<ceiling, 'Crystal ring height regression'
+        assert max(v[1] for v in vertices if .07<math.hypot(v[0]-.5,v[2]-.5)<.12)>.98
         # Installed module clears a 0.136-radius well at every height.
         assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5

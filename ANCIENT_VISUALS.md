@@ -41,3 +41,10 @@ Regenerate with `python tools/build_ancient_assets.py`. Validate with `python to
 The original f228a00 texture-folder error remains fixed: sprite files and references use `block/ancient/`. The validator rejects the former `ancient/` paths even when PNGs exist in the JAR. The user has confirmed textures render in-game after this correction.
 
 Inspect the new relief at eye level and from above, all four facings, raised/lowered/transitioning independent bays, inventory and hand views, and F3+T. Software previews and CI do not establish identical in-game lighting or visual acceptance. TESTING.md retains the gameplay/runtime checklist.
+
+
+## Crystal-course and console repair
+
+The ZPM is now 36 separate faceted blades in three concentric courses. Their tip heights decrease from 1.00 to 0.90 to 0.79 model units toward the outside; small individual height variation exposes the crystal faces. The regulator remains at 1.025 and the bottom at -0.025, preserving the 0.42-block installed height and existing lift travel. All three courses clear the current sockets.
+
+Console placement uses a reflected local basis. Its faces now reverse winding so the outward walls and glyphs remain visible under back-face culling. Solid rear/side recess walls conceal lowered modules. The skirt and cooling ribs stop around each control opening rather than intersecting the lights and glyph deck. No textures, renderer transforms, animation code or gameplay systems change in this repair.

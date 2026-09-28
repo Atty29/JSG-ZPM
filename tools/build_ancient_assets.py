@@ -142,98 +142,69 @@ def model(stem, **extra):
 
 def build_zpm():
     m = Mesh()
-    # Twelve irregular crystal lobes; inset alternating vertices make real grooves.
-    # Authored from the supplied prop references, not sampled or traced.
-    n=24
-    heights=[.025,.19,.41,.72,.87,.94,1.0]
-    radii=[.158,.184,.190,.192,.195,.269,.269]
-    rings=[]
-    for k,(y,r) in enumerate(zip(heights,radii)):
-        ring=[]
-        for i in range(n):
-            angle=i*2*math.pi/n
-            groove=1.0 if i%2==0 else .965
-            variation=1+.025*math.sin(i*2.3+k*.9)
-            ry=y
-            if k==0: ry=-.025 if i==0 else .012+.043*(1+math.sin(i*1.7))/2
-            elif k==len(heights)-1: ry=1.0+.015*math.sin(i*1.8)**2
-            else: ry+=.023*math.sin(i*1.3+k*2.1)
-            radius=min(.275,r*groove*variation)
-            ring.append((.5+radius*math.cos(angle),ry,.5+radius*math.sin(angle)))
-        rings.append(ring)
-    for k,(low,high) in enumerate(zip(rings,rings[1:])):
-        for i in range(n):
-            j=(i+1)%n
-            material=['crystal','crystal','crystal_warm','crystal_pale'][i//2%4]
-            # Triangles preserve the crystalline, deliberately non-planar facets.
-            m.face([low[i],high[i],high[j]],material)
-            m.face([low[i],high[j],low[j]],material)
-    for i in range(n):
-        j=(i+1)%n
-        m.face([(.5,-.015,.5),rings[0][i],rings[0][j]],'crystal_warm')
-        m.face([(.5,1.014,.5),rings[-1][j],rings[-1][i]],'crystal_pale' if i%3 else 'crystal')
-
-    # Follow the actual piecewise-linear vessel surface for the dark binder paths.
-    def surface(t, a, lift=.0025):
-        k=min(len(rings)-2,int(t))
-        frac=t-k
-        sector=(a%(2*math.pi))/(2*math.pi)*n
-        i=int(sector)%n; j=(i+1)%n; f=sector-int(sector)
-        # Match the exact triangle split above (bilinear interpolation can bury a wire).
-        if frac >= f:
-            p=[rings[k][i][v]*(1-frac)+rings[k+1][i][v]*(frac-f)+rings[k+1][j][v]*f for v in range(3)]
-        else:
-            p=[rings[k][i][v]*(1-f)+rings[k+1][j][v]*frac+rings[k][j][v]*(f-frac) for v in range(3)]
-        p[0]+=lift*math.cos(a); p[2]+=lift*math.sin(a)
-        return p
-    def seam(points, width=.034):
-        for (t,a),(T,A) in zip(points,points[1:]):
-            steps=max(2,math.ceil(abs(T-t)*5+abs(A-a)*12))
-            for step in range(steps):
-                f,g=step/steps,(step+1)/steps
-                t0,t1=t+(T-t)*f,t+(T-t)*g
-                a0,a1=a+(A-a)*f,a+(A-a)*g
-                # Split at the surface to avoid ribbons tunnelling through grooves.
-                pts=[surface(t0,a0-width,.004),surface(t1,a1-width,.004),
-                     surface(t1,a1+width,.004),surface(t0,a0+width,.004)]
-                m.face(pts if t1 >= t0 else list(reversed(pts)),'binder')
-    for i in range(12):
-        a=i*math.pi/6
-        seam([(0,a),(.9,a+.09),(1.8,a-.09),(3.0,a+.08),(4,a),(5,a),(6,a)])
-        for h in [1.3,2.3,3.5]:
-            seam([(h,a),(h+.25,a+math.pi/12),(h+.08,a+math.pi/6)])
-        # Offset branch junctions form unequal polygon cells, not uniform X bands.
-        if i%2==0:
-            seam([(1.0+(i%3)*.12,a),(1.35+(i%3)*.12,a+math.pi/12),
-                  (1.1+(i%3)*.12,a+math.pi/6)])
-        seam([(3.4+(i%3)*.1,a),(3.65+(i%3)*.1,a+math.pi/12),
-              (3.5+(i%3)*.1,a+math.pi/6)])
-    # Six long, pointed dark fittings between the amber lobes.
-    for i in range(6):
-        a=i*math.pi/3+math.pi/12
-        start=1.45+(i%2)*.15
-        for step in range(8):
-            f,g=step/8,(step+1)/8
-            t,T=start+1.65*f,start+1.65*g
-            w=.11*min(1,f*5,(1-f)*5)
-            W=.11*min(1,g*5,(1-g)*5)
-            if step==0:
-                pts=[surface(t,a,.006),surface(T,a-W,.006),surface(T,a+W,.006)]
-            elif step==7:
-                pts=[surface(t,a-w,.006),surface(T,a,.006),surface(t,a+w,.006)]
-            else:
-                pts=[surface(t,a-w,.006),surface(T,a-W,.006),surface(T,a+W,.006),surface(t,a+w,.006)]
-            m.face(pts,'crystal_olive' if i%2==0 else 'crystal_red')
-    # Glowing amber crown divided by fine concentric rings and radial binder spokes.
-    for radius in [.085,.168]:
-        m.ring(.5,.5,1.018,radius-.006,radius+.006,'binder',n=24)
-    for i in range(8):
-        a=i*math.pi/4
-        def crown(r,theta):return (.5+r*math.cos(theta),1.019,.5+r*math.sin(theta))
-        m.face([crown(.056,a-.030),crown(.056,a+.030),
-                crown(.265,a+.030),crown(.265,a-.030)],'binder')
-    m.lathe(.5,.5,[(1.015,.062),(1.022,.057)],'binder',n=16)
-    m.lathe(.5,.5,[(1.022,.047),(1.025,.039)],'regulator',n=16)
+    # Three concentric courses of separate crystals. The central course is
+    # tallest; middle and outer tips step down, exposing real vertical facets.
+    # All dimensions stay inside the existing animated socket envelope.
+    courses=[(.058,.119,1.0),(.121,.194,.90),(.196,.269,.79)]
+    def point(r,y,a):return (.5+r*math.cos(a),y,.5+r*math.sin(a))
+    def ribbon(a,b,width=.003):
+        # Narrow solid binder bars, lifted off the crystal instead of painted lines.
+        dx,dy,dz=[b[i]-a[i] for i in range(3)]
+        length=math.hypot(dx,dz)
+        if length<1e-8:
+            rx,rz=a[0]-.5,a[2]-.5;length=math.hypot(rx,rz)
+            tx,tz=-rz/length*width,rx/length*width
+        else:tx,tz=-dz/length*width,dx/length*width
+        m.face([(a[0]-tx,a[1],a[2]-tz),(b[0]-tx,b[1],b[2]-tz),
+                (b[0]+tx,b[1],b[2]+tz),(a[0]+tx,a[1],a[2]+tz)],'binder')
+        m.face([(a[0]+tx,a[1],a[2]+tz),(b[0]+tx,b[1],b[2]+tz),
+                (b[0]-tx,b[1],b[2]-tz),(a[0]-tx,a[1],a[2]-tz)],'binder')
+    for course,(inside,outside,tip) in enumerate(courses):
+        count=12
+        for i in range(count):
+            angle=(i+course*.24)*2*math.pi/count
+            half=math.pi/count-.018
+            top=tip-.018*(.5+.5*math.sin(i*2.1+course))
+            bottom=-.025 if course==0 else .012+course*.012
+            # Six-sided footprint produces a ridge on every long crystal blade.
+            polar=[(inside,angle-half),(inside,angle+half),
+                   (outside-.012,angle+half),(outside,angle),
+                   (outside-.012,angle-half)]
+            levels=[]
+            for y,factor in [(bottom,.60),(.18,.78),(top-.10,.96),(top,1.0)]:
+                levels.append([point(r*factor,y,a) for r,a in polar])
+            material=['crystal','crystal_pale','crystal','crystal_warm'][i%4]
+            for low,high in zip(levels,levels[1:]):
+                for j in range(len(polar)):
+                    k=(j+1)%len(polar)
+                    m.face([low[k],high[k],high[j],low[j]],material)
+            # The footprint is clockwise in X/Z, hence the cap points upward.
+            cap=levels[-1]
+            centre=point((inside+outside)*.5,top+.012,angle)
+            for j in range(len(cap)):
+                m.face([centre,cap[j],cap[(j+1)%len(cap)]],material)
+                m.face([point((inside+outside)*.30,bottom,angle),
+                        levels[0][(j+1)%len(cap)],levels[0][j]],'crystal_warm')
+            # Dark polygon seams and pointed coloured inclusions on exposed faces.
+            for side in [2,4]:
+                r,a=polar[side]
+                path=[point(r*f+.002,y,a) for y,f in
+                      [(bottom,.60),(.18,.78),(top-.10,.96),(top,1.)]]
+                for A,B in zip(path,path[1:]):ribbon(A,B,.0025)
+            for frac in [.28,.57]:
+                y=bottom+(top-bottom)*frac
+                f=.78+(y-.18)/(top-.10-.18)*.18 if y>.18 else .60+(y-bottom)/(.18-bottom)*.18
+                A=point((outside-.012)*f+.003,y,angle-half)
+                B=point(outside*f+.003,y+.035,angle)
+                C=point((outside-.012)*f+.003,y-.012,angle+half)
+                ribbon(A,B);ribbon(B,C)
+            for j in range(len(cap)):
+                A=tuple(v+( .002 if k==1 else 0) for k,v in enumerate(cap[j]))
+                B=tuple(v+( .002 if k==1 else 0) for k,v in enumerate(cap[(j+1)%len(cap)]))
+                ribbon(A,B,.002)
+    m.lathe(.5,.5,[(-.025,.052),(1.012,.052)],'crystal_warm',n=16)
+    m.lathe(.5,.5,[(1.012,.058),(1.020,.054)],'binder',n=16)
+    m.lathe(.5,.5,[(1.020,.046),(1.025,.039)],'regulator',n=16)
     m.save('item/zero_point_module')
     model('item/zero_point_module',gui_light='front',display={
         'gui':{'rotation':[25,35,0],'scale':[.85,.85,.85]},
@@ -272,6 +243,10 @@ def build_hub():
     back=[(0,0),(.20,.25),(.32,.43),(.22,.69),(-.22,.69),(-.32,.43),(-.20,.25)]
     bays=[(-.265,-.204),(0,.246),(.265,-.204)]
     def world(p):return(p[0]+.5,p[1]+.5)
+    def console_opening(x,z):
+        return any(abs(-math.sin(a)*x+math.cos(a)*z)<.163
+                   and .40<math.cos(a)*x+math.sin(a)*z<.73
+                   for a in [-math.pi/2,math.pi/6,5*math.pi/6])
     # Six broad, solid spokes. Two levels provide a dark plinth and raised brown face.
     star=[]
     for i in range(24):
@@ -304,11 +279,23 @@ def build_hub():
             dx,dz=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dz)
             ux,uz=dx/length,dz/length;nx,nz=uz,-ux
             # Solid table skirt and dense brown cooling ribs; gaps reveal the dark back.
+            # Clip the skirt around the controls rather than crossing their recesses.
+            segments=math.ceil(length/.012)
+            run=None
+            for segment in range(segments+1):
+                t=(segment+.5)/segments
+                visible=segment<segments and not console_opening(a[0]+dx*t,a[1]+dz*t)
+                if visible and run is None:run=segment
+                if not visible and run is not None:
+                    A=(a[0]+dx*run/segments,a[1]+dz*run/segments)
+                    B=(a[0]+dx*segment/segments,a[1]+dz*segment/segments)
+                    stroke(m,world(A),world(B),.040,.905,1.145,'panel','recess')
+                    run=None
             if length >= .25:
-                stroke(m,world(a),world(b),.040,.905,1.145,'panel','recess')
                 count=max(2,round(length/.045))
                 for i in range(count):
                     t=(i+.5)/count
+                    if console_opening(a[0]+dx*t,a[1]+dz*t):continue
                     x,z=a[0]+dx*t+.5,a[1]+dz*t+.5
                     stroke(m,(x+nx*.017-ux*.011,z+nz*.017-uz*.011),
                            (x+nx*.017+ux*.011,z+nz*.017+uz*.011),.056,.91,1.158,'panel','panel')
@@ -357,6 +344,10 @@ def build_hub():
         def transform(pts):return[(.5+ux*x+nx*z,y,.5+uz*x+nz*z) for x,y,z in pts]
         temp=Mesh()
         temp.box((-.13,.85,.43),(.13,1.05,.68),'panel')
+        # Solid recess walls hide the lowered modules behind each console.
+        temp.box((-.144,1.05,.420),(.144,1.145,.441),'panel')
+        for x in [-.144,.128]:
+            temp.box((x,1.05,.441),(x+.016,1.145,.575),'panel')
         temp.box((-.113,.867,.681),(.113,1.031,.687),'recess')
         # Frame and hexagonal centre on the vertical projecting face.
         for A,B in [((-.116,.871),(.116,.871)),((-.116,1.027),(.116,1.027)),
@@ -379,7 +370,8 @@ def build_hub():
                 temp.box((x,1.05,z),(x+.024,1.063,z+.006),'trim')
                 temp.box((x+(col%2)*.018,1.05,z),(x+(col%2)*.018+.006,1.063,z+.026),'trim')
                 if (col+row)%3!=0:temp.box((x+.009,1.05,z+.019),(x+.029,1.063,z+.025),'trim')
-        for pts,mat in temp.faces:m.face(transform(pts),mat)
+        # This local console basis is reflected; reverse winding for outward faces.
+        for pts,mat in temp.faces:m.face(transform(list(reversed(pts))),mat)
     m.save('block/atlantis_zpm_hub')
     model('block/atlantis_zpm_hub',parent='minecraft:block/block',display={
         'gui':{'rotation':[30,225,0],'translation':[0,-1,0],'scale':[.5,.5,.5]},
