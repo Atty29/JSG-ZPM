@@ -142,68 +142,68 @@ def model(stem, **extra):
 
 def build_zpm():
     m = Mesh()
-    # Three concentric courses of separate crystals. The central course is
-    # tallest; middle and outer tips step down, exposing real vertical facets.
-    # All dimensions stay inside the existing animated socket envelope.
-    courses=[(.058,.119,1.0),(.121,.194,.90),(.196,.269,.79)]
+    # Gem-up orientation: a broad flat cap, with three concentric courses
+    # extending DOWN from it. The inner blades are longest, the outer shortest.
+    # Original independent blade geometry; reference renders supply no mesh data.
     def point(r,y,a):return (.5+r*math.cos(a),y,.5+r*math.sin(a))
-    def ribbon(a,b,width=.003):
-        # Narrow solid binder bars, lifted off the crystal instead of painted lines.
-        dx,dy,dz=[b[i]-a[i] for i in range(3)]
+    def line(a,b,width=.003):
+        # Surface ribbons are double-sided so oblique views retain the binder.
+        dx,dz=b[0]-a[0],b[2]-a[2]
         length=math.hypot(dx,dz)
         if length<1e-8:
-            rx,rz=a[0]-.5,a[2]-.5;length=math.hypot(rx,rz)
-            tx,tz=-rz/length*width,rx/length*width
-        else:tx,tz=-dz/length*width,dx/length*width
-        m.face([(a[0]-tx,a[1],a[2]-tz),(b[0]-tx,b[1],b[2]-tz),
-                (b[0]+tx,b[1],b[2]+tz),(a[0]+tx,a[1],a[2]+tz)],'binder')
-        m.face([(a[0]+tx,a[1],a[2]+tz),(b[0]+tx,b[1],b[2]+tz),
-                (b[0]-tx,b[1],b[2]-tz),(a[0]-tx,a[1],a[2]-tz)],'binder')
-    for course,(inside,outside,tip) in enumerate(courses):
-        count=12
-        for i in range(count):
-            angle=(i+course*.24)*2*math.pi/count
-            half=math.pi/count-.018
-            top=tip-.018*(.5+.5*math.sin(i*2.1+course))
-            bottom=-.025 if course==0 else .012+course*.012
-            # Six-sided footprint produces a ridge on every long crystal blade.
+            dx,dz=a[0]-.5,a[2]-.5;length=math.hypot(dx,dz)
+        tx,tz=-dz/length*width,dx/length*width
+        pts=[(a[0]-tx,a[1],a[2]-tz),(b[0]-tx,b[1],b[2]-tz),
+             (b[0]+tx,b[1],b[2]+tz),(a[0]+tx,a[1],a[2]+tz)]
+        m.face(pts,'binder');m.face(list(reversed(pts)),'binder')
+    for course,(inside,outside,end) in enumerate([(.055,.119,-.025),(.121,.191,.12),(.193,.249,.31)]):
+        for i in range(12):
+            angle=(i+course*.24)*math.pi/6;half=math.pi/12-.014
+            bottom=end+(.045*(.5+.5*math.sin(i*2.1+course)) if i else 0)
             polar=[(inside,angle-half),(inside,angle+half),
-                   (outside-.012,angle+half),(outside,angle),
-                   (outside-.012,angle-half)]
+                   (outside-.010,angle+half),(outside,angle),(outside-.010,angle-half)]
+            centre=point((inside+outside)*.5,bottom,angle)
             levels=[]
-            for y,factor in [(bottom,.60),(.18,.78),(top-.10,.96),(top,1.0)]:
-                levels.append([point(r*factor,y,a) for r,a in polar])
+            for y,factor in [(bottom,.70),(bottom+.055,1.),(.85,1.),(.94,1.)]:
+                # Bevel each individual end towards its own centre, not the axis.
+                levels.append([(centre[0]+(point(r,y,a)[0]-centre[0])*factor,y,
+                                centre[2]+(point(r,y,a)[2]-centre[2])*factor) for r,a in polar])
+            # Unequal slanted tip planes produce the chipped crystal termination.
+            levels[0]=[(x,y+.017*(.5+.5*math.sin(i+j*1.9)),z) for j,(x,y,z) in enumerate(levels[0])]
             material=['crystal','crystal_pale','crystal','crystal_warm'][i%4]
             for low,high in zip(levels,levels[1:]):
-                for j in range(len(polar)):
-                    k=(j+1)%len(polar)
-                    m.face([low[k],high[k],high[j],low[j]],material)
-            # The footprint is clockwise in X/Z, hence the cap points upward.
-            cap=levels[-1]
-            centre=point((inside+outside)*.5,top+.012,angle)
-            for j in range(len(cap)):
-                m.face([centre,cap[j],cap[(j+1)%len(cap)]],material)
-                m.face([point((inside+outside)*.30,bottom,angle),
-                        levels[0][(j+1)%len(cap)],levels[0][j]],'crystal_warm')
-            # Dark polygon seams and pointed coloured inclusions on exposed faces.
+                for j in range(5):
+                    k=(j+1)%5
+                    m.face([low[k],high[k],high[j]],material)
+                    m.face([low[k],high[j],low[j]],material)
+            for j in range(5):
+                k=(j+1)%5
+                m.face([centre,levels[0][k],levels[0][j]],material)
+                m.face([point((inside+outside)*.5,.94,angle),levels[-1][j],levels[-1][k]],material)
             for side in [2,4]:
-                r,a=polar[side]
-                path=[point(r*f+.002,y,a) for y,f in
-                      [(bottom,.60),(.18,.78),(top-.10,.96),(top,1.)]]
-                for A,B in zip(path,path[1:]):ribbon(A,B,.0025)
-            for frac in [.28,.57]:
-                y=bottom+(top-bottom)*frac
-                f=.78+(y-.18)/(top-.10-.18)*.18 if y>.18 else .60+(y-bottom)/(.18-bottom)*.18
-                A=point((outside-.012)*f+.003,y,angle-half)
-                B=point(outside*f+.003,y+.035,angle)
-                C=point((outside-.012)*f+.003,y-.012,angle+half)
-                ribbon(A,B);ribbon(B,C)
-            for j in range(len(cap)):
-                A=tuple(v+( .002 if k==1 else 0) for k,v in enumerate(cap[j]))
-                B=tuple(v+( .002 if k==1 else 0) for k,v in enumerate(cap[(j+1)%len(cap)]))
-                ribbon(A,B,.002)
-    m.lathe(.5,.5,[(-.025,.052),(1.012,.052)],'crystal_warm',n=16)
-    m.lathe(.5,.5,[(1.012,.058),(1.020,.054)],'binder',n=16)
+                path=[(p[side][0]+.002*math.cos(angle),p[side][1],p[side][2]+.002*math.sin(angle)) for p in levels]
+                for A,B in zip(path,path[1:]):line(A,B)
+            for frac in [.34,.72]:
+                y=bottom+.055+(.84-bottom-.055)*frac
+                line(point(outside-.007,y,angle-half),point(outside+.003,y+.03,angle))
+                line(point(outside+.003,y+.03,angle),point(outside-.007,y-.013,angle+half))
+    # Core ends short of the longest inner blade tips.
+    m.lathe(.5,.5,[(.020,.050),(.945,.050)],'crystal_warm',n=12)
+    # Broad common flat gem face; the stepped ends are exclusively underneath.
+    n=24
+    lower=[point(.245 if i%2==0 else .238,.88,i*math.pi/12) for i in range(n)]
+    upper=[point(.269 if i%2==0 else .257,1.012,i*math.pi/12) for i in range(n)]
+    for i in range(n):
+        j=(i+1)%n;mat=['crystal','crystal_pale','crystal_warm'][i//2%3]
+        m.face([lower[i],upper[i],upper[j],lower[j]],mat)
+        m.face([(.5,1.012,.5),upper[j],upper[i]],mat)
+        m.face([(.5,.88,.5),lower[i],lower[j]],'crystal_warm')
+        if i%2==0:line(lower[i],upper[i],.003)
+    for radius in [.085,.168]:m.ring(.5,.5,1.014,radius-.004,radius+.004,'binder',n=24)
+    for i in range(12):
+        angle=i*math.pi/6
+        line(point(.055,1.015,angle),point(.267,1.015,angle),.0025)
+    m.lathe(.5,.5,[(1.012,.061),(1.020,.055)],'binder',n=16)
     m.lathe(.5,.5,[(1.020,.046),(1.025,.039)],'regulator',n=16)
     m.save('item/zero_point_module')
     model('item/zero_point_module',gui_light='front',display={

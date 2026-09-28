@@ -1,7 +1,7 @@
 ## Classic relief acceptance
 
 - Compare against the supplied 1.12 screenshots at eye level and from above: warm brown grain, notched wings, projecting control panels, thick raised emblems, close ribs and visibly recessed side panels.
-- Inspect the wider ZPM collar, denser lattice and olive/red facets. Check raised, lowered and moving modules for clearance.
+- Inspect the flat ZPM gem face, dark lattice and stepped crystal underside. Check raised, lowered and moving modules for clearance.
 - Check the hub inventory icon and reload resources with F3+T.
 - This is original reconstructed artwork; record remaining appearance differences rather than treating a passing build as visual approval.
 
@@ -165,6 +165,6 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 
 - Inspect all three consoles from above, the front, and both sides: their box faces, glyph deck, recess walls and lights must remain visible, with no cooling ribs crossing the opening.
 - Lower all three modules: the shafts must not be visible through the console walls.
-- Inspect the ZPM in inventory, in hand and raised: three concentric crystal courses must step down toward the outside, with the centre regulator tallest.
+- Inspect the ZPM in inventory, in hand and raised: the gem face must be broad and flat; underneath it, the inner crystal course must extend furthest, with the outer courses shorter and their ends irregularly bevelled.
 - Exercise each bay independently through the full lift travel; check socket clearance at every position.
 - Automated resource validation checks the outer/middle/inner course heights and unchanged installed height. Live Minecraft validation remains required.
