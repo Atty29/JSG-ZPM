@@ -2,14 +2,16 @@
 
 JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**. It is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 7
+## Current status — Phase 9
 
 Implemented systems now include:
 
 - 100 GFE long-backed Zero Point Modules with readable charge tooltips
 - staged ZPM crafting with charge inherited from JSG energy crystals
 - Atlantis ZPM Hub, Ancient ZPM Array and Ancient ZPM Column with independent animated slots
-- Ancient Power Controller for coordinated large ZPM banks and sequential discharge
+- Ancient Power Controller for coordinated large ZPM banks
+- selectable bank modes: Sequential, Balanced, Highest Charge First, Reserve Bank and Emergency Reserve
+- persistent bank-mode selection across save/reload
 - Zero Point Energy Generator 3×3 multiblock for recharging up to three ZPMs
 - generator mounting on floor, ceiling or any wall
 - manual Start/Stop charging sequence with shield sealing, cosmic-field state and vent/open sequence
@@ -28,7 +30,24 @@ Implemented systems now include:
 - persistent emitter links that survive save/reload
 - first-pass original placeholder alarm patterns using vanilla note/chime sounds; no TV audio is redistributed
 - server configuration for ZPM capacity, bank range/size and generator efficiency
-- automated GitHub Actions build validation
+- automated GitHub Actions build validation with downloadable test JAR artifacts
+
+### Ancient Power Controller / bank modes
+
+The controller automatically claims compatible loaded ZPM holders within its configured range. Holders are sorted nearest-to-farthest from the controller.
+
+- normal right-click: refresh the bank and show holder/ZPM/energy status plus the active mode
+- sneak + right-click: cycle to the next bank mode
+
+Modes:
+
+- **Sequential** — original behaviour. Drain the nearest linked holder first, then continue through the bank in order.
+- **Balanced** — share each power request across all online linked holders so the bank depletes more evenly.
+- **Highest Charge First** — prefer the holder with the highest remaining charge percentage, then move on as its relative charge falls.
+- **Reserve Bank** — keep the farthest linked holder unused until the nearer primary bank cannot satisfy the requested power.
+- **Emergency Reserve** — never automatically discharge the farthest linked holder. Change the controller mode manually when you intentionally want to access that reserve.
+
+The selected mode is saved in controller NBT and survives save/reload. Individual holders still control their own internal three-slot order and supplying animation.
 
 ### Zero Point Energy Generator
 
@@ -66,13 +85,13 @@ Each emitter only checks its explicitly linked DHD, so large bases can use many 
 
 The current block models, ZPM visuals, generator shield/cosmic field, DHD console and alarm emitter are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
 
-Not yet implemented: optional advanced ZPM-bank modes or final model/texture/audio polish.
+Not yet implemented: final model/texture/audio polish driven by in-game testing.
 
 ## Testing development builds
 
-Every successful GitHub Actions **Build** run now uploads the generated JAR files as an artifact named `jsg-zpm-<commit SHA>`. Test artifacts are retained for 14 days.
+Every successful GitHub Actions **Build** run uploads the generated JAR files as an artifact named `jsg-zpm-<commit SHA>`. Test artifacts are retained for 14 days.
 
-Use the step-by-step validation plan in [`TESTING.md`](TESTING.md) when checking a development build. It covers ZPM energy/crafting, all holder types, the large-bank controller, generator orientations/charging, the Atlantis Pegasus DHD, iris/shield controls and the distributed alarm network.
+Use the step-by-step validation plan in [`TESTING.md`](TESTING.md) when checking a development build. It covers ZPM energy/crafting, all holder types, all power-controller bank modes, generator orientations/charging, the Atlantis Pegasus DHD, iris/shield controls and the distributed alarm network.
 
 Screenshots are especially useful for the next pass because the current 3D models and effects are intentionally first-pass development visuals.
 

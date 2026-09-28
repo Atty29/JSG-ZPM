@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import uk.co.atty29.jsgzpm.blockentity.AncientPowerControllerBlockEntity;
+import uk.co.atty29.jsgzpm.power.BankDischargeMode;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 import uk.co.atty29.jsgzpm.util.EnergyFormat;
 
@@ -51,9 +52,19 @@ public final class AncientPowerControllerBlock extends BaseEntityBlock {
         if (!(blockEntity instanceof AncientPowerControllerBlockEntity controller)) return InteractionResult.PASS;
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
+        if (player.isShiftKeyDown()) {
+            BankDischargeMode mode = controller.cycleDischargeMode();
+            player.displayClientMessage(Component.translatable(
+                    "message.jsgzpm.controller.mode_changed",
+                    Component.translatable(mode.translationKey())
+            ), false);
+            return InteractionResult.CONSUME;
+        }
+
         controller.refreshNetwork();
         player.displayClientMessage(Component.translatable(
                 "message.jsgzpm.controller.status",
+                Component.translatable(controller.getDischargeMode().translationKey()),
                 controller.getLinkedHolderCount(),
                 controller.getOnlineHolderCount(),
                 controller.getActiveZPMCount(),
