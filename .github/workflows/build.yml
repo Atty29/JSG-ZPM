@@ -24,8 +24,14 @@ jobs:
         with:
           gradle-version: '8.14.4'
 
+      - name: Validate model and texture resources
+        run: python3 tools/validate_ancient_assets.py
+
       - name: Build
         run: gradle build --stacktrace
+
+      - name: Verify packaged model and texture resources
+        run: python3 tools/validate_ancient_assets.py --jar
 
       - name: Upload test JARs
         uses: actions/upload-artifact@v4

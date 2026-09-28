@@ -1,0 +1,35 @@
+newmtl panel
+Kd 1 1 1
+d 1
+map_Kd #panel
+
+newmtl trim
+Kd 1 1 1
+d 1
+map_Kd #trim
+
+newmtl recess
+Kd 1 1 1
+d 1
+map_Kd #recess
+
+newmtl binder
+Kd 1 1 1
+d 1
+map_Kd #binder
+
+newmtl crystal
+Kd 1 1 1
+d 1
+map_Kd #crystal
+
+newmtl regulator
+Kd 1 1 1
+d 1
+map_Kd #regulator
+
+newmtl light
+Kd 1 1 1
+d 1
+map_Kd #light
+

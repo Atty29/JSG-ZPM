@@ -1,12 +1,64 @@
 {
+  "loader": "forge:obj",
+  "model": "jsgzpm:models/block/atlantis_zpm_hub.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
   "ambientocclusion": false,
-  "textures": {"panel":"jsgzpm:block/ancient_panel","dark":"jsgzpm:block/ancient_panel_dark"},
-  "elements": [
-    {"from":[0,0,0],"to":[16,3,16],"faces":{"down":{"texture":"#dark"},"up":{"texture":"#panel"},"north":{"texture":"#dark"},"south":{"texture":"#dark"},"west":{"texture":"#dark"},"east":{"texture":"#dark"}}},
-    {"from":[2,3,2],"to":[14,8,14],"faces":{"up":{"texture":"#panel"},"north":{"texture":"#panel"},"south":{"texture":"#panel"},"west":{"texture":"#panel"},"east":{"texture":"#panel"}}},
-    {"from":[1,8,1],"to":[15,10,15],"faces":{"up":{"texture":"#panel"},"north":{"texture":"#dark"},"south":{"texture":"#dark"},"west":{"texture":"#dark"},"east":{"texture":"#dark"}}},
-    {"from":[2.5,10,4],"to":[6.5,11,8],"faces":{"up":{"texture":"#dark"}}},
-    {"from":[6,10,8],"to":[10,11,12],"faces":{"up":{"texture":"#dark"}}},
-    {"from":[9.5,10,4],"to":[13.5,11,8],"faces":{"up":{"texture":"#dark"}}}
-  ]
+  "textures": {
+    "panel": "jsgzpm:ancient/panel",
+    "trim": "jsgzpm:ancient/trim",
+    "recess": "jsgzpm:ancient/recess",
+    "binder": "jsgzpm:ancient/binder",
+    "crystal": "jsgzpm:ancient/crystal",
+    "regulator": "jsgzpm:ancient/regulator",
+    "light": "jsgzpm:ancient/light",
+    "particle": "jsgzpm:ancient/panel"
+  },
+  "parent": "minecraft:block/block",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    }
+  }
 }

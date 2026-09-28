@@ -46,7 +46,8 @@ public final class ZeroPointEnergyGeneratorBlockEntityRenderer implements BlockE
             poseStack.pushPose();
             poseStack.translate(0.5D + offset.x, 0.5D + offset.y, 0.5D + offset.z);
             alignItemToNormal(poseStack, normal);
-            poseStack.scale(0.48F, 0.48F, 0.48F);
+            // Keep the installed crystal height at 0.42 blocks with the recreated item.
+            poseStack.scale(0.40F, 0.40F, 0.40F);
 
             boolean charging = generator.getGeneratorState() == GeneratorState.CHARGING;
             int light = charging ? LightTexture.FULL_BRIGHT : packedLight;

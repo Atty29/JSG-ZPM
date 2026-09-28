@@ -29,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
+import uk.co.atty29.jsgzpm.holder.HubGeometry;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 import java.util.List;
@@ -170,12 +171,13 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
 
         double x = hit.getLocation().x - pos.getX();
         double z = hit.getLocation().z - pos.getZ();
-        double[][] slots = {{0.27, 0.37}, {0.50, 0.68}, {0.73, 0.37}};
+        Direction facing = state.getValue(FACING);
+        Direction side = facing.getClockWise();
         int best = 0;
         double bestDistance = Double.MAX_VALUE;
-        for (int i = 0; i < slots.length; i++) {
-            double dx = x - slots[i][0];
-            double dz = z - slots[i][1];
+        for (int i = 0; i < ZPMHolderBlockEntity.SLOT_COUNT; i++) {
+            double dx = x - (0.5D + side.getStepX() * HubGeometry.sideOffset(i) + facing.getStepX() * HubGeometry.forwardOffset(i));
+            double dz = z - (0.5D + side.getStepZ() * HubGeometry.sideOffset(i) + facing.getStepZ() * HubGeometry.forwardOffset(i));
             double distance = dx * dx + dz * dz;
             if (distance < bestDistance) {
                 best = i;

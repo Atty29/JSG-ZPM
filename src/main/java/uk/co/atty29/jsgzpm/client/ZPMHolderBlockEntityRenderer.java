@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
+import uk.co.atty29.jsgzpm.holder.HubGeometry;
 import uk.co.atty29.jsgzpm.holder.ZPMSlotState;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
 
@@ -39,11 +40,9 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
             double z = 0.5D;
 
             if (layout == ZPMHolderLayout.HUB) {
-                double[] sideOffset = {-0.23D, 0.0D, 0.23D};
-                double[] forwardOffset = {0.10D, -0.18D, 0.10D};
-                x += side.getStepX() * sideOffset[slot] + facing.getStepX() * forwardOffset[slot];
-                z += side.getStepZ() * sideOffset[slot] + facing.getStepZ() * forwardOffset[slot];
-                y += 0.12D;
+                x += side.getStepX() * HubGeometry.sideOffset(slot) + facing.getStepX() * HubGeometry.forwardOffset(slot);
+                z += side.getStepZ() * HubGeometry.sideOffset(slot) + facing.getStepZ() * HubGeometry.forwardOffset(slot);
+                y = HubGeometry.DOWN_CENTRE_Y + (1.0D - progress) * HubGeometry.TRAVEL;
             } else if (layout == ZPMHolderLayout.ARRAY) {
                 int offset = slot - 1;
                 x += side.getStepX() * offset;
@@ -55,7 +54,9 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
             poseStack.pushPose();
             poseStack.translate(x, y, z);
             poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
-            poseStack.scale(0.58F, 0.58F, 0.58F);
+            // The new item is 1.05 blocks tall; retain the other holders' installed height.
+            float scale = layout == ZPMHolderLayout.HUB ? HubGeometry.MODULE_SCALE : 0.483333F;
+            poseStack.scale(scale, scale, scale);
 
             ZPMSlotState state = holder.getSlotState(slot);
             boolean active = state.isDown() && ZPMItem.getStoredEnergy(zpm) > 0L;

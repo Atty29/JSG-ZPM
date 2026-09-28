@@ -142,3 +142,13 @@ These are intentionally first-pass visuals and should be judged in-game:
 - Alarm Emitter scale and mounting appearance
 
 Screenshots of anything that looks wrong are enough to drive the next visual/model pass.
+# Classic Ancient visual pass
+
+See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, reusable materials and regeneration commands.
+
+- Confirm no missing-model or missing-texture messages after loading the world and F3+T.
+- Inspect the ZPM in inventory, both hands, item frame, dropped form, each holder and generator orientation.
+- Place hubs facing north/east/south/west. Click each visible bay, insert/remove a ZPM and raise/lower it independently; verify the clicked bay moves and the others retain their state.
+- Check empty, partially populated and full hubs; charged/depleted modules; mixed raised/lowered/transitioning slots; active brightness in daylight and darkness.
+- Check the table overhang beside neighbouring blocks. Collision and placement intentionally retain the existing one-block footprint.
+- Re-run the gameplay and released-JSG compatibility checks below. Resource validation and a successful compile do not establish in-game runtime compatibility.
