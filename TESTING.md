@@ -200,3 +200,5 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Toggle each bay independently through seated, moving and withdrawn states, including mixed positions. Check cup clearance, supports and wall panels for clipping.
 - Inspect empty/populated bays, inventory icons, hand/drop display and F3+T; confirm no missing textures/models.
 - Recheck insertion/removal, energy output and released-JSG compatibility using the existing checklist. The approved hub and ZPM must retain their appearance.
+
+- Deep sockets: verify each seated module is mostly enclosed, each released tip clears the lip, and the floor and sloped casing never cut through the glass throughout travel. Check all four facings and mixed slot states.

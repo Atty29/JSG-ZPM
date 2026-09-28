@@ -10,20 +10,23 @@ public final class WallHolderGeometryCheck {
         double scale = WallHolderGeometry.MODULE_SCALE;
         near(1.05 * scale, 0.50749965);
         if (0.269 * scale >= 0.156) throw new AssertionError("Crystal hits bore");
+        double seatedTip = WallHolderGeometry.SEATED_OFFSET - .525 * scale;
+        if (seatedTip <= -.384 || seatedTip >= -.30) throw new AssertionError("Insufficient socket depth");
+        if (seatedTip + WallHolderGeometry.TRAVEL <= .020) throw new AssertionError("Released tip catches lip");
         for (ZPMHolderLayout layout : new ZPMHolderLayout[]{ZPMHolderLayout.ARRAY, ZPMHolderLayout.COLUMN}) {
             double angle = layout == ZPMHolderLayout.ARRAY ? 20 : 90;
             near(WallHolderGeometry.tiltDegrees(layout), angle);
             double sin = Math.sin(Math.toRadians(angle)), cos = Math.cos(Math.toRadians(angle));
             for (int slot = 0; slot < 3; slot++) {
-                double baseY = layout == ZPMHolderLayout.ARRAY ? 0.32 : 0.50 + slot - 1;
-                double socketForward = layout == ZPMHolderLayout.ARRAY ? -0.10 : -0.20;
+                double baseY = layout == ZPMHolderLayout.ARRAY ? 0.53 : 0.50 + slot - 1;
+                double socketForward = layout == ZPMHolderLayout.ARRAY ? 0.02 : 0.08;
                 for (int step = 0; step <= 20; step++) {
                     float progress = step / 20.0F;
-                    double travel = 0.10 + (1 - progress) * 0.28;
+                    double travel = -0.08 + (1 - progress) * 0.36;
                     near(WallHolderGeometry.centreY(layout, slot, progress), baseY + cos * travel);
                     near(WallHolderGeometry.forwardOffset(layout, progress), socketForward + sin * travel);
                     // Tip remains in front of the cup floor at every animation sample.
-                    if (travel - 0.525 * scale <= -0.174) throw new AssertionError("Tip hits floor");
+                    if (travel - 0.525 * scale <= -0.384) throw new AssertionError("Tip hits floor");
                     // Compare the renderer's yaw-then-pitch axis to each cardinal facing.
                     double[][] facings = {{0,-1,180},{1,0,270},{0,1,0},{-1,0,90}};
                     for (double[] facing : facings) {

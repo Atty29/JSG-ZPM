@@ -428,7 +428,7 @@ def build_hub():
 
 def build_wall_holders():
     """One authored bay per occupied block; existing three-part structures repeat it."""
-    for kind,tilt,socket_y,socket_z in [('array',20,.32,.60),('column',90,.50,.70)]:
+    for kind,tilt,socket_y,socket_z in [('array',20,.53,.48),('column',90,.50,.42)]:
         m=Mesh()
         # Layered wall casing in the approved hub material family.
         m.box((.035,.025,.915),(.965,.975,.985),'recess')
@@ -445,22 +445,33 @@ def build_wall_holders():
             m.box((x+.032,.365,.679),(x+.058,.635,.684),'light')
         for y in [.060,.900]:
             m.box((.12,y,.775),(.88,y+.04,.88),'trim')
-        # Closed projecting bracket anchors the socket to the wall rather than floating.
-        if kind=='array':
-            m.box((.20,.075,.48),(.80,.135,.91),'recess')
-            m.box((.24,.135,.53),(.76,.15,.91),'panel')
-            for x in [.23,.70]:m.box((x,.15,.60),(x+.07,.36,.90),'panel')
-        else:
-            for x in [.22,.70]:m.box((x,.275,.71),(x+.08,.725,.90),'panel')
-            m.box((.29,.245,.69),(.71,.290,.90),'trim')
         # Genuine hollow receptacle: skin, inner bore, raised lip and a recessed floor.
         cup=Mesh()
-        cup.lathe(0,0,[(-.17,.197),(-.04,.211),(0,.211)],'panel',n=16,cap=False)
-        inner=Mesh();inner.lathe(0,0,[(-.17,.156),(0,.156)],'recess',n=16,cap=False)
+        cup.lathe(0,0,[(-.38,.197),(-.04,.211),(0,.211)],'panel',n=16,cap=False)
+        inner=Mesh();inner.lathe(0,0,[(-.38,.156),(0,.156)],'recess',n=16,cap=False)
         for pts,mat in inner.faces:cup.face(list(reversed(pts)),mat)
         cup.ring(0,0,0,.156,.211,'trim',n=16)
         cup.ring(0,0,.004,.158,.169,'binder',n=16)
-        cup.lathe(0,0,[(-.183,.196),(-.174,.196)],'recess',n=16)
+        cup.lathe(0,0,[(-.393,.196),(-.384,.196)],'recess',n=16)
+        # Solid square housing around the open circular bore. The wider rear
+        # creates a sloped block body without putting a solid face across the socket.
+        front_width = .29 if kind=='array' else .35
+        back_width = .30 if kind=='array' else .44
+        def shell_point(i, y, width):
+            angle=i*2*math.pi/16
+            x,z=math.cos(angle),math.sin(angle)
+            r=width/max(abs(x),abs(z))
+            return (x*r,y,z*r)
+        for i in range(16):
+            j=(i+1)%16
+            fi,fj=shell_point(i,-.012,front_width),shell_point(j,-.012,front_width)
+            bi,bj=shell_point(i,-.395,back_width),shell_point(j,-.395,back_width)
+            ai,aj=i*2*math.pi/16,j*2*math.pi/16
+            ci=(.211*math.cos(ai),-.012,.211*math.sin(ai))
+            cj=(.211*math.cos(aj),-.012,.211*math.sin(aj))
+            cup.face([ci,cj,fj,fi],'panel')
+            cup.face([bi,fi,fj,bj],'panel')
+            cup.face([(0,-.395,0),bi,bj],'recess')
         # Four raised socket lugs, outside the crystal's travel envelope.
         for j in range(4):
             a=j*math.pi/2
