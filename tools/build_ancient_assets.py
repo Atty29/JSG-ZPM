@@ -18,6 +18,7 @@ PALETTE = {
     'crystal_pale': (249, 189, 53), 'regulator': (135, 37, 26),
     'light': (184, 207, 213),
     'crystal_olive': (45, 139, 42), 'crystal_red': (180, 35, 23),
+    'crystal_core': (247, 198, 82),
 }
 TEXTURE_SIZE = 256
 
@@ -25,6 +26,7 @@ TEXTURE_SIZE = 256
 def png(path, name):
     size = TEXTURE_SIZE
     rows = []
+    glass = name.startswith('crystal') and name != 'crystal_core'
     def noise(x,y,seed):
         n=(x*374761393+y*668265263+seed*1442695041)&0xffffffff
         n=((n^(n>>13))*1274126177)&0xffffffff
@@ -48,12 +50,22 @@ def png(path, name):
             elif name=='binder':shade*=.3
             elif name=='regulator':shade=shade*.3+12*math.sin(x/size*math.pi)*math.sin(y/size*math.pi)
             elif name=='light':shade=8+18*math.sin(x/size*math.pi)
-            row.extend(max(0,min(255,round(v+shade))) for v in PALETTE[name])
+            rgb=[max(0,min(255,round(v+shade))) for v in PALETTE[name]]
+            if glass:
+                # Coloured glass body with bright, more opaque edge reflections.
+                u,v=x/(size-1),y/(size-1)
+                glint=max(0,1-abs(u-(.22+.10*v))/.025)
+                edge=max(0,1-min(u,1-u)/.045)
+                reflection=max(glint,edge*.7)
+                rgb=[round(c*(1-reflection*.72)+255*reflection*.72) for c in rgb]
+                row.extend(rgb)
+                row.append(round(135+95*reflection))
+            else:row.extend(rgb)
         rows.append(bytes(row))
     def chunk(tag, data):
         return struct.pack('!I', len(data)) + tag + data + struct.pack('!I', zlib.crc32(tag + data))
     data = b'\x89PNG\r\n\x1a\n'
-    data += chunk(b'IHDR', struct.pack('!2I5B', size, size, 8, 2, 0, 0, 0))
+    data += chunk(b'IHDR', struct.pack('!2I5B', size, size, 8, 6 if glass else 2, 0, 0, 0))
     data += chunk(b'IDAT', zlib.compress(b''.join(rows), 9)) + chunk(b'IEND', b'')
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
@@ -178,6 +190,9 @@ def build_zpm():
                 # Bevel each individual end towards its own centre, not the axis.
                 levels.append([(centre[0]+(point(r,y,a)[0]-centre[0])*factor,y,
                                 centre[2]+(point(r,y,a)[2]-centre[2])*factor) for r,a in polar])
+            # A narrow internal honey-coloured facet is visible through the glass.
+            core_x,_,core_z=point((inside+outside)*.5,bottom,angle)
+            m.lathe(core_x,core_z,[(bottom+.060,.006),(bottom+.10,.012),(.86,.010)],'crystal_core',n=5)
             # Unequal slanted tip planes produce the chipped crystal termination.
             levels[0]=[(x,y+.017*(.5+.5*math.sin(i+j*1.9)),z) for j,(x,y,z) in enumerate(levels[0])]
             material=['crystal','crystal_pale','crystal','crystal_warm'][i%4]
@@ -220,7 +235,7 @@ def build_zpm():
     m.lathe(.5,.5,[(1.012,.061),(1.020,.055)],'binder',n=16)
     m.lathe(.5,.5,[(1.020,.046),(1.025,.039)],'regulator',n=16)
     m.save('item/zero_point_module')
-    model('item/zero_point_module',gui_light='front',display={
+    model('item/zero_point_module',render_type='minecraft:translucent',gui_light='front',display={
         'gui':{'rotation':[25,35,0],'scale':[.85,.85,.85]},
         'fixed':{'scale':[1,1,1]},
         'ground':{'translation':[0,3,0],'scale':[.4,.4,.4]},
@@ -251,16 +266,23 @@ def stroke(mesh,a,b,width,low,high,material,side=None):
 def build_hub():
     m=Mesh()
     # Three wing-shaped regions with notched gaps for the projecting controls.
-    left=[(0,0),(-.20,.25),(-.38,.28),(-.72,.02),(-.72,-.34),
+    # Notch rear corners and cheeks are derived from the console's exact basis.
+    def notch(angle,lateral,depth):
+        return (math.cos(angle)*depth-math.sin(angle)*lateral,
+                math.sin(angle)*depth+math.cos(angle)*lateral)
+    left=[(0,0),notch(3*math.pi/4,0,.420),notch(3*math.pi/4,.14,.420),
+          notch(3*math.pi/4,.14,.64),(-.72,.02),(-.72,-.34),
           (-.47,-.69),(-.17,-.69),(-.13,-.49),(0,-.49)]
     right=[(-x,z) for x,z in reversed(left)]
-    back=[(0,0),(.20,.25),(.32,.43),(.22,.69),(-.22,.69),(-.32,.43),(-.20,.25)]
+    back=[(0,0),notch(math.pi/4,0,.420),notch(math.pi/4,.14,.420),
+          notch(math.pi/4,.14,.64),(.22,.69),(-.22,.69),
+          notch(3*math.pi/4,-.14,.64),notch(3*math.pi/4,-.14,.420),notch(3*math.pi/4,0,.420)]
     bays=[(-.265,-.204),(0,.246),(.265,-.204)]
     def world(p):return(p[0]+.5,p[1]+.5)
     def console_opening(x,z):
         return any(abs(-math.sin(a)*x+math.cos(a)*z)<.163
                    and .40<math.cos(a)*x+math.sin(a)*z<.73
-                   for a in [-math.pi/2,math.pi/6,5*math.pi/6])
+                   for a in [-math.pi/2,math.pi/4,3*math.pi/4])
     # Six broad, solid spokes. Two levels provide a dark plinth and raised brown face.
     star=[]
     for i in range(24):
@@ -368,15 +390,15 @@ def build_hub():
 
     # Three recessed consoles at the gaps: a real projecting box, framed hexagon,
     # cool white inward-facing light strips and original geometric glyph relief.
-    for angle in [-math.pi/2,math.pi/6,5*math.pi/6]:
+    for angle in [-math.pi/2,math.pi/4,3*math.pi/4]:
         nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
         def transform(pts):return[(.5+ux*x+nx*z,y,.5+uz*x+nz*z) for x,y,z in pts]
         temp=Mesh()
         temp.box((-.144,.016,.385),(.144,.851,.63),'panel')
         temp.box((-.13,.85,.43),(.13,1.05,.68),'panel')
         # Solid recess walls hide the lowered modules behind each console.
-        temp.box((-.205,1.05,.420),(.205,1.143,.441),'panel')
-        for lo,hi in [(-.205,-.128),(.128,.205)]:
+        temp.box((-.150,1.05,.405),(.150,1.143,.441),'panel')
+        for lo,hi in [(-.150,-.128),(.128,.150)]:
             temp.box((lo,.85,.441),(hi,1.143,.575),'panel')
         temp.box((-.113,.867,.681),(.113,1.031,.687),'recess')
         # Frame and hexagonal centre on the vertical projecting face.

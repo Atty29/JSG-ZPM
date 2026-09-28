@@ -176,3 +176,11 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Inspect below each of the three consoles and around its light recess from both sides: no ground, sky or blocks behind the hub should show through its body.
 - Confirm no flickering at the backing/relief seams while moving the camera, in daylight and darkness.
 - Verify the flat gem face, stepped underside and independent bay travel are unchanged.
+
+
+### Diagonal alignment and translucent crystal pass
+
+- View both side consoles from directly above and from either side: panel, light strips, recess and notch should share the same 45-degree axes, with symmetric cheek widths and no overlap.
+- Check the crystal's tinted semi-transparent surfaces and visible inner facets in Fast, Fancy and Fabulous graphics modes, including inventory, hands, dropped items and installed modules.
+- Orbit populated holders and place them near water/glass: look for transparency sorting or disappearing layers. Verify binder and regulator remain opaque.
+- Confirm the front console, flat gem face, crystal lengths, installed size, independent lift travel and gameplay remain unchanged.

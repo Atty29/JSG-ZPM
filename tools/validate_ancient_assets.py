@@ -75,7 +75,7 @@ for path in (ASSETS/'models').rglob('*.json'):
     if data.get('loader')!='forge:obj': continue
     required.add(path)
     obj=resource(data['model'])
-    vertices=[]; uvs=[]; normals=[]; faces=[]; mats=set(); used_mats=set(); active=None
+    vertices=[]; uvs=[]; normals=[]; faces=[]; light_faces=[]; mats=set(); used_mats=set(); active=None
     for line in obj.read_text().splitlines():
         parts=line.split()
         if not parts: continue
@@ -108,11 +108,13 @@ for path in (ASSETS/'models').rglob('*.json'):
             cross=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]]
             assert sum(q*q for q in cross)>1e-14, 'Degenerate face'
             faces.append(face)
+            if active=='light':light_faces.append(face)
     assert faces and all(abs(sum(x*x for x in n)-1)<1e-4 for n in normals), obj
     bounds=[(min(v[i] for v in vertices),max(v[i] for v in vertices)) for i in range(3)]
     if obj.stem=='zero_point_module':
         assert abs(bounds[1][1]-bounds[1][0]-1.05)<1e-5
-        assert {'crystal_olive','crystal_red'} <= used_mats, 'Missing coloured crystal blades'
+        assert data.get('render_type')=='minecraft:translucent', 'Glass requires translucent item render type'
+        assert {'crystal_olive','crystal_red','crystal_core'} <= used_mats, 'Missing coloured crystal blades'
         # The gem face is flat; stepped crystal ends belong underneath it.
         for low,high,floor,ceiling in [(.07,.12,-.03,.04),(.13,.19,.11,.17),(.20,.25,.30,.37)]:
             ends=[v[1] for v in vertices if low<math.hypot(v[0]-.5,v[2]-.5)<high]
@@ -123,11 +125,21 @@ for path in (ASSETS/'models').rglob('*.json'):
         assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5
     else:
+        # Side-console light walls must share exact 45-degree axes with the notches.
+        diagonal_lights=0
+        for f in light_faces:
+            a,b,c=f[:3]
+            u=[b[i]-a[i] for i in range(3)];v=[c[i]-a[i] for i in range(3)]
+            n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]]
+            length=math.sqrt(sum(x*x for x in n))
+            if abs(n[1]/length)<1e-5 and abs(abs(n[0]/length)-math.sqrt(.5))<1e-4 and abs(abs(n[2]/length)-math.sqrt(.5))<1e-4:
+                diagonal_lights+=1
+        assert diagonal_lights>=16, 'Side consoles must sit on matching 45-degree axes'
         # Rays into each console's lower gap and upper recess sides must hit an
         # outward-facing wall before reaching the hub centre or opposite side.
-        for angle in [-math.pi/2,math.pi/6,5*math.pi/6]:
+        for angle in [-math.pi/2,math.pi/4,3*math.pi/4]:
             nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
-            for lateral,y in [(0,.40),(-.12,.40),(.12,.40),(-.17,1.09),(.17,1.09),(0,1.09)]:
+            for lateral,y in [(0,.40),(-.12,.40),(.12,.40),(-.14,1.09),(.14,1.09),(0,1.09)]:
                 origin=(.5+nx+ux*lateral,y,.5+nz+uz*lateral)
                 assert any(ray_hit(origin,(-nx,0,-nz),f) for f in faces), ('Open console wall',angle,lateral,y)
         assert 1.45 < bounds[0][1]-bounds[0][0] < 1.56
@@ -136,7 +148,7 @@ for path in (ASSETS/'models').rglob('*.json'):
     print(f'{obj.name}: {len(faces)} faces, bounds {bounds}')
 
 textures=list((ASSETS/'textures/block/ancient').glob('*.png'))
-assert len(textures)==11, 'Expected eleven Ancient material textures in the stitched block directory'
+assert len(textures)==12, 'Expected twelve Ancient material textures in the stitched block directory'
 for path in textures:
     raw=path.read_bytes(); assert raw[:8]==b'\x89PNG\r\n\x1a\n'
     width,height=struct.unpack('!II',raw[16:24]); assert width==height==256
@@ -148,7 +160,14 @@ for path in textures:
         assert zlib.crc32(tag+payload)==crc, path
         if tag==b'IDAT': compressed+=payload
         offset+=12+length
-    assert len(zlib.decompress(compressed))==256*(1+256*3), path
+    decoded=zlib.decompress(compressed)
+    glass=path.stem.startswith('crystal') and path.stem!='crystal_core'
+    channels=4 if glass else 3
+    assert raw[25]==(6 if glass else 2), 'Incorrect RGB/RGBA format'
+    assert len(decoded)==256*(1+256*channels), path
+    if glass:
+        alphas=[decoded[y*(1+256*4)+1+x*4+3] for y in range(256) for x in range(256)]
+        assert 90<min(alphas)<180 and max(alphas)>200, 'Missing glass transparency/highlights'
 
 if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'

@@ -17,6 +17,7 @@
     "light": "jsgzpm:block/ancient/light",
     "crystal_olive": "jsgzpm:block/ancient/crystal_olive",
     "crystal_red": "jsgzpm:block/ancient/crystal_red",
+    "crystal_core": "jsgzpm:block/ancient/crystal_core",
     "particle": "jsgzpm:block/ancient/panel"
   },
   "parent": "minecraft:block/block",

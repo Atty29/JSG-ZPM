@@ -53,3 +53,8 @@ Kd 1 1 1
 d 1
 map_Kd #crystal_red
 
+newmtl crystal_core
+Kd 1 1 1
+d 1
+map_Kd #crystal_core
+

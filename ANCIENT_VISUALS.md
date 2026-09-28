@@ -12,11 +12,11 @@ The previous near-planar surface overlays have been replaced with closed extrude
 
 Hub bounds including relief: 1.530 × 1.470 × 1.168 blocks. Installed ZPM height remains 0.420 blocks with 0.300-block independent travel. Socket centres remain (-0.265,-0.204), (0,+0.246), (+0.265,-0.204) relative to the block centre facing north. Well radius is 0.136 blocks; mounted crown radius is approximately 0.110 blocks. Array/column/generator mounting compensation is preserved.
 
-The hub has 5,888 authored faces and the module 2,460. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
+The hub has 5,836 authored faces and the module 3,180. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
 
 ## Materials
 
-Eleven original 256×256 textures live in `textures/block/ancient/`, within the default Minecraft atlas coverage. Multi-scale deterministic grain supplies fine mineral/weathering variation; silhouettes, panel relief and motifs come from geometry rather than painted outlines. Future Array, Column, Controller, Generator, Pegasus DHD and Alarm Emitter models should reuse this material vocabulary. Their body models are not replaced in this pass.
+Twelve original 256×256 textures live in `textures/block/ancient/`, within the default Minecraft atlas coverage. Multi-scale deterministic grain supplies fine mineral/weathering variation; silhouettes, panel relief and motifs come from geometry rather than painted outlines. Future Array, Column, Controller, Generator, Pegasus DHD and Alarm Emitter models should reuse this material vocabulary. Their body models are not replaced in this pass.
 
 | Material | Base RGB |
 | --- | --- |
@@ -29,6 +29,7 @@ Eleven original 256×256 textures live in `textures/block/ancient/`, within the 
 | crystal_pale | 249, 189, 53 |
 | regulator | 135, 37, 26 |
 | light | 184, 207, 213 |
+| crystal_core | 247, 198, 82 |
 | crystal_olive | 45, 139, 42 |
 | crystal_red | 180, 35, 23 |
 
@@ -52,6 +53,15 @@ Console placement uses a reflected local basis. Its faces now reverse winding so
 
 ## Crystal materials and sealed hub shell
 
-Amber, green and red blades use clean angular internal shading, narrow baked highlights and very low grain. Physical-coordinate UVs keep this shading continuous across side triangles. These opaque Minecraft materials suggest polished crystal without introducing translucency sorting or a new shader. The warm brown hub textures are unchanged.
+Amber, green and red blades use clean angular internal shading, narrow baked highlights and very low grain. Physical-coordinate UVs keep this shading continuous across side triangles. The crystal surfaces now use RGBA textures and the translucent item render type, with opaque inner facets for depth. The warm brown hub textures are unchanged.
 
 The hub has continuous backing around short perimeter edges, shoulders joining the inset body to the skirt, solid console supports and wider recess return walls. Backing is offset from existing panels to avoid coplanar overlap. The automated validator casts outward-face-only rays at 18 sample points across all three console areas; these checks fail on the prior hub and pass on the repair. They complement rather than replace live multi-angle inspection.
+
+
+## Aligned side consoles and glass rendering
+
+The two diagonal consoles and their surrounding notch geometry share exact 45/135-degree placement axes, replacing the previous 30/150-degree console arrangement. Matching cheek widths replace the oversized return-wall patches. The front console remains in place. Rays check wall coverage; light-face normals verify the side consoles use the intended diagonal axes.
+
+Five crystal textures are now RGBA with semi-transparent bodies (alpha 135/255) and more opaque white-tinted reflections (up to 230/255). The item selects `minecraft:translucent`, while opaque honey-coloured internal facets give the glass visible thickness. Binder, regulator and hub materials remain opaque. This uses Forge's supported translucent item path; it does not implement physical refraction or environment reflections. Translucent sorting and appearance require live tests in Fast, Fancy and Fabulous graphics modes, inventory, hands and every holder.
+
+Technical references: [Forge render types](https://docs.minecraftforge.net/en/1.20.x/rendering/modelextensions/rendertypes/), [OBJ model implementation](https://github.com/MinecraftForge/MinecraftForge/blob/1.20.x/src/main/java/net/minecraftforge/client/model/obj/ObjModel.java), [geometry baking](https://github.com/MinecraftForge/MinecraftForge/blob/1.20.x/src/main/java/net/minecraftforge/client/model/geometry/SimpleUnbakedGeometry.java).
