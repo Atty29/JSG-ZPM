@@ -17,11 +17,11 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import uk.co.atty29.jsgzpm.config.JSGZPMConfig;
+import uk.co.atty29.jsgzpm.power.BankDischargeMode;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +32,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
     private final List<BlockPos> linkedHolders = new ArrayList<>();
     private LazyOptional<IEnergyStorage> energyCapability = LazyOptional.of(ControllerEnergyStorage::new);
     private int scanTicker;
+    private BankDischargeMode dischargeMode = BankDischargeMode.SEQUENTIAL;
 
     public AncientPowerControllerBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.ANCIENT_POWER_CONTROLLER_BLOCK_ENTITY.get(), pos, state);
@@ -136,26 +137,30 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
         sync();
     }
 
+    public BankDischargeMode getDischargeMode() {
+        return dischargeMode;
+    }
+
+    public BankDischargeMode cycleDischargeMode() {
+        dischargeMode = dischargeMode.next();
+        sync();
+        return dischargeMode;
+    }
+
     public int getLinkedHolderCount() {
         return linkedHolders.size();
     }
 
     public int getOnlineHolderCount() {
         if (!(level instanceof ServerLevel serverLevel)) return 0;
-        int count = 0;
-        for (BlockPos holderPos : linkedHolders) {
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (isManagedByThis(holder)) count++;
-        }
-        return count;
+        return getManagedHolders(serverLevel).size();
     }
 
     public int getInstalledZPMCount() {
         if (!(level instanceof ServerLevel serverLevel)) return 0;
         int count = 0;
-        for (BlockPos holderPos : linkedHolders) {
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (isManagedByThis(holder)) count += holder.getInstalledZPMCount();
+        for (ZPMHolderBlockEntity holder : getManagedHolders(serverLevel)) {
+            count += holder.getInstalledZPMCount();
         }
         return count;
     }
@@ -163,9 +168,8 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
     public int getActiveZPMCount() {
         if (!(level instanceof ServerLevel serverLevel)) return 0;
         int count = 0;
-        for (BlockPos holderPos : linkedHolders) {
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (isManagedByThis(holder)) count += holder.getActiveZPMCount();
+        for (ZPMHolderBlockEntity holder : getManagedHolders(serverLevel)) {
+            count += holder.getActiveZPMCount();
         }
         return count;
     }
@@ -173,9 +177,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
     public long getTotalEnergyLong() {
         if (!(level instanceof ServerLevel serverLevel)) return 0L;
         long total = 0L;
-        for (BlockPos holderPos : linkedHolders) {
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (!isManagedByThis(holder)) continue;
+        for (ZPMHolderBlockEntity holder : getManagedHolders(serverLevel)) {
             total = saturatingAdd(total, holder.getAvailableEnergyLong());
         }
         return total;
@@ -184,31 +186,128 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
     public long getTotalCapacityLong() {
         if (!(level instanceof ServerLevel serverLevel)) return 0L;
         long total = 0L;
-        for (BlockPos holderPos : linkedHolders) {
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (!isManagedByThis(holder)) continue;
+        for (ZPMHolderBlockEntity holder : getManagedHolders(serverLevel)) {
             total = saturatingAdd(total, holder.getAvailableCapacityLong());
+        }
+        return total;
+    }
+
+    public long getAutomaticAvailableEnergyLong() {
+        if (!(level instanceof ServerLevel serverLevel)) return 0L;
+        List<ZPMHolderBlockEntity> holders = getManagedHolders(serverLevel);
+        if (dischargeMode != BankDischargeMode.EMERGENCY_RESERVE || holders.isEmpty()) {
+            return getTotalEnergyLong();
+        }
+
+        long total = 0L;
+        for (int i = 0; i < holders.size() - 1; i++) {
+            total = saturatingAdd(total, holders.get(i).getAvailableEnergyLong());
         }
         return total;
     }
 
     public long extractEnergyLong(long requested, boolean simulate) {
         if (requested <= 0L || !(level instanceof ServerLevel serverLevel)) return 0L;
+        List<ZPMHolderBlockEntity> holders = getManagedHolders(serverLevel);
+        if (holders.isEmpty()) return 0L;
 
+        long extracted = switch (dischargeMode) {
+            case SEQUENTIAL -> extractSequential(holders, requested, simulate);
+            case BALANCED -> extractBalanced(holders, requested, simulate);
+            case HIGHEST_CHARGE_FIRST -> extractHighestChargeFirst(holders, requested, simulate);
+            case RESERVE_BANK -> extractReserveBank(holders, requested, simulate);
+            case EMERGENCY_RESERVE -> extractEmergencyReserve(holders, requested, simulate);
+        };
+
+        if (!simulate && extracted > 0L) setChanged();
+        return extracted;
+    }
+
+    private long extractSequential(List<ZPMHolderBlockEntity> holders, long requested, boolean simulate) {
         long remaining = requested;
         long extracted = 0L;
-        for (BlockPos holderPos : linkedHolders) {
+        for (ZPMHolderBlockEntity holder : holders) {
             if (remaining <= 0L) break;
-            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
-            if (!isManagedByThis(holder)) continue;
-
             long amount = holder.extractEnergyLong(remaining, simulate);
             extracted = saturatingAdd(extracted, amount);
             remaining -= amount;
         }
-
-        if (!simulate && extracted > 0L) setChanged();
         return extracted;
+    }
+
+    private long extractBalanced(List<ZPMHolderBlockEntity> holders, long requested, boolean simulate) {
+        long[] available = new long[holders.size()];
+        for (int i = 0; i < holders.size(); i++) {
+            available[i] = holders.get(i).getAvailableEnergyLong();
+        }
+
+        long remaining = requested;
+        long extracted = 0L;
+        while (remaining > 0L) {
+            int active = 0;
+            for (long energy : available) if (energy > 0L) active++;
+            if (active == 0) break;
+
+            long share = Math.max(1L, ceilDiv(remaining, active));
+            boolean madeProgress = false;
+            for (int i = 0; i < holders.size() && remaining > 0L; i++) {
+                if (available[i] <= 0L) continue;
+                long requestedFromHolder = Math.min(remaining, Math.min(share, available[i]));
+                long amount = holders.get(i).extractEnergyLong(requestedFromHolder, simulate);
+                if (amount <= 0L) {
+                    available[i] = 0L;
+                    continue;
+                }
+                available[i] = Math.max(0L, available[i] - amount);
+                extracted = saturatingAdd(extracted, amount);
+                remaining -= amount;
+                madeProgress = true;
+            }
+            if (!madeProgress) break;
+        }
+        return extracted;
+    }
+
+    private long extractHighestChargeFirst(List<ZPMHolderBlockEntity> holders, long requested, boolean simulate) {
+        List<ZPMHolderBlockEntity> ordered = new ArrayList<>(holders);
+        ordered.sort((a, b) -> Double.compare(chargeRatio(b), chargeRatio(a)));
+        return extractSequential(ordered, requested, simulate);
+    }
+
+    private long extractReserveBank(List<ZPMHolderBlockEntity> holders, long requested, boolean simulate) {
+        if (holders.size() == 1) return extractSequential(holders, requested, simulate);
+
+        List<ZPMHolderBlockEntity> primary = holders.subList(0, holders.size() - 1);
+        ZPMHolderBlockEntity reserve = holders.get(holders.size() - 1);
+        long primaryExtracted = extractSequential(primary, requested, simulate);
+        long remaining = requested - primaryExtracted;
+        if (remaining <= 0L) return primaryExtracted;
+        return saturatingAdd(primaryExtracted, reserve.extractEnergyLong(remaining, simulate));
+    }
+
+    private long extractEmergencyReserve(List<ZPMHolderBlockEntity> holders, long requested, boolean simulate) {
+        if (holders.size() <= 1) return 0L;
+        return extractSequential(holders.subList(0, holders.size() - 1), requested, simulate);
+    }
+
+    private List<ZPMHolderBlockEntity> getManagedHolders(ServerLevel serverLevel) {
+        List<ZPMHolderBlockEntity> holders = new ArrayList<>();
+        for (BlockPos holderPos : linkedHolders) {
+            ZPMHolderBlockEntity holder = getLoadedHolder(serverLevel, holderPos);
+            if (isManagedByThis(holder)) holders.add(holder);
+        }
+        return holders;
+    }
+
+    private static double chargeRatio(ZPMHolderBlockEntity holder) {
+        long capacity = holder.getAvailableCapacityLong();
+        if (capacity <= 0L) return 0.0D;
+        return (double) holder.getAvailableEnergyLong() / (double) capacity;
+    }
+
+    private static long ceilDiv(long value, int divisor) {
+        if (value <= 0L) return 0L;
+        return 1L + ((value - 1L) / divisor);
     }
 
     @Override
@@ -233,6 +332,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putLongArray("LinkedHolders", linkedHolders.stream().mapToLong(BlockPos::asLong).toArray());
+        tag.putString("DischargeMode", dischargeMode.name());
     }
 
     @Override
@@ -242,6 +342,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
         for (long packed : tag.getLongArray("LinkedHolders")) {
             linkedHolders.add(BlockPos.of(packed));
         }
+        dischargeMode = BankDischargeMode.fromName(tag.getString("DischargeMode"));
     }
 
     @Override
@@ -341,7 +442,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
 
         @Override
         public boolean canExtract() {
-            return getTotalEnergyLong() > 0L;
+            return getAutomaticAvailableEnergyLong() > 0L;
         }
 
         @Override
