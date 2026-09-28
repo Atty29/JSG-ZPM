@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -29,6 +30,7 @@ import uk.co.atty29.jsgzpm.blockentity.AtlantisPegasusDHDBlockEntity;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 /** Master/control block for the five-block Atlantis Pegasus DHD console. */
 public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
@@ -43,7 +45,7 @@ public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
 
     @Override
     public JSGBlockItem getItemBlock() {
-        return new JSGBlockItem(this);
+        return new JSGBlockItem(this, new Item.Properties(), List.of());
     }
 
     @Nullable
@@ -85,13 +87,13 @@ public final class AtlantisPegasusDHDBlock extends DHDAbstractBlock {
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.CONSUME;
 
         if (player.isShiftKeyDown()) {
-            player.sendSystemMessage(dhd.relink(), true);
+            player.sendSystemMessage(dhd.relink());
             return InteractionResult.CONSUME;
         }
 
         int index = gridIndex(state, pos, hit);
         if (!dhd.pressSymbol(index, serverPlayer)) {
-            player.sendSystemMessage(Component.translatable("message.jsgzpm.dhd.no_button"), true);
+            player.sendSystemMessage(Component.translatable("message.jsgzpm.dhd.no_button"));
         }
         return InteractionResult.CONSUME;
     }
