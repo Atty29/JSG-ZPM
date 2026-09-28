@@ -2,7 +2,7 @@
 
 JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**. It is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 6
+## Current status — Phase 7
 
 Implemented systems now include:
 
@@ -13,10 +13,8 @@ Implemented systems now include:
 - Zero Point Energy Generator 3×3 multiblock for recharging up to three ZPMs
 - generator mounting on floor, ceiling or any wall
 - manual Start/Stop charging sequence with shield sealing, cosmic-field state and vent/open sequence
-- five JSG Efficiency Upgrade Crystal slots
-- default generator efficiencies of 20%, 36%, 52%, 68%, 84% and 100%
+- five JSG Efficiency Upgrade Crystal slots with 20%, 36%, 52%, 68%, 84% and 100% efficiency progression
 - external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
-- generator charging distributed across installed non-full ZPMs
 - Atlantis Pegasus DHD implemented as a solid five-block C/horseshoe floor console
 - genuine Pegasus-only JSG DHD linking and dialling behaviour
 - 42-position physical Pegasus-symbol control grid
@@ -24,13 +22,19 @@ Implemented systems now include:
 - linked Stargate iris OPEN/CLOSE controls or shield ON/OFF controls as appropriate
 - automatic Off-World Activation alarm state when the linked Pegasus gate reports an incoming connection
 - manual Atlantis General Alarm and alarm-reset controls
-- DHD redstone output while an alarm is active, providing a clean integration point for distributed alarm emitters
+- Atlantis Alarm Emitter blocks for distributed base-wide alarms
+- Ancient Alarm Linker for explicit DHD-to-emitter binding without repeated area scans
+- separate Off-World Activation and General Alarm states; General Alarm takes priority when both are active
+- persistent emitter links that survive save/reload
+- first-pass original placeholder alarm patterns using vanilla note/chime sounds; no TV audio is redistributed
 - server configuration for ZPM capacity, bank range/size and generator efficiency
 - automated GitHub Actions build validation
 
+### Zero Point Energy Generator
+
 The generator is built from one **Zero Point Energy Generator Controller** in the centre of a 3×3 plane plus eight **Zero Point Generator Casings**. The plane follows the face the controller is mounted to, so the machine works on floors, ceilings and walls.
 
-### Generator controls (development interaction)
+Development interaction:
 
 - hold a ZPM and right-click the controller: insert into the next free ZPM slot
 - hold a JSG Efficiency Upgrade Crystal and right-click: install an efficiency upgrade
@@ -38,22 +42,31 @@ The generator is built from one **Zero Point Energy Generator Controller** in th
 - empty-hand right-click while running: stop and vent the chamber
 - sneak + empty-hand right-click while idle: remove an installed ZPM, then upgrades if no ZPM remains
 
-Charging only accepts FE after the eight casings are present, the shield has sealed and the cosmic field has formed. Installed items are locked during an active cycle. When all installed ZPMs reach full charge the generator stops automatically, vents the field and opens the shield.
-
-### Atlantis Pegasus DHD controls (development interaction)
+### Atlantis Pegasus DHD
 
 The DHD is placed as a five-block floor-integrated horseshoe with an open step-in position.
 
 - centre console: Pegasus symbol controls for normal JSG dialling
 - holding a compatible JSG notebook: next Pegasus address symbol is highlighted
-- rear/side protection controls: iris open/close or shield off/on depending on the linked Stargate
+- side protection controls: iris open/close or shield off/on depending on the linked Stargate
 - alarm control: toggles the Atlantis General Alarm
 - alarm reset: clears the General Alarm; the Off-World Activation alarm remains active while the linked gate is genuinely incoming
 - sneak + right-click centre console: force a JSG relink attempt to a compatible Pegasus Stargate
 
-The current block models, ZPM visuals, generator shield/cosmic field and DHD console are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
+### Atlantis alarm network
 
-Not yet implemented: distributed Atlantis alarm speaker blocks/audio, advanced optional bank modes, or final visual polish.
+1. Craft an **Ancient Alarm Linker** and one or more **Atlantis Alarm Emitters**.
+2. Use the Linker on the Atlantis Pegasus DHD to store that DHD.
+3. Use the same Linker on each placed Alarm Emitter to bind it to the stored DHD.
+4. The Linker may be reused for any number of emitters.
+5. Sneak-use the Linker on an emitter to clear that emitter's link.
+6. Sneak-use the Linker in the air to clear the Linker's stored DHD.
+
+Each emitter only checks its explicitly linked DHD, so large bases can use many emitters without every speaker repeatedly scanning the surrounding world. The current alarm tones are development placeholders made from vanilla Minecraft sound events. Original custom alarm audio can replace them during the final polish pass.
+
+The current block models, ZPM visuals, generator shield/cosmic field, DHD console and alarm emitter are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
+
+Not yet implemented: optional advanced ZPM-bank modes or final model/texture/audio polish.
 
 ## Development dependency
 
