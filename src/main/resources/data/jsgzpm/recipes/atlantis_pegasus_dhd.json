@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TQT",
+    "QDQ",
+    "TRT"
+  ],
+  "key": {
+    "T": { "tag": "forge:ingots/titanium" },
+    "Q": { "item": "minecraft:quartz_block" },
+    "D": { "item": "jsg:dhd_pegasus" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "result": {
+    "item": "jsgzpm:atlantis_pegasus_dhd",
+    "count": 1
+  }
+}

@@ -16,5 +16,6 @@ public final class JSGZPMClient {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModRegistries.ZPM_HOLDER_BLOCK_ENTITY.get(), ZPMHolderBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModRegistries.ZERO_POINT_ENERGY_GENERATOR_BLOCK_ENTITY.get(), ZeroPointEnergyGeneratorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModRegistries.ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY.get(), AtlantisPegasusDHDBlockEntityRenderer::new);
     }
 }

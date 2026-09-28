@@ -52,7 +52,10 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // JSG is not bundled. This is only the published compile-time integration target.
+    // JSG and JSG Core are not bundled. These are published compile-time integration targets only.
+    // JSG's public API inherits several base types from JSG Core, so addons that directly subclass
+    // the DHD/block-entity APIs need Core on their compile classpath as well.
+    compileOnly(fg.deobf("eu.tauridev:jsg-core-1.20.1:${jsg_core_version}") { transitive = false })
     compileOnly(fg.deobf("eu.tauridev:jsg-1.20.1:${jsg_version}") { transitive = false })
 }
 

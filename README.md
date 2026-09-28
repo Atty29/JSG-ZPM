@@ -2,7 +2,7 @@
 
 JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**. It is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-## Current status — Phase 5
+## Current status — Phase 6
 
 Implemented systems now include:
 
@@ -17,6 +17,14 @@ Implemented systems now include:
 - default generator efficiencies of 20%, 36%, 52%, 68%, 84% and 100%
 - external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
 - generator charging distributed across installed non-full ZPMs
+- Atlantis Pegasus DHD implemented as a solid five-block C/horseshoe floor console
+- genuine Pegasus-only JSG DHD linking and dialling behaviour
+- 42-position physical Pegasus-symbol control grid
+- JSG notebook/address data drives the next-symbol guidance glow
+- linked Stargate iris OPEN/CLOSE controls or shield ON/OFF controls as appropriate
+- automatic Off-World Activation alarm state when the linked Pegasus gate reports an incoming connection
+- manual Atlantis General Alarm and alarm-reset controls
+- DHD redstone output while an alarm is active, providing a clean integration point for distributed alarm emitters
 - server configuration for ZPM capacity, bank range/size and generator efficiency
 - automated GitHub Actions build validation
 
@@ -32,13 +40,24 @@ The generator is built from one **Zero Point Energy Generator Controller** in th
 
 Charging only accepts FE after the eight casings are present, the shield has sealed and the cosmic field has formed. Installed items are locked during an active cycle. When all installed ZPMs reach full charge the generator stops automatically, vents the field and opens the shield.
 
-The current block models, shield and cosmic-field effects are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
+### Atlantis Pegasus DHD controls (development interaction)
 
-Not yet implemented: Atlantis Pegasus DHD, Atlantis alarm system, advanced bank modes or final visual polish.
+The DHD is placed as a five-block floor-integrated horseshoe with an open step-in position.
+
+- centre console: Pegasus symbol controls for normal JSG dialling
+- holding a compatible JSG notebook: next Pegasus address symbol is highlighted
+- rear/side protection controls: iris open/close or shield off/on depending on the linked Stargate
+- alarm control: toggles the Atlantis General Alarm
+- alarm reset: clears the General Alarm; the Off-World Activation alarm remains active while the linked gate is genuinely incoming
+- sneak + right-click centre console: force a JSG relink attempt to a compatible Pegasus Stargate
+
+The current block models, ZPM visuals, generator shield/cosmic field and DHD console are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
+
+Not yet implemented: distributed Atlantis alarm speaker blocks/audio, advanced optional bank modes, or final visual polish.
 
 ## Development dependency
 
-JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 artifact from Tau'ri Development. Users need a compatible JSG 1.20.1 installation at runtime.
+JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 and JSG Core artifacts from Tau'ri Development. Users need a compatible JSG 1.20.1 installation at runtime.
 
 JSG source/project: https://github.com/Tau-ri-Dev/Mod-JSG
 

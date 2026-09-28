@@ -10,6 +10,8 @@
   "block.jsgzpm.ancient_power_controller": "Ancient Power Controller",
   "block.jsgzpm.zero_point_energy_generator_controller": "Zero Point Energy Generator",
   "block.jsgzpm.zero_point_generator_casing": "Zero Point Generator Casing",
+  "block.jsgzpm.atlantis_pegasus_dhd": "Atlantis Pegasus DHD",
+  "block.jsgzpm.atlantis_pegasus_dhd_part": "Atlantis Pegasus DHD Console",
   "tooltip.jsgzpm.zpm.charge": "Charge: %s",
   "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE",
   "message.jsgzpm.holder.inserted": "ZPM inserted into slot %s",
@@ -25,5 +27,17 @@
   "message.jsgzpm.generator.no_zpm": "No ZPMs installed",
   "message.jsgzpm.generator.already_full": "All installed ZPMs are already fully charged",
   "message.jsgzpm.generator.started": "Charging sequence started — %s%% efficiency",
-  "message.jsgzpm.generator.stopped": "Charging stopped — venting chamber"
+  "message.jsgzpm.generator.stopped": "Charging stopped — venting chamber",
+  "message.jsgzpm.dhd.linked": "Atlantis DHD linked to nearby Pegasus Stargate",
+  "message.jsgzpm.dhd.not_linked": "No compatible Pegasus Stargate is linked",
+  "message.jsgzpm.dhd.no_button": "No DHD control is mapped here",
+  "message.jsgzpm.dhd.no_protection": "Linked Stargate has no iris or shield installed",
+  "message.jsgzpm.dhd.protection_busy": "Iris/shield is busy and cannot move yet",
+  "message.jsgzpm.dhd.shield_on": "Stargate shield ON",
+  "message.jsgzpm.dhd.shield_off": "Stargate shield OFF",
+  "message.jsgzpm.dhd.iris_closed": "Stargate iris CLOSED",
+  "message.jsgzpm.dhd.iris_open": "Stargate iris OPEN",
+  "message.jsgzpm.dhd.general_alarm_on": "Atlantis general alarm ACTIVATED",
+  "message.jsgzpm.dhd.general_alarm_off": "Atlantis general alarm cancelled",
+  "message.jsgzpm.dhd.alarms_reset": "Alarm controls reset"
 }
