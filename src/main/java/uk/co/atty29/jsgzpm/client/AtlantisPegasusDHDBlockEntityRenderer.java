@@ -81,7 +81,7 @@ public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityR
         if (compound.contains("pages")) compound = NotebookItem.getSelectedPageFromCompound(compound);
         if (compound == null) return null;
 
-        NotebookPageType<?> page = NotebookPageType.pageDataFromCompound(compound);
+        var page = NotebookPageType.pageDataFromCompound(compound);
         if (page == null || !(page.data() instanceof StargateAddressData data)) return null;
         var address = data.getAddress();
         if (address.getSymbolType() != JSGSymbolTypes.PEGASUS.get()) return null;
