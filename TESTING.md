@@ -1,0 +1,108 @@
+# JSG-ZPM In-Game Validation Checklist
+
+This checklist is for development builds. Test in a disposable world first.
+
+## Test environment
+
+- Minecraft 1.20.1
+- Forge 47.4.x (development baseline: 47.4.10)
+- compatible Just Stargate Mod 1.20.1 installation and its required dependencies
+- latest JSG-ZPM test JAR from the GitHub Actions `Build` workflow artifact
+
+## 1. Zero Point Module
+
+- Find **Zero Point Module** in the JSG-ZPM creative tab.
+- Confirm a fresh ZPM tooltip shows `Charge: 0.0%` and approximately `0 / 100G FE`.
+- Confirm the Crystal Binder, Zero-Point Containment Matrix and Central Power Regulator appear in the creative tab.
+- Craft a ZPM using two Basic, two Advanced and two Ultimate JSG energy crystals plus the three custom components.
+- If any input crystals are charged, confirm the crafted ZPM inherits their combined energy, capped at 100 GFE.
+
+## 2. Atlantis ZPM Hub
+
+- Place an **Atlantis ZPM Hub**.
+- Insert three ZPMs individually.
+- Confirm each slot can be raised/lowered independently.
+- Confirm a lowered ZPM cannot be removed.
+- Confirm a raised ZPM can be removed without affecting the other two.
+- Save and reload the world and confirm slot contents, energy and positions survive.
+
+## 3. Ancient ZPM Array
+
+- Place an **Ancient ZPM Array** with enough clear horizontal space.
+- Confirm the complete physical structure occupies three blocks.
+- Repeat the three independent-slot tests from the Hub.
+- Break the structure and confirm installed ZPMs are returned rather than deleted or duplicated.
+
+## 4. Ancient ZPM Column
+
+- Place an **Ancient ZPM Column** with enough vertical space.
+- Confirm the physical structure occupies three blocks vertically.
+- Repeat the insertion, animation, save/reload and removal tests.
+
+## 5. Ancient Power Controller / large banks
+
+- Build several Hubs/Arrays/Columns near one **Ancient Power Controller**.
+- Lower multiple charged ZPMs.
+- Attach an FE consumer/storage network to the controller.
+- Confirm power is supplied sequentially rather than evenly draining every ZPM.
+- Confirm an empty ZPM naturally falls out of useful supply and the next available ZPM takes over.
+- Confirm the controller remains usable after save/reload.
+
+## 6. Zero Point Energy Generator
+
+- Place the **Zero Point Energy Generator Controller** and surround it with eight **Zero Point Generator Casings** in a 3×3 plane.
+- Test the 3×3 plane on a floor, wall and ceiling.
+- Insert one, two and three partially empty ZPMs.
+- Start charging and confirm the shield closes before charging begins.
+- Confirm the cosmic-field state appears during charging.
+- Stop manually and confirm partial ZPM charge is preserved.
+- Let a cycle complete and confirm the field vents, shield opens and ZPMs become removable.
+- Test 0 through 5 JSG Efficiency Upgrade Crystals and confirm progressively less FE is wasted.
+
+## 7. Atlantis Pegasus DHD
+
+- Leave enough room for the five-block C/horseshoe footprint and place the **Atlantis Pegasus DHD**.
+- Confirm the centre/front remains open so a player can step into the console.
+- Place/link a compatible Pegasus Stargate and sneak-right-click the centre console to force a relink if necessary.
+- Confirm the console links only to a compatible Pegasus gate.
+- Dial manually using the console symbol controls.
+- Hold a JSG notebook containing a Pegasus address and confirm the next required symbol is highlighted.
+
+### Protection controls
+
+- With no iris/shield installed, confirm protection controls report that none is installed.
+- Install an iris and test OPEN/CLOSE.
+- Separately test a gate configured with a shield and confirm the same controls become OFF/ON appropriately.
+- Confirm the console never treats one gate as having both an iris and a shield simultaneously.
+
+## 8. Atlantis alarm network
+
+- Place several **Atlantis Alarm Emitters** around the test base.
+- Craft/get an **Ancient Alarm Linker**.
+- Use the Linker on the Atlantis Pegasus DHD; confirm the DHD position is stored.
+- Use the Linker on each Alarm Emitter; confirm each reports successful binding.
+- Trigger the DHD General Alarm and confirm all linked emitters enter General Alarm state and sound.
+- Cause an incoming Pegasus Stargate connection and confirm linked emitters enter Off-World Activation state automatically.
+- If both states are active, confirm General Alarm takes priority.
+- Reset the General Alarm while the gate remains incoming; confirm the emitters return to Off-World Activation rather than becoming silent.
+- Sneak-use the Linker on one emitter and confirm only that emitter stops following the DHD.
+- Save/reload and confirm emitter links persist.
+
+## Visual checks to screenshot/report
+
+These are intentionally first-pass visuals and should be judged in-game:
+
+- ZPM proportions, amber crystal body, black binder and red regulator
+- raised versus lowered ZPM height
+- active ZPM glow visibility
+- Hub proportions
+- Array alignment across all three blocks
+- Column alignment across all three blocks
+- Generator shield position on all six mounting orientations
+- generator cosmic-field scale and clipping
+- Atlantis DHD C-shape, console height and player step-in space
+- Pegasus symbol spacing/readability
+- notebook guidance highlight visibility
+- Alarm Emitter scale and mounting appearance
+
+Screenshots of anything that looks wrong are enough to drive the next visual/model pass.

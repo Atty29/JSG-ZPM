@@ -68,6 +68,14 @@ The current block models, ZPM visuals, generator shield/cosmic field, DHD consol
 
 Not yet implemented: optional advanced ZPM-bank modes or final model/texture/audio polish.
 
+## Testing development builds
+
+Every successful GitHub Actions **Build** run now uploads the generated JAR files as an artifact named `jsg-zpm-<commit SHA>`. Test artifacts are retained for 14 days.
+
+Use the step-by-step validation plan in [`TESTING.md`](TESTING.md) when checking a development build. It covers ZPM energy/crafting, all holder types, the large-bank controller, generator orientations/charging, the Atlantis Pegasus DHD, iris/shield controls and the distributed alarm network.
+
+Screenshots are especially useful for the next pass because the current 3D models and effects are intentionally first-pass development visuals.
+
 ## Development dependency
 
 JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 and JSG Core artifacts from Tau'ri Development. Users need a compatible JSG 1.20.1 installation at runtime.
