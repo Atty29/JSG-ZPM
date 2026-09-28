@@ -217,3 +217,5 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Save/reload with charged, depleted and empty sockets; verify state, charge and light recovery. Test on a dedicated server with two clients.
 - Break the pedestal in survival, creative and by explosion. The ZPM must drop once, with its stored charge preserved; no neighbouring blocks are removed.
 - Connect to an Ancient Power Controller and confirm installed/active counts increase by one only. Recheck hub, array and column placement, animation and extraction.
+
+Recharger visual checks: assemble the controller and eight casings in the existing 3x3 plane. Leave two blocks clear in front. Insert three ZPMs, start charging with the existing interaction, and verify shield closure, gradual mist fill, sweeping lights, and visible central modules. Stop and check gas drains before the shield opens. Repeat wall/floor/ceiling mounting, chunk reload, full modules, empty slots, and casing removal. FE accounting and charging rules are unchanged.

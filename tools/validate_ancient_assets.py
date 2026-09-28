@@ -231,6 +231,24 @@ for path in textures:
         alphas=[decoded[y*(1+256*4)+1+x*4+3] for y in range(256) for x in range(256)]
         assert 90<min(alphas)<180 and max(alphas)>200, 'Missing glass transparency/highlights'
 
+for name in ('recharger_mist','recharger_shield'):
+    path=ASSETS/'textures/entity'/(name+'.png');required.add(path)
+    raw=path.read_bytes()
+    assert struct.unpack('!II',raw[16:24])==(128,128) and raw[25]==6
+    offset=8; compressed=b''
+    while offset<len(raw):
+        length=struct.unpack('!I',raw[offset:offset+4])[0]
+        tag=raw[offset+4:offset+8];payload=raw[offset+8:offset+8+length]
+        assert zlib.crc32(tag+payload)==struct.unpack('!I',raw[offset+8+length:offset+12+length])[0]
+        if tag==b'IDAT': compressed+=payload
+        offset+=12+length
+    decoded=zlib.decompress(compressed)
+    assert len(decoded)==128*513
+    alpha=[decoded[y*513+1+x*4+3] for y in range(128) for x in range(128)]
+    assert min(alpha)==0 and max(alpha)>90
+    assert all(decoded[y*513]==0 for y in range(128))
+    assert all(alpha[y*128+x]==0 for x,y in [(0,0),(127,0),(0,127),(127,127)])
+
 if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'
     for jar in jars:

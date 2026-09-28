@@ -2,7 +2,6 @@ package uk.co.atty29.jsgzpm.blockentity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
@@ -84,9 +83,6 @@ public final class ZeroPointEnergyGeneratorBlockEntity extends BlockEntity {
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, ZeroPointEnergyGeneratorBlockEntity generator) {
         generator.advanceVisualState(false);
-        if (generator.generatorState == GeneratorState.CHARGING && generator.cosmicProgress > 0.05F) {
-            generator.spawnChargingParticles();
-        }
     }
 
     public GeneratorState getGeneratorState() {
@@ -422,22 +418,6 @@ public final class ZeroPointEnergyGeneratorBlockEntity extends BlockEntity {
             if (!moved) break;
         }
         return stored;
-    }
-
-    private void spawnChargingParticles() {
-        if (level == null || level.random.nextInt(2) != 0) return;
-        Direction normal = getMountNormal();
-        double u = (level.random.nextDouble() - 0.5D) * 1.4D;
-        double v = (level.random.nextDouble() - 0.5D) * 1.4D;
-        double outward = 0.18D + level.random.nextDouble() * 0.35D;
-        Vec3 offset = GeneratorGeometry.localOffset(normal, u, v, outward);
-        double x = worldPosition.getX() + 0.5D + offset.x;
-        double y = worldPosition.getY() + 0.5D + offset.y;
-        double z = worldPosition.getZ() + 0.5D + offset.z;
-        level.addParticle(ParticleTypes.PORTAL, x, y, z, 0.0D, 0.01D, 0.0D);
-        if (level.random.nextInt(12) == 0) {
-            level.addParticle(ParticleTypes.END_ROD, x, y, z, 0.0D, 0.0D, 0.0D);
-        }
     }
 
     private void sync() {

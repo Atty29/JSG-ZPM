@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "jsgzpm:block/ancient_panel"
+    "all": "jsgzpm:block/ancient/pedestal_metal"
   }
 }

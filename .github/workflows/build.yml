@@ -38,6 +38,11 @@ jobs:
           javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/PedestalGeometry.java src/main/java/uk/co/atty29/jsgzpm/client/PedestalLightGeometry.java tools/PedestalGeometryCheck.java
           java -cp build/visual-checks PedestalGeometryCheck
 
+      - name: Check recharger geometry and effects
+        run: |
+          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/generator/RechargerGeometry.java src/main/java/uk/co/atty29/jsgzpm/client/RechargerMesh.java tools/RechargerGeometryCheck.java
+          java -cp build/visual-checks RechargerGeometryCheck
+
       - name: Build
         run: gradle build --stacktrace
 
