@@ -1,6 +1,5 @@
 package uk.co.atty29.jsgzpm.blockentity;
 
-import dev.tauri.jsg.api.entity.StargateAddressData;
 import dev.tauri.jsg.api.item.IDHDFluidTank;
 import dev.tauri.jsg.api.item.IDHDPartItem;
 import dev.tauri.jsg.api.registry.JSGSymbolTypes;
@@ -8,7 +7,6 @@ import dev.tauri.jsg.api.stargate.network.address.symbol.types.SymbolPegasusEnum
 import dev.tauri.jsg.common.blockentity.dialhomedevice.DHDAbstractBE;
 import dev.tauri.jsg.common.blockentity.stargate.StargateClassicBaseBE;
 import dev.tauri.jsg.common.dialhomedevice.manager.state.DHDAbstractStateManager;
-import dev.tauri.jsg.common.dialhomedevice.manager.state.DHDPegasusStateManager;
 import dev.tauri.jsg.common.registry.JSGItems;
 import dev.tauri.jsg.common.registry.JSGSoundEvents;
 import dev.tauri.jsg.common.registry.tags.JSGBlockTags;
@@ -26,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
+import uk.co.atty29.jsgzpm.dhd.AtlantisPegasusDHDStateManager;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 import java.util.Arrays;
@@ -53,7 +52,7 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
 
     @Override
     protected DHDAbstractStateManager<?, ?> createStateManager() {
-        return new DHDPegasusStateManager(this);
+        return new AtlantisPegasusDHDStateManager(this);
     }
 
     @Override
@@ -137,7 +136,8 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
     }
 
     public boolean hasProtection() {
-        return getClassicGate() != null && getClassicGate().getIrisManager().hasIris();
+        StargateClassicBaseBE<?> gate = getClassicGate();
+        return gate != null && gate.getIrisManager().hasIris();
     }
 
     public boolean linkedGateUsesShield() {
@@ -220,7 +220,7 @@ public final class AtlantisPegasusDHDBlockEntity extends DHDAbstractBE {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putBoolean("GeneralAlarm", generalAlarmActive);
         tag.putBoolean("OffworldAlarm", offworldAlarmActive);
