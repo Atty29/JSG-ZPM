@@ -1,0 +1,60 @@
+newmtl panel
+Kd 1 1 1
+d 1
+map_Kd #panel
+
+newmtl trim
+Kd 1 1 1
+d 1
+map_Kd #trim
+
+newmtl recess
+Kd 1 1 1
+d 1
+map_Kd #recess
+
+newmtl binder
+Kd 1 1 1
+d 1
+map_Kd #binder
+
+newmtl crystal
+Kd 1 1 1
+d 1
+map_Kd #crystal
+
+newmtl crystal_warm
+Kd 1 1 1
+d 1
+map_Kd #crystal_warm
+
+newmtl crystal_pale
+Kd 1 1 1
+d 1
+map_Kd #crystal_pale
+
+newmtl regulator
+Kd 1 1 1
+d 1
+map_Kd #regulator
+
+newmtl light
+Kd 1 1 1
+d 1
+map_Kd #light
+
+newmtl crystal_olive
+Kd 1 1 1
+d 1
+map_Kd #crystal_olive
+
+newmtl crystal_red
+Kd 1 1 1
+d 1
+map_Kd #crystal_red
+
+newmtl crystal_core
+Kd 1 1 1
+d 1
+map_Kd #crystal_core
+

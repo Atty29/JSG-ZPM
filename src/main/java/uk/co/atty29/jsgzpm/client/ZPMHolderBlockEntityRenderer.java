@@ -15,6 +15,7 @@ import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
 import uk.co.atty29.jsgzpm.holder.HubGeometry;
+import uk.co.atty29.jsgzpm.holder.WallHolderGeometry;
 import uk.co.atty29.jsgzpm.holder.ZPMSlotState;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
 
@@ -43,19 +44,23 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
                 x += side.getStepX() * HubGeometry.sideOffset(slot) + facing.getStepX() * HubGeometry.forwardOffset(slot);
                 z += side.getStepZ() * HubGeometry.sideOffset(slot) + facing.getStepZ() * HubGeometry.forwardOffset(slot);
                 y = HubGeometry.DOWN_CENTRE_Y + (1.0D - progress) * HubGeometry.TRAVEL;
-            } else if (layout == ZPMHolderLayout.ARRAY) {
-                int offset = slot - 1;
-                x += side.getStepX() * offset;
-                z += side.getStepZ() * offset;
             } else {
-                y += slot - 1;
+                double sideways = layout == ZPMHolderLayout.ARRAY ? slot - 1 : 0;
+                double forward = WallHolderGeometry.forwardOffset(layout, progress);
+                x += side.getStepX() * sideways + facing.getStepX() * forward;
+                z += side.getStepZ() * sideways + facing.getStepZ() * forward;
+                y = WallHolderGeometry.centreY(layout, slot, progress);
             }
 
             poseStack.pushPose();
             poseStack.translate(x, y, z);
             poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
+            if (layout != ZPMHolderLayout.HUB) {
+                // Local +Z points out of the facing after the existing yaw rotation.
+                poseStack.mulPose(Axis.XP.rotationDegrees(WallHolderGeometry.tiltDegrees(layout)));
+            }
             // The new item is 1.05 blocks tall; retain the other holders' installed height.
-            float scale = layout == ZPMHolderLayout.HUB ? HubGeometry.MODULE_SCALE : 0.483333F;
+            float scale = layout == ZPMHolderLayout.HUB ? HubGeometry.MODULE_SCALE : WallHolderGeometry.MODULE_SCALE;
             poseStack.scale(scale, scale, scale);
 
             ZPMSlotState state = holder.getSlotState(slot);

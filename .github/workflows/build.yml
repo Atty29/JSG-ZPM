@@ -27,6 +27,12 @@ jobs:
       - name: Validate model and texture resources
         run: python3 tools/validate_ancient_assets.py
 
+      - name: Check wall holder visual transforms
+        run: |
+          mkdir -p build/visual-checks
+          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/ZPMHolderLayout.java src/main/java/uk/co/atty29/jsgzpm/holder/WallHolderGeometry.java tools/WallHolderGeometryCheck.java
+          java -cp build/visual-checks WallHolderGeometryCheck
+
       - name: Build
         run: gradle build --stacktrace
 

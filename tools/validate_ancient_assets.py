@@ -124,6 +124,10 @@ for path in (ASSETS/'models').rglob('*.json'):
         # Installed module clears a 0.136-radius well at every height.
         assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5
+    elif obj.stem in ('ancient_zpm_array','ancient_zpm_column'):
+        assert all(-.001<=lo<hi<=1.001 for lo,hi in bounds), ('Wall bay exceeds occupied block',bounds)
+        assert {'panel','trim','recess','light'} <= used_mats
+        assert 'crystal' not in used_mats, 'Crystals must remain independently animated items'
     else:
         # Side-console light walls must share exact 45-degree axes with the notches.
         diagonal_lights=0
@@ -159,6 +163,19 @@ for path in (ASSETS/'models').rglob('*.json'):
         assert 1.38 < bounds[2][1]-bounds[2][0] < 1.50
         assert 1.16 < bounds[1][1]-bounds[1][0] < 1.19
     print(f'{obj.name}: {len(faces)} faces, bounds {bounds}')
+
+# Both wall structures must resolve their own new bay in every facing.
+for kind in ('array','column'):
+    state=ASSETS/'blockstates'/('ancient_zpm_'+kind+'.json')
+    data=json.loads(state.read_text());required.add(state)
+    parts=data['multipart']
+    assert len(parts)==4
+    for part,facing,rotation in zip(parts,['north','east','south','west'],[0,90,180,270]):
+        assert part['when']=={'facing':facing}
+        assert part['apply'].get('y',0)==rotation
+        ref='jsgzpm:block/ancient_zpm_'+kind
+        assert part['apply']['model']==ref
+        resource(ref,'models','.json')
 
 textures=list((ASSETS/'textures/block/ancient').glob('*.png'))
 assert len(textures)==12, 'Expected twelve Ancient material textures in the stitched block directory'

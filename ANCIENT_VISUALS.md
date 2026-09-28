@@ -70,3 +70,14 @@ Technical references: [Forge render types](https://docs.minecraftforge.net/en/1.
 ## Console cheek seam closure
 
 Keep the skirt backing continuous around the authored console notches; the opening exclusion applies only to cooling ribs. Return walls now extend to the end of each console cheek, joining the skirt with concealed overlap. This closes the narrow slits that exposed lowered modules beside the panels. An additional 120 outward-face ray samples sweep both cheek seams from front and side views at several heights. They fail on the previous short return walls and pass on the repair. The ZPM geometry, JSON, material table and all texture resources are unchanged from Build #66.
+
+
+## Wall array and horizontal column
+
+Both existing three-part structures now use dedicated original wall-bay OBJ models. Their placement, occupied blocks, slot selection and block entities remain unchanged. The array is three adjacent wall bays with axes tilted 20 degrees outward from vertical; the column is three stacked bays with axes fully horizontal. Brown layered panels, raised angular trim, cooling fins, pale lights and closed projecting brackets reuse the approved hub materials. Each socket has a real 0.156-radius bore and recessed floor.
+
+WallHolderGeometry supplies the renderer's mounting centres and insertion axes. The existing per-slot progress moves each module 0.28 blocks along its axis. The existing non-hub module scale of 0.483333 is retained. No state, energy, balance, recipes, alarms or compatibility logic changes. The hub and ZPM resources remain unchanged from the approved versions.
+
+Default north-facing socket centres (within each occupied block) are array (0.5,0.32,0.60), column (0.5,0.50,0.70). Seated item centre is 0.10 blocks forward of the socket along its axis. Existing part indices keep array slots left-to-right and column slots bottom-to-top. The renderer rotates these axes to each horizontal block facing. Inventory icons show one bay; placement still expands to three blocks.
+
+CI compiles and runs the standalone WallHolderGeometryCheck against the actual Java geometry class. It checks all slots, four facings, intermediate progress samples, seated/withdrawn centres and bore/floor clearance. Live tests remain needed to verify appearance and interaction in Minecraft.

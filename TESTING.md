@@ -191,3 +191,12 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Lower all three modules, then inspect both sides of every console near eye level and from above. Crystal shafts must not show through the narrow seams between the console cheeks and ribbed skirt.
 - Orbit each hub facing and repeat with mixed lift positions. The sockets remain open; only unintended side-wall gaps are closed.
 - The approved ZPM assets are unchanged from Build #66.
+
+
+### Array / column visual acceptance
+
+- Place an array and column facing each cardinal direction. Confirm three adjacent array bays and three stacked column bays, correct slot selection and original occupied blocks.
+- Array crystals lean 20 degrees out from vertical; column crystals remain fully horizontal throughout their travel. Gem faces point outward.
+- Toggle each bay independently through seated, moving and withdrawn states, including mixed positions. Check cup clearance, supports and wall panels for clipping.
+- Inspect empty/populated bays, inventory icons, hand/drop display and F3+T; confirm no missing textures/models.
+- Recheck insertion/removal, energy output and released-JSG compatibility using the existing checklist. The approved hub and ZPM must retain their appearance.

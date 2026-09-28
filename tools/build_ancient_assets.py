@@ -426,9 +426,72 @@ def build_hub():
         'thirdperson_righthand':{'rotation':[75,45,0],'scale':[.3,.3,.3]}})
 
 
+def build_wall_holders():
+    """One authored bay per occupied block; existing three-part structures repeat it."""
+    for kind,tilt,socket_y,socket_z in [('array',20,.32,.60),('column',90,.50,.70)]:
+        m=Mesh()
+        # Layered wall casing in the approved hub material family.
+        m.box((.035,.025,.915),(.965,.975,.985),'recess')
+        m.box((.065,.050,.890),(.935,.950,.916),'panel')
+        m.box((.110,.095,.875),(.890,.905,.891),'trim')
+        m.box((.135,.120,.860),(.865,.880,.876),'panel')
+        # Thick stepped side rails, with cooling fins and pale inset indicators.
+        for x in [.045,.865]:
+            m.box((x,.055,.70),(x+.09,.945,.916),'panel')
+            m.box((x+.026,.105,.683),(x+.064,.895,.706),'trim')
+            for j in range(9):
+                y=.12+j*.085
+                m.box((x-.014,y,.725),(x+.104,y+.026,.92),'panel')
+            m.box((x+.032,.365,.679),(x+.058,.635,.684),'light')
+        for y in [.060,.900]:
+            m.box((.12,y,.775),(.88,y+.04,.88),'trim')
+        # Closed projecting bracket anchors the socket to the wall rather than floating.
+        if kind=='array':
+            m.box((.20,.075,.48),(.80,.135,.91),'recess')
+            m.box((.24,.135,.53),(.76,.15,.91),'panel')
+            for x in [.23,.70]:m.box((x,.15,.60),(x+.07,.36,.90),'panel')
+        else:
+            for x in [.22,.70]:m.box((x,.275,.71),(x+.08,.725,.90),'panel')
+            m.box((.29,.245,.69),(.71,.290,.90),'trim')
+        # Genuine hollow receptacle: skin, inner bore, raised lip and a recessed floor.
+        cup=Mesh()
+        cup.lathe(0,0,[(-.17,.197),(-.04,.211),(0,.211)],'panel',n=16,cap=False)
+        inner=Mesh();inner.lathe(0,0,[(-.17,.156),(0,.156)],'recess',n=16,cap=False)
+        for pts,mat in inner.faces:cup.face(list(reversed(pts)),mat)
+        cup.ring(0,0,0,.156,.211,'trim',n=16)
+        cup.ring(0,0,.004,.158,.169,'binder',n=16)
+        cup.lathe(0,0,[(-.183,.196),(-.174,.196)],'recess',n=16)
+        # Four raised socket lugs, outside the crystal's travel envelope.
+        for j in range(4):
+            a=j*math.pi/2
+            x,z=.193*math.cos(a),.193*math.sin(a)
+            cup.box((x-.018,-.035,z-.018),(x+.018,.020,z+.018),'trim')
+        a=math.radians(tilt);c,t=math.cos(a),math.sin(a)
+        for pts,mat in cup.faces:
+            m.face([(.5+x,socket_y+y*c+z*t,socket_z-y*t+z*c) for x,y,z in pts],mat)
+        # Raised Ancient-style angular channels across the backing plate.
+        for sign in [-1,1]:
+            x=.5+sign*.24
+            for lo,hi in [((x-.012,.69,.847),(x+.012,.82,.861)),
+                          ((min(x,.5),.80,.847),(max(x,.5)+.012,.824,.861))]:
+                m.box(lo,hi,'trim')
+        stem='block/ancient_zpm_'+kind
+        m.save(stem)
+        display={'gui':{'rotation':[25,225,0],'scale':[.75,.75,.75]},
+                 'ground':{'scale':[.35,.35,.35]},'fixed':{'scale':[.65,.65,.65]}}
+        model(stem,parent='minecraft:block/block',display=display)
+        # Keep the item icon as one bay: placed hardware expands to three occupied blocks.
+        model('item/ancient_zpm_'+kind,model='jsgzpm:models/'+stem+'.obj',
+              parent='minecraft:block/block',display=display)
+        state={'multipart':[{'when':{'facing':f},'apply':dict({'model':'jsgzpm:'+stem},**({'y':r} if r else {}))}
+                            for f,r in [('north',0),('east',90),('south',180),('west',270)]]}
+        (ASSETS/'blockstates'/('ancient_zpm_'+kind+'.json')).write_text(json.dumps(state,indent=2)+'\n')
+
+
 if __name__ == '__main__':
     for name in PALETTE: png(ASSETS/'textures/block/ancient'/f'{name}.png',name)
     build_zpm()
     build_hub()
+    build_wall_holders()
     print(f'Rebuilt original ZPM, hub and {len(PALETTE)} reusable Ancient materials.')
 
