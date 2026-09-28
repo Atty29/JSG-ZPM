@@ -428,50 +428,86 @@ def build_hub():
 
 def build_wall_holders():
     """One authored bay per occupied block; existing three-part structures repeat it."""
-    for kind,tilt,socket_y,socket_z in [('array',20,.53,.48),('column',90,.50,.42)]:
+    for kind,tilt,socket_y,socket_z in [('array',20,.69,.43),('column',45,.50,.50)]:
         m=Mesh()
-        # Layered wall casing in the approved hub material family.
-        m.box((.035,.025,.915),(.965,.975,.985),'recess')
-        m.box((.065,.050,.890),(.935,.950,.916),'panel')
-        m.box((.110,.095,.875),(.890,.905,.891),'trim')
-        m.box((.135,.120,.860),(.865,.880,.876),'panel')
-        # Thick stepped side rails, with cooling fins and pale inset indicators.
-        for x in [.045,.865]:
-            m.box((x,.055,.70),(x+.09,.945,.916),'panel')
-            m.box((x+.026,.105,.683),(x+.064,.895,.706),'trim')
-            for j in range(9):
-                y=.12+j*.085
-                m.box((x-.014,y,.725),(x+.104,y+.026,.92),'panel')
-            m.box((x+.032,.365,.679),(x+.058,.635,.684),'light')
-        for y in [.060,.900]:
-            m.box((.12,y,.775),(.88,y+.04,.88),'trim')
+        if kind=='array':
+            # Layered wall casing in the approved hub material family.
+            m.box((.035,.025,.915),(.965,.975,.985),'recess')
+            m.box((.065,.050,.890),(.935,.950,.916),'panel')
+            m.box((.110,.095,.875),(.890,.905,.891),'trim')
+            m.box((.135,.120,.860),(.865,.880,.876),'panel')
+            # Thick stepped side rails, with cooling fins and pale inset indicators.
+            for x in [.045,.865]:
+                m.box((x,.055,.70),(x+.09,.945,.916),'panel')
+                m.box((x+.026,.105,.683),(x+.064,.895,.706),'trim')
+                for j in range(9):
+                    y=.12+j*.085
+                    m.box((x-.014,y,.725),(x+.104,y+.026,.92),'panel')
+                m.box((x+.032,.365,.679),(x+.058,.635,.684),'light')
+            for y in [.060,.900]:
+                m.box((.12,y,.775),(.88,y+.04,.88),'trim')
         # Genuine hollow receptacle: skin, inner bore, raised lip and a recessed floor.
         cup=Mesh()
-        cup.lathe(0,0,[(-.38,.197),(-.04,.211),(0,.211)],'panel',n=16,cap=False)
-        inner=Mesh();inner.lathe(0,0,[(-.38,.156),(0,.156)],'recess',n=16,cap=False)
+        if kind=='array':cup.lathe(0,0,[(-.521,.197),(-.04,.211),(0,.211)],'panel',n=16,cap=False)
+        inner=Mesh();inner.lathe(0,0,[(-.521,.156),(0,.156)],'recess',n=16,cap=False)
         for pts,mat in inner.faces:cup.face(list(reversed(pts)),mat)
         cup.ring(0,0,0,.156,.211,'trim',n=16)
         cup.ring(0,0,.004,.158,.169,'binder',n=16)
-        cup.lathe(0,0,[(-.393,.196),(-.384,.196)],'recess',n=16)
-        # Solid square housing around the open circular bore. The wider rear
-        # creates a sloped block body without putting a solid face across the socket.
-        front_width = .29 if kind=='array' else .35
-        back_width = .30 if kind=='array' else .44
-        def shell_point(i, y, width):
-            angle=i*2*math.pi/16
-            x,z=math.cos(angle),math.sin(angle)
-            r=width/max(abs(x),abs(z))
-            return (x*r,y,z*r)
-        for i in range(16):
-            j=(i+1)%16
-            fi,fj=shell_point(i,-.012,front_width),shell_point(j,-.012,front_width)
-            bi,bj=shell_point(i,-.395,back_width),shell_point(j,-.395,back_width)
-            ai,aj=i*2*math.pi/16,j*2*math.pi/16
-            ci=(.211*math.cos(ai),-.012,.211*math.sin(ai))
-            cj=(.211*math.cos(aj),-.012,.211*math.sin(aj))
-            cup.face([ci,cj,fj,fi],'panel')
-            cup.face([bi,fi,fj,bj],'panel')
-            cup.face([(0,-.395,0),bi,bj],'recess')
+        cup.lathe(0,0,[(-.529,.156),(-.525,.156)],'recess',n=16)
+        if kind=='array':
+            # Solid square housing around the open circular bore. The wider rear
+            # creates a sloped block body without putting a solid face across the socket.
+            front_width = .29 if kind=='array' else .35
+            back_width = .30 if kind=='array' else .44
+            def shell_point(i, y, width):
+                angle=i*2*math.pi/16
+                x,z=math.cos(angle),math.sin(angle)
+                r=width/max(abs(x),abs(z))
+                return (x*r,y,z*r)
+            for i in range(16):
+                j=(i+1)%16
+                fi,fj=shell_point(i,-.012,front_width),shell_point(j,-.012,front_width)
+                bi,bj=shell_point(i,-.536,back_width),shell_point(j,-.536,back_width)
+                ai,aj=i*2*math.pi/16,j*2*math.pi/16
+                ci=(.211*math.cos(ai),-.012,.211*math.sin(ai))
+                cj=(.211*math.cos(aj),-.012,.211*math.sin(aj))
+                cup.face([ci,cj,fj,fi],'panel')
+                cup.face([bi,fi,fj,bj],'panel')
+                cup.face([(0,-.536,0),bi,bj],'recess')
+        else:
+            # One full wedge: sloped front, vertical back, closed side/top/bottom.
+            # Rectangular annulus leaves a real opening through the sloped face.
+            def front_point(i):
+                angle=i*2*math.pi/16
+                x,z=math.cos(angle),math.sin(angle)
+                radius=1/max(abs(x),abs(z))
+                return (x*radius*.465,0,z*radius*.485*math.sqrt(2))
+            for i in range(16):
+                j=(i+1)%16
+                fi,fj=front_point(i),front_point(j)
+                ai,aj=i*2*math.pi/16,j*2*math.pi/16
+                ci=(.211*math.cos(ai),0,.211*math.sin(ai))
+                cj=(.211*math.cos(aj),0,.211*math.sin(aj))
+                cup.face([ci,cj,fj,fi],'panel')
+                # Inverse-rotated backing points preserve each front point's height.
+                def back(p):
+                    wy=.5+p[2]/math.sqrt(2)
+                    return (p[0],((wy-.5)-.495)/math.sqrt(2),((wy-.5)+.495)/math.sqrt(2))
+                bi,bj=back(fi),back(fj)
+                cup.face([bi,fi,fj,bj],'panel')
+                cup.face([back((0,0,0)),bi,bj],'recess')
+            # Trim and indicators follow the full sloped face, not a vertical plate.
+            for x in [-.435,.413]:
+                cup.box((x,.001,-.61),(x+.022,.013,.61),'trim')
+                cup.box((x+.005,.014,-.14),(x+.017,.019,.14),'light')
+            for z in [-.63,.61]:
+                cup.box((-.435,.001,z),(.435,.013,z+.020),'trim')
+            for side in [-1,1]:
+                x=side*.30
+                for z in [-.45,.32]:
+                    cup.box((x-.009,.001,z),(x+.009,.012,z+.13),'trim')
+                    cup.box((min(x,side*.17),.001,z),
+                            (max(x,side*.17),.012,z+.018),'trim')
         # Four raised socket lugs, outside the crystal's travel envelope.
         for j in range(4):
             a=j*math.pi/2
@@ -480,12 +516,13 @@ def build_wall_holders():
         a=math.radians(tilt);c,t=math.cos(a),math.sin(a)
         for pts,mat in cup.faces:
             m.face([(.5+x,socket_y+y*c+z*t,socket_z-y*t+z*c) for x,y,z in pts],mat)
-        # Raised Ancient-style angular channels across the backing plate.
-        for sign in [-1,1]:
-            x=.5+sign*.24
-            for lo,hi in [((x-.012,.69,.847),(x+.012,.82,.861)),
-                          ((min(x,.5),.80,.847),(max(x,.5)+.012,.824,.861))]:
-                m.box(lo,hi,'trim')
+        if kind=='array':
+            # Raised Ancient-style angular channels across the backing plate.
+            for sign in [-1,1]:
+                x=.5+sign*.24
+                for lo,hi in [((x-.012,.69,.847),(x+.012,.82,.861)),
+                              ((min(x,.5),.80,.847),(max(x,.5)+.012,.824,.861))]:
+                    m.box(lo,hi,'trim')
         stem='block/ancient_zpm_'+kind
         m.save(stem)
         display={'gui':{'rotation':[25,225,0],'scale':[.75,.75,.75]},
