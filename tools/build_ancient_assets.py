@@ -329,19 +329,9 @@ def build_hub():
             if a==(0,0) or b==(0,0):continue
             dx,dz=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dz)
             ux,uz=dx/length,dz/length;nx,nz=uz,-ux
-            # Solid table skirt and dense brown cooling ribs; gaps reveal the dark back.
-            # Clip the skirt around the controls rather than crossing their recesses.
-            segments=math.ceil(length/.012)
-            run=None
-            for segment in range(segments+1):
-                t=(segment+.5)/segments
-                visible=segment<segments and not console_opening(a[0]+dx*t,a[1]+dz*t)
-                if visible and run is None:run=segment
-                if not visible and run is not None:
-                    A=(a[0]+dx*run/segments,a[1]+dz*run/segments)
-                    B=(a[0]+dx*segment/segments,a[1]+dz*segment/segments)
-                    stroke(m,world(A),world(B),.040,.905,1.145,'panel','recess')
-                    run=None
+            # The notches already follow the console outline. Keep their wall
+            # backing continuous; only cooling ribs need the opening exclusion.
+            stroke(m,world(a),world(b),.016,.905,1.145,'panel','recess')
             if length >= .25:
                 count=max(2,round(length/.045))
                 for i in range(count):
@@ -397,9 +387,9 @@ def build_hub():
         temp.box((-.144,.016,.385),(.144,.851,.63),'panel')
         temp.box((-.13,.85,.43),(.13,1.05,.68),'panel')
         # Solid recess walls hide the lowered modules behind each console.
-        temp.box((-.150,1.05,.405),(.150,1.143,.441),'panel')
-        for lo,hi in [(-.150,-.128),(.128,.150)]:
-            temp.box((lo,.85,.441),(hi,1.143,.575),'panel')
+        temp.box((-.175,1.05,.405),(.175,1.143,.441),'panel')
+        for lo,hi in [(-.175,-.128),(.128,.175)]:
+            temp.box((lo,.85,.441),(hi,1.143,.675),'panel')
         temp.box((-.113,.867,.681),(.113,1.031,.687),'recess')
         # Frame and hexagonal centre on the vertical projecting face.
         for A,B in [((-.116,.871),(.116,.871)),((-.116,1.027),(.116,1.027)),

@@ -184,3 +184,10 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Check the crystal's tinted semi-transparent surfaces and visible inner facets in Fast, Fancy and Fabulous graphics modes, including inventory, hands, dropped items and installed modules.
 - Orbit populated holders and place them near water/glass: look for transparency sorting or disappearing layers. Verify binder and regulator remain opaque.
 - Confirm the front console, flat gem face, crystal lengths, installed size, independent lift travel and gameplay remain unchanged.
+
+
+### Console cheek seam check
+
+- Lower all three modules, then inspect both sides of every console near eye level and from above. Crystal shafts must not show through the narrow seams between the console cheeks and ribbed skirt.
+- Orbit each hub facing and repeat with mixed lift positions. The sockets remain open; only unintended side-wall gaps are closed.
+- The approved ZPM assets are unchanged from Build #66.

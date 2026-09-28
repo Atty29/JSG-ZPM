@@ -142,6 +142,19 @@ for path in (ASSETS/'models').rglob('*.json'):
             for lateral,y in [(0,.40),(-.12,.40),(.12,.40),(-.14,1.09),(.14,1.09),(0,1.09)]:
                 origin=(.5+nx+ux*lateral,y,.5+nz+uz*lateral)
                 assert any(ray_hit(origin,(-nx,0,-nz),f) for f in faces), ('Open console wall',angle,lateral,y)
+        # Sweep along BOTH cheek seams, including the former unbacked strips
+        # beside the rib exclusion and beyond the short return walls.
+        for angle in [-math.pi/2,math.pi/4,3*math.pi/4]:
+            nx,nz=math.cos(angle),math.sin(angle);ux,uz=-nz,nx
+            for sign in [-1,1]:
+                for lateral in [.150,.156,.162]:
+                    for y in [.95,1.04,1.10,1.135]:
+                        origin=(.5+nx+ux*lateral*sign,y,.5+nz+uz*lateral*sign)
+                        assert any(ray_hit(origin,(-nx,0,-nz),f) for f in faces), ('Open cheek seam',angle,sign,lateral,y)
+                for depth in [.46,.56,.62,.66]:
+                    for y in [.95,1.10]:
+                        origin=(.5+nx*depth+ux*.40*sign,y,.5+nz*depth+uz*.40*sign)
+                        assert any(ray_hit(origin,(-ux*sign,0,-uz*sign),f) for f in faces), ('Open cheek return',angle,sign,depth,y)
         assert 1.45 < bounds[0][1]-bounds[0][0] < 1.56
         assert 1.38 < bounds[2][1]-bounds[2][0] < 1.50
         assert 1.16 < bounds[1][1]-bounds[1][0] < 1.19

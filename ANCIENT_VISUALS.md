@@ -12,7 +12,7 @@ The previous near-planar surface overlays have been replaced with closed extrude
 
 Hub bounds including relief: 1.530 × 1.470 × 1.168 blocks. Installed ZPM height remains 0.420 blocks with 0.300-block independent travel. Socket centres remain (-0.265,-0.204), (0,+0.246), (+0.265,-0.204) relative to the block centre facing north. Well radius is 0.136 blocks; mounted crown radius is approximately 0.110 blocks. Array/column/generator mounting compensation is preserved.
 
-The hub has 5,836 authored faces and the module 3,180. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
+The hub has 5,956 authored faces and the module 3,180. Detail is static baked geometry with no new runtime renderer or gameplay logic. Collision/placement retain the original one-block footprint; the table visually overhangs it. Existing active-module brightness behaviour is unchanged.
 
 ## Materials
 
@@ -65,3 +65,8 @@ The two diagonal consoles and their surrounding notch geometry share exact 45/13
 Five crystal textures are now RGBA with semi-transparent bodies (alpha 135/255) and more opaque white-tinted reflections (up to 230/255). The item selects `minecraft:translucent`, while opaque honey-coloured internal facets give the glass visible thickness. Binder, regulator and hub materials remain opaque. This uses Forge's supported translucent item path; it does not implement physical refraction or environment reflections. Translucent sorting and appearance require live tests in Fast, Fancy and Fabulous graphics modes, inventory, hands and every holder.
 
 Technical references: [Forge render types](https://docs.minecraftforge.net/en/1.20.x/rendering/modelextensions/rendertypes/), [OBJ model implementation](https://github.com/MinecraftForge/MinecraftForge/blob/1.20.x/src/main/java/net/minecraftforge/client/model/obj/ObjModel.java), [geometry baking](https://github.com/MinecraftForge/MinecraftForge/blob/1.20.x/src/main/java/net/minecraftforge/client/model/geometry/SimpleUnbakedGeometry.java).
+
+
+## Console cheek seam closure
+
+Keep the skirt backing continuous around the authored console notches; the opening exclusion applies only to cooling ribs. Return walls now extend to the end of each console cheek, joining the skirt with concealed overlap. This closes the narrow slits that exposed lowered modules beside the panels. An additional 120 outward-face ray samples sweep both cheek seams from front and side views at several heights. They fail on the previous short return walls and pass on the repair. The ZPM geometry, JSON, material table and all texture resources are unchanged from Build #66.
