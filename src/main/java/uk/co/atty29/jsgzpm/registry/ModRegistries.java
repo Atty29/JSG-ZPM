@@ -13,10 +13,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import uk.co.atty29.jsgzpm.JSGZPM;
 import uk.co.atty29.jsgzpm.block.AncientPowerControllerBlock;
+import uk.co.atty29.jsgzpm.block.AtlantisPegasusDHDBlock;
+import uk.co.atty29.jsgzpm.block.AtlantisPegasusDHDPartBlock;
 import uk.co.atty29.jsgzpm.block.ZeroPointEnergyGeneratorControllerBlock;
 import uk.co.atty29.jsgzpm.block.ZeroPointGeneratorCasingBlock;
 import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
 import uk.co.atty29.jsgzpm.blockentity.AncientPowerControllerBlockEntity;
+import uk.co.atty29.jsgzpm.blockentity.AtlantisPegasusDHDBlockEntity;
 import uk.co.atty29.jsgzpm.blockentity.ZeroPointEnergyGeneratorBlockEntity;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
@@ -36,6 +39,8 @@ public final class ModRegistries {
     public static final RegistryObject<Block> ANCIENT_POWER_CONTROLLER = BLOCKS.register("ancient_power_controller", AncientPowerControllerBlock::new);
     public static final RegistryObject<Block> ZERO_POINT_ENERGY_GENERATOR_CONTROLLER = BLOCKS.register("zero_point_energy_generator_controller", ZeroPointEnergyGeneratorControllerBlock::new);
     public static final RegistryObject<Block> ZERO_POINT_GENERATOR_CASING = BLOCKS.register("zero_point_generator_casing", ZeroPointGeneratorCasingBlock::new);
+    public static final RegistryObject<Block> ATLANTIS_PEGASUS_DHD = BLOCKS.register("atlantis_pegasus_dhd", AtlantisPegasusDHDBlock::new);
+    public static final RegistryObject<Block> ATLANTIS_PEGASUS_DHD_PART = BLOCKS.register("atlantis_pegasus_dhd_part", AtlantisPegasusDHDPartBlock::new);
 
     public static final RegistryObject<Item> ZERO_POINT_MODULE = ITEMS.register("zero_point_module", () -> new ZPMItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> CRYSTAL_BINDER = ITEMS.register("crystal_binder", () -> new Item(new Item.Properties()));
@@ -48,6 +53,7 @@ public final class ModRegistries {
     public static final RegistryObject<Item> ANCIENT_POWER_CONTROLLER_ITEM = ITEMS.register("ancient_power_controller", () -> new BlockItem(ANCIENT_POWER_CONTROLLER.get(), new Item.Properties()));
     public static final RegistryObject<Item> ZERO_POINT_ENERGY_GENERATOR_CONTROLLER_ITEM = ITEMS.register("zero_point_energy_generator_controller", () -> new BlockItem(ZERO_POINT_ENERGY_GENERATOR_CONTROLLER.get(), new Item.Properties()));
     public static final RegistryObject<Item> ZERO_POINT_GENERATOR_CASING_ITEM = ITEMS.register("zero_point_generator_casing", () -> new BlockItem(ZERO_POINT_GENERATOR_CASING.get(), new Item.Properties()));
+    public static final RegistryObject<Item> ATLANTIS_PEGASUS_DHD_ITEM = ITEMS.register("atlantis_pegasus_dhd", () -> new BlockItem(ATLANTIS_PEGASUS_DHD.get(), new Item.Properties()));
 
     public static final RegistryObject<BlockEntityType<ZPMHolderBlockEntity>> ZPM_HOLDER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
             "zpm_holder",
@@ -72,6 +78,14 @@ public final class ModRegistries {
             () -> BlockEntityType.Builder.of(
                     ZeroPointEnergyGeneratorBlockEntity::new,
                     ZERO_POINT_ENERGY_GENERATOR_CONTROLLER.get()
+            ).build(null)
+    );
+
+    public static final RegistryObject<BlockEntityType<AtlantisPegasusDHDBlockEntity>> ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+            "atlantis_pegasus_dhd",
+            () -> BlockEntityType.Builder.of(
+                    AtlantisPegasusDHDBlockEntity::new,
+                    ATLANTIS_PEGASUS_DHD.get()
             ).build(null)
     );
 
