@@ -41,12 +41,47 @@ This checklist is for development builds. Test in a disposable world first.
 
 ## 5. Ancient Power Controller / large banks
 
-- Build several Hubs/Arrays/Columns near one **Ancient Power Controller**.
+- Build at least three Hubs/Arrays/Columns near one **Ancient Power Controller** and place them at visibly different distances from the controller.
 - Lower multiple charged ZPMs.
 - Attach an FE consumer/storage network to the controller.
-- Confirm power is supplied sequentially rather than evenly draining every ZPM.
+- Normal right-click should show current mode, holder count, online holder count, active/installed ZPM counts and total energy.
+- Sneak + right-click should cycle through all five modes and return to Sequential after Emergency Reserve.
+- Save/reload in a non-default mode and confirm the selected mode persists.
+
+### Sequential
+
+- Select **Sequential**.
+- Confirm the nearest linked holder drains first.
+- Confirm later holders remain untouched until earlier holders can no longer satisfy demand.
 - Confirm an empty ZPM naturally falls out of useful supply and the next available ZPM takes over.
-- Confirm the controller remains usable after save/reload.
+
+### Balanced
+
+- Select **Balanced** with at least two charged online holders.
+- Apply a sustained FE load.
+- Confirm multiple holders show supplying activity and their charge levels fall broadly together instead of only the nearest holder draining.
+- Confirm a depleted holder drops out while the remaining holders continue supplying.
+
+### Highest Charge First
+
+- Give linked holders clearly different charge percentages.
+- Select **Highest Charge First**.
+- Confirm the most highly charged holder is preferred.
+- Continue drawing power until relative charge levels change and confirm priority follows whichever holder now has the highest percentage.
+
+### Reserve Bank
+
+- Select **Reserve Bank**.
+- Remember that the controller sorts holders nearest-to-farthest; the farthest linked holder is the reserve.
+- Confirm the farthest holder remains untouched while any nearer primary holder can satisfy the load.
+- Exhaust the primary bank and confirm the farthest reserve holder then begins supplying automatically.
+
+### Emergency Reserve
+
+- Select **Emergency Reserve**.
+- Confirm the farthest linked holder never supplies automatically, even after the primary bank is exhausted.
+- Change to Sequential or Reserve Bank and confirm the held-back energy immediately becomes available again.
+- With only one linked holder, confirm Emergency Reserve intentionally exposes no automatic output because that sole holder is the reserve.
 
 ## 6. Zero Point Energy Generator
 
@@ -98,6 +133,7 @@ These are intentionally first-pass visuals and should be judged in-game:
 - Hub proportions
 - Array alignment across all three blocks
 - Column alignment across all three blocks
+- Ancient Power Controller appearance and whether mode/status interaction feels obvious enough
 - Generator shield position on all six mounting orientations
 - generator cosmic-field scale and clipping
 - Atlantis DHD C-shape, console height and player step-in space
