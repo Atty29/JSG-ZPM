@@ -45,7 +45,7 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
                 z += side.getStepZ() * HubGeometry.sideOffset(slot) + facing.getStepZ() * HubGeometry.forwardOffset(slot);
                 y = HubGeometry.DOWN_CENTRE_Y + (1.0D - progress) * HubGeometry.TRAVEL;
             } else {
-                double sideways = layout == ZPMHolderLayout.ARRAY ? slot - 1 : 0;
+                double sideways = WallHolderGeometry.sideOffset(layout, slot, progress);
                 double forward = WallHolderGeometry.forwardOffset(layout, progress);
                 x += side.getStepX() * sideways + facing.getStepX() * forward;
                 z += side.getStepZ() * sideways + facing.getStepZ() * forward;
@@ -57,6 +57,7 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
             poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
             if (layout != ZPMHolderLayout.HUB) {
                 // Local +Z points out of the facing after the existing yaw rotation.
+                poseStack.mulPose(Axis.ZP.rotationDegrees(WallHolderGeometry.rollDegrees(layout)));
                 poseStack.mulPose(Axis.XP.rotationDegrees(WallHolderGeometry.tiltDegrees(layout)));
             }
             // The new item is 1.05 blocks tall; retain the other holders' installed height.

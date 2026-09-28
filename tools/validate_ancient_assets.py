@@ -129,22 +129,22 @@ for path in (ASSETS/'models').rglob('*.json'):
         assert {'panel','trim','recess','light'} <= used_mats
         assert 'crystal' not in used_mats, 'Crystals must remain independently animated items'
         column=obj.stem=='ancient_zpm_column'
-        angle=math.radians(45 if column else 20)
-        axis=(0,math.cos(angle),-math.sin(angle))
-        centre=(.5,.5,.5) if column else (.5,.69,.43)
+        angle=math.radians(45)
+        axis=(-math.cos(angle),0,-math.sin(angle)) if column else (0,math.cos(angle),-math.sin(angle))
+        centre=(.5,.5,.5)
         def axial(v):return sum((v[i]-centre[i])*axis[i] for i in range(3))
         # The insertion path must stay open until its recessed floor.
         walls=[f for f in faces if max(axial(v) for v in f)>-.49]
         for x in [-.09,0,.09]:
-            origin=tuple(centre[i]+axis[i]*.04+(x if i==0 else 0) for i in range(3))
+            origin=tuple(centre[i]+axis[i]*.04+(x if i==(1 if column else 0) else 0) for i in range(3))
             inward=tuple(-v for v in axis)
             assert not any(ray_hit(origin,inward,f) for f in walls), 'Obstructed socket bore'
             assert any(ray_hit(origin,inward,f) for f in faces), 'Missing socket floor'
         if column:
             for x in [.06,.25,.75,.94]:
                 for y in [.06,.25,.75,.94]:
-                    origin=(x,y+.03,y-.03)
-                    assert any(ray_hit(origin,(0,-axis[1],-axis[2]),f) for f in faces), 'Open wedge face'
+                    origin=(1-y-.03,x,y-.03)
+                    assert any(ray_hit(origin,tuple(-v for v in axis),f) for f in faces), 'Open wedge face'
     else:
         # Side-console light walls must share exact 45-degree axes with the notches.
         diagonal_lights=0

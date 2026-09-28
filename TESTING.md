@@ -196,7 +196,7 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 ### Array / column visual acceptance
 
 - Place an array and column facing each cardinal direction. Confirm three adjacent array bays and three stacked column bays, correct slot selection and original occupied blocks.
-- Array crystals lean 20 degrees out from vertical; column crystals remain perpendicular to the 45-degree sloped face throughout their travel. Gem faces point outward.
+- Array crystals travel perpendicular to their 45-degree upward slope; column crystals travel horizontally into the room corner, perpendicular to their diagonal face. Gem faces point outward.
 - Toggle each bay independently through seated, moving and withdrawn states, including mixed positions. Check cup clearance, supports and wall panels for clipping.
 - Inspect empty/populated bays, inventory icons, hand/drop display and F3+T; confirm no missing textures/models.
 - Recheck insertion/removal, energy output and released-JSG compatibility using the existing checklist. The approved hub and ZPM must retain their appearance.
@@ -204,3 +204,5 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Deep sockets: verify each seated module is fully enclosed with a flush end cap, each released tip clears the lip, and the floor and sloped casing never cut through the glass throughout travel. Check all four facings and mixed slot states.
 
 - Inspect the column from both sides: the entire bay is a closed wedge, and its ZPM travels perpendicular to the front slope. Verify seated cap alignment and bore floor clearance on both holder types.
+
+- Layout correction: the ARRAY is the horizontal row of upward-sloped wedges. The COLUMN is a vertical stack of sideways wedges spanning a room corner. Check all four corner rotations; column insertion must remain horizontal and normal to the diagonal face, while array insertion follows its upward slope. Both caps stay flush.

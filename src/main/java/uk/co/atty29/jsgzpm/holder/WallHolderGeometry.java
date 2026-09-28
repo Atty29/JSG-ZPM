@@ -1,6 +1,6 @@
 package uk.co.atty29.jsgzpm.holder;
 
-/** Visual mounting axes for the wall array and sloped column. */
+/** Visual mounting axes for the sloped array and sideways corner column. */
 public final class WallHolderGeometry {
     private WallHolderGeometry() {}
 
@@ -9,16 +9,26 @@ public final class WallHolderGeometry {
     public static final double SEATED_OFFSET = -0.512D * MODULE_SCALE;
 
     public static float tiltDegrees(ZPMHolderLayout layout) {
-        return layout == ZPMHolderLayout.ARRAY ? 20.0F : 45.0F;
+        return 45.0F;
     }
 
     public static double centreY(ZPMHolderLayout layout, int slot, float progress) {
-        double base = layout == ZPMHolderLayout.ARRAY ? 0.69D : 0.50D + slot - 1;
+        double base = layout == ZPMHolderLayout.ARRAY ? 0.50D : 0.50D + slot - 1;
+        if (layout == ZPMHolderLayout.COLUMN) return base;
         return base + Math.cos(Math.toRadians(tiltDegrees(layout))) * distance(progress);
     }
 
+    public static float rollDegrees(ZPMHolderLayout layout) {
+        return layout == ZPMHolderLayout.COLUMN ? -90.0F : 0.0F;
+    }
+
+    public static double sideOffset(ZPMHolderLayout layout, int slot, float progress) {
+        return layout == ZPMHolderLayout.ARRAY ? slot - 1
+                : -Math.cos(Math.toRadians(tiltDegrees(layout))) * distance(progress);
+    }
+
     public static double forwardOffset(ZPMHolderLayout layout, float progress) {
-        double base = layout == ZPMHolderLayout.ARRAY ? 0.07D : 0.0D;
+        double base = 0.0D;
         return base + Math.sin(Math.toRadians(tiltDegrees(layout))) * distance(progress);
     }
 
