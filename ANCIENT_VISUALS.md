@@ -81,3 +81,9 @@ Both bores have radius 0.156 and depth 0.525 blocks. The broad end cap is flush 
 WallHolderGeometry supplies renderer mounting centres and axes for every facing. Existing part indices and independent animation are retained. Hub and ZPM assets, state, energy, recipes, alarms and compatibility logic are unchanged. All bay geometry fits inside its existing occupied block. Inventory icons show one bay.
 
 The column renderer applies a -90-degree local roll before its pitch and facing yaw; its centre travels sideways and forward at equal rates with no vertical motion. The static north-facing wedge is turned 90 degrees about its centre on Z. Existing cardinal rotations allow the housing to fit all four room corners.
+
+## Single-ZPM pedestal
+
+New original dark-metal pedestal with two hollow silver rings, cyan vents/status pads, angular white glyphs and a white front strip. Ring top is 1.02 blocks high. The cap is flush at that plane; the tip enters the 0.68-block deck by about 0.075 blocks. A generated emissive overlay lights only panel surfaces when the server-side charged state is true, also emitting block light level 12. Empty/depleted models use dim inlays. The single slot seats directly and removes with shift-right-click; it reuses existing FE/network energy paths. Existing holder visuals and lift behaviour remain unchanged.
+
+Regenerate this asset separately with `python tools/build_pedestal_assets.py`; the approved hub/ZPM/array/column generator is unchanged. `PedestalGeometryCheck` validates cap alignment, shallow seating, bore clearance and generated emissive geometry. In-game charge/depletion/reload tests are listed in TESTING.md.

@@ -33,7 +33,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     private final ItemStackHandler items = new ItemStackHandler(SLOT_COUNT) {
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            return stack.is(ModRegistries.ZERO_POINT_MODULE.get());
+            return validSlot(slot) && stack.is(ModRegistries.ZERO_POINT_MODULE.get());
         }
 
         @Override
@@ -81,6 +81,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
             holder.validateNetworkController();
         }
 
+        holder.updatePedestalLight();
         if (changed) holder.sync();
     }
 
@@ -115,14 +116,14 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         ItemStack inserted = held.copy();
         inserted.setCount(1);
         items.setStackInSlot(slot, inserted);
-        slotStates[slot] = ZPMSlotState.UP;
-        animationProgress[slot] = 0.0F;
+        slotStates[slot] = holderLayout() == ZPMHolderLayout.PEDESTAL ? ZPMSlotState.DOWN_STANDBY : ZPMSlotState.UP;
+        animationProgress[slot] = holderLayout() == ZPMHolderLayout.PEDESTAL ? 1.0F : 0.0F;
         sync();
         return true;
     }
 
     public ItemStack removeZPM(int slot) {
-        if (!validSlot(slot) || slotStates[slot] != ZPMSlotState.UP) return ItemStack.EMPTY;
+        if (!validSlot(slot) || (holderLayout() != ZPMHolderLayout.PEDESTAL && slotStates[slot] != ZPMSlotState.UP)) return ItemStack.EMPTY;
         ItemStack removed = items.extractItem(slot, 1, false);
         if (!removed.isEmpty()) {
             slotStates[slot] = ZPMSlotState.EMPTY;
@@ -133,6 +134,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     }
 
     public boolean toggleSlot(int slot) {
+        if (holderLayout() == ZPMHolderLayout.PEDESTAL) return false;
         if (!validSlot(slot) || items.getStackInSlot(slot).isEmpty()) return false;
         if (slotStates[slot] == ZPMSlotState.UP) {
             slotStates[slot] = ZPMSlotState.MOVING_DOWN;
@@ -252,6 +254,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
 
         if (!simulate && extracted > 0L) {
             setChanged();
+            updatePedestalLight();
             if (visualChange) sync();
         }
         return extracted;
@@ -320,6 +323,17 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
                 animationProgress[i] = 0.0F;
             }
         }
+        if (holderLayout() == ZPMHolderLayout.PEDESTAL) {
+            for (int i = 1; i < SLOT_COUNT; i++) {
+                items.setStackInSlot(i, ItemStack.EMPTY);
+                slotStates[i] = ZPMSlotState.EMPTY;
+                animationProgress[i] = 0.0F;
+            }
+            if (!items.getStackInSlot(0).isEmpty()) {
+                slotStates[0] = ZPMSlotState.DOWN_STANDBY;
+                animationProgress[0] = 1.0F;
+            }
+        }
         networkController = tag.contains("NetworkController") ? BlockPos.of(tag.getLong("NetworkController")) : null;
         refreshEnergyCapability();
     }
@@ -374,9 +388,19 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         energyCapability = LazyOptional.of(HolderEnergyStorage::new);
     }
 
+    private void updatePedestalLight() {
+        if (level == null || level.isClientSide || holderLayout() != ZPMHolderLayout.PEDESTAL) return;
+        boolean charged = ZPMItem.getStoredEnergy(items.getStackInSlot(0)) > 0L;
+        BlockState state = getBlockState();
+        if (state.getValue(ZPMHolderBlock.LIT) != charged) {
+            level.setBlock(worldPosition, state.setValue(ZPMHolderBlock.LIT, charged), Block.UPDATE_ALL);
+        }
+    }
+
     private void sync() {
         setChanged();
         if (level != null && !level.isClientSide) {
+            updatePedestalLight();
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
         }
@@ -387,8 +411,8 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         return ZPMHolderLayout.HUB;
     }
 
-    private static boolean validSlot(int slot) {
-        return slot >= 0 && slot < SLOT_COUNT;
+    private boolean validSlot(int slot) {
+        return slot >= 0 && slot < (holderLayout() == ZPMHolderLayout.PEDESTAL ? 1 : SLOT_COUNT);
     }
 
     private static long saturatingAdd(long a, long b) {

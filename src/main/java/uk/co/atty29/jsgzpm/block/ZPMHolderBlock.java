@@ -11,6 +11,10 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -35,6 +39,7 @@ import uk.co.atty29.jsgzpm.registry.ModRegistries;
 import java.util.List;
 
 public final class ZPMHolderBlock extends BaseEntityBlock {
+    public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 2);
 
@@ -44,10 +49,11 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
         super(BlockBehaviour.Properties.of()
                 .strength(4.0F, 8.0F)
                 .sound(SoundType.METAL)
-                .noOcclusion());
+                .noOcclusion()
+                .lightLevel(state -> state.getValue(LIT) ? 12 : 0));
         this.layout = layout;
         int defaultPart = layout == ZPMHolderLayout.COLUMN ? 0 : 1;
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PART, defaultPart));
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PART, defaultPart).setValue(LIT, false));
     }
 
     public ZPMHolderLayout layout() {
@@ -56,12 +62,18 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART);
+        builder.add(FACING, PART, LIT);
     }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (layout == ZPMHolderLayout.PEDESTAL) return Block.box(1, 0, 1, 15, 16, 15);
+        return super.getShape(state, level, pos, context);
     }
 
     @Nullable
@@ -167,6 +179,7 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
     }
 
     private int resolveSlot(BlockState state, BlockPos pos, BlockHitResult hit) {
+        if (layout == ZPMHolderLayout.PEDESTAL) return 0;
         if (layout != ZPMHolderLayout.HUB) return state.getValue(PART);
 
         double x = hit.getLocation().x - pos.getX();
@@ -188,6 +201,14 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (layout == ZPMHolderLayout.PEDESTAL && !state.is(newState.getBlock()) && !level.isClientSide) {
+            if (level.getBlockEntity(pos) instanceof ZPMHolderBlockEntity holder) holder.dropContents();
+        }
+        super.onRemove(state, level, pos, newState, moving);
+    }
+
+    @Override
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
             BlockPos controller = controllerPos(pos, state, layout);
@@ -205,14 +226,14 @@ public final class ZPMHolderBlock extends BaseEntityBlock {
 
     public static BlockPos controllerPos(BlockPos pos, BlockState state, ZPMHolderLayout layout) {
         int part = state.getValue(PART);
-        if (layout == ZPMHolderLayout.HUB) return pos;
+        if (layout == ZPMHolderLayout.HUB || layout == ZPMHolderLayout.PEDESTAL) return pos;
         if (layout == ZPMHolderLayout.COLUMN) return pos.above(1 - part);
         Direction side = state.getValue(FACING).getClockWise();
         return pos.relative(side, 1 - part);
     }
 
     public static List<BlockPos> structurePositions(BlockPos controller, Direction facing, ZPMHolderLayout layout) {
-        if (layout == ZPMHolderLayout.HUB) return List.of(controller);
+        if (layout == ZPMHolderLayout.HUB || layout == ZPMHolderLayout.PEDESTAL) return List.of(controller);
         if (layout == ZPMHolderLayout.COLUMN) return List.of(controller.below(), controller, controller.above());
         Direction side = facing.getClockWise();
         return List.of(controller.relative(side.getOpposite()), controller, controller.relative(side));

@@ -54,5 +54,6 @@
   "message.jsgzpm.alarm_linker.dhd_missing": "Stored Atlantis DHD is missing or not loaded",
   "message.jsgzpm.alarm_linker.emitter_linked": "Alarm Emitter linked to the stored Atlantis DHD",
   "message.jsgzpm.alarm_linker.emitter_cleared": "Alarm Emitter link cleared",
-  "message.jsgzpm.alarm_linker.memory_cleared": "Alarm Linker memory cleared"
+  "message.jsgzpm.alarm_linker.memory_cleared": "Alarm Linker memory cleared",
+  "block.jsgzpm.ancient_zpm_pedestal": "Ancient ZPM Pedestal"
 }

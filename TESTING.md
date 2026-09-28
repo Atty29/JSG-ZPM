@@ -206,3 +206,14 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 - Inspect the column from both sides: the entire bay is a closed wedge, and its ZPM travels perpendicular to the front slope. Verify seated cap alignment and bore floor clearance on both holder types.
 
 - Layout correction: the ARRAY is the horizontal row of upward-sloped wedges. The COLUMN is a vertical stack of sideways wedges spanning a room corner. Check all four corner rotations; column insertion must remain horizontal and normal to the diagonal face, while array insertion follows its upward slope. Both caps stay flush.
+
+### Single-ZPM pedestal
+
+- Find Ancient ZPM Pedestal in the creative tab or craft with iron, glass, redstone, a central power regulator and polished deepslate.
+- Place and rotate in all four directions. Confirm one-block footprint, waist-high rings, a flush cap and a tip only slightly inside the deck.
+- Insert a charged ZPM: it seats immediately, supplies energy, emits level 12 light, and illuminates cyan vents/status pads and white glyphs/front strip. Other holders keep their existing lift interactions.
+- Try adding a second ZPM: reject it without consuming the item. Shift-right-click with an empty hand to remove the installed module; panels and world light turn off immediately.
+- Repeat with an empty-charge ZPM: panels stay off. Extract the last energy unit through FE or the network and confirm immediate darkness. Simulated extraction must not affect charge or lighting.
+- Save/reload with charged, depleted and empty sockets; verify state, charge and light recovery. Test on a dedicated server with two clients.
+- Break the pedestal in survival, creative and by explosion. The ZPM must drop once, with its stored charge preserved; no neighbouring blocks are removed.
+- Connect to an Ancient Power Controller and confirm installed/active counts increase by one only. Recheck hub, array and column placement, animation and extraction.

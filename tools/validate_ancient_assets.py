@@ -124,6 +124,15 @@ for path in (ASSETS/'models').rglob('*.json'):
         # Installed module clears a 0.136-radius well at every height.
         assert max(math.hypot(v[0]-.5,v[2]-.5)*.4 for v in vertices)<.136
         assert abs((bounds[1][1]-bounds[1][0])*.4-.42)<1e-5
+    elif obj.stem=='ancient_zpm_pedestal':
+        assert 1.019<bounds[1][1]<1.021 and bounds[1][0]>=0, 'Waist-high pedestal'
+        assert {'pedestal_dark','pedestal_metal','pedestal_cyan_off','pedestal_white_off'}<=used_mats
+        assert not any(mat.startswith('crystal') for mat in used_mats), 'ZPM must be a removable item'
+        # Both rings have an open bore; their metal must not intersect the crystal.
+        for y in [.80,1.0]:
+            ring=[v for v in vertices if abs(v[1]-y)<.025 and v[2]<.63]
+            assert ring and min(math.hypot(v[0]-.5,v[2]-.5) for v in ring)>.110
+        assert any(ray_hit((.5,.69,.5),(0,-1,0),f) for f in faces), 'Socket needs a floor'
     elif obj.stem in ('ancient_zpm_array','ancient_zpm_column'):
         assert all(-.001<=lo<hi<=1.001 for lo,hi in bounds), ('Wall bay exceeds occupied block',bounds)
         assert {'panel','trim','recess','light'} <= used_mats
@@ -182,7 +191,7 @@ for path in (ASSETS/'models').rglob('*.json'):
     print(f'{obj.name}: {len(faces)} faces, bounds {bounds}')
 
 # Both wall structures must resolve their own new bay in every facing.
-for kind in ('array','column'):
+for kind in ('array','column','pedestal'):
     state=ASSETS/'blockstates'/('ancient_zpm_'+kind+'.json')
     data=json.loads(state.read_text());required.add(state)
     parts=data['multipart']
@@ -194,8 +203,14 @@ for kind in ('array','column'):
         assert part['apply']['model']==ref
         resource(ref,'models','.json')
 
+# New pedestal must be obtainable, named, and packaged with its crafting/drop resources.
+for rel in ['data/jsgzpm/recipes/ancient_zpm_pedestal.json', 'data/jsgzpm/loot_tables/blocks/ancient_zpm_pedestal.json', 'data/minecraft/tags/blocks/mineable/pickaxe.json']:
+    path=ROOT/'src/main/resources'/rel
+    json.loads(path.read_text());required.add(path)
+lang=ASSETS/'lang/en_us.json';required.add(lang)
+assert json.loads(lang.read_text(encoding='utf-8'))['block.jsgzpm.ancient_zpm_pedestal']=='Ancient ZPM Pedestal'
 textures=list((ASSETS/'textures/block/ancient').glob('*.png'))
-assert len(textures)==12, 'Expected twelve Ancient material textures in the stitched block directory'
+assert len(textures)==16, 'Expected twelve original materials and four pedestal materials'
 for path in textures:
     raw=path.read_bytes(); assert raw[:8]==b'\x89PNG\r\n\x1a\n'
     width,height=struct.unpack('!II',raw[16:24]); assert width==height==256

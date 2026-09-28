@@ -39,6 +39,7 @@ public final class ModRegistries {
     public static final RegistryObject<Block> ATLANTIS_ZPM_HUB = BLOCKS.register("atlantis_zpm_hub", () -> new ZPMHolderBlock(ZPMHolderLayout.HUB));
     public static final RegistryObject<Block> ANCIENT_ZPM_ARRAY = BLOCKS.register("ancient_zpm_array", () -> new ZPMHolderBlock(ZPMHolderLayout.ARRAY));
     public static final RegistryObject<Block> ANCIENT_ZPM_COLUMN = BLOCKS.register("ancient_zpm_column", () -> new ZPMHolderBlock(ZPMHolderLayout.COLUMN));
+    public static final RegistryObject<Block> ANCIENT_ZPM_PEDESTAL = BLOCKS.register("ancient_zpm_pedestal", () -> new ZPMHolderBlock(ZPMHolderLayout.PEDESTAL));
     public static final RegistryObject<Block> ANCIENT_POWER_CONTROLLER = BLOCKS.register("ancient_power_controller", AncientPowerControllerBlock::new);
     public static final RegistryObject<Block> ZERO_POINT_ENERGY_GENERATOR_CONTROLLER = BLOCKS.register("zero_point_energy_generator_controller", ZeroPointEnergyGeneratorControllerBlock::new);
     public static final RegistryObject<Block> ZERO_POINT_GENERATOR_CASING = BLOCKS.register("zero_point_generator_casing", ZeroPointGeneratorCasingBlock::new);
@@ -55,6 +56,7 @@ public final class ModRegistries {
     public static final RegistryObject<Item> ATLANTIS_ZPM_HUB_ITEM = ITEMS.register("atlantis_zpm_hub", () -> new BlockItem(ATLANTIS_ZPM_HUB.get(), new Item.Properties()));
     public static final RegistryObject<Item> ANCIENT_ZPM_ARRAY_ITEM = ITEMS.register("ancient_zpm_array", () -> new BlockItem(ANCIENT_ZPM_ARRAY.get(), new Item.Properties()));
     public static final RegistryObject<Item> ANCIENT_ZPM_COLUMN_ITEM = ITEMS.register("ancient_zpm_column", () -> new BlockItem(ANCIENT_ZPM_COLUMN.get(), new Item.Properties()));
+    public static final RegistryObject<Item> ANCIENT_ZPM_PEDESTAL_ITEM = ITEMS.register("ancient_zpm_pedestal", () -> new BlockItem(ANCIENT_ZPM_PEDESTAL.get(), new Item.Properties()));
     public static final RegistryObject<Item> ANCIENT_POWER_CONTROLLER_ITEM = ITEMS.register("ancient_power_controller", () -> new BlockItem(ANCIENT_POWER_CONTROLLER.get(), new Item.Properties()));
     public static final RegistryObject<Item> ZERO_POINT_ENERGY_GENERATOR_CONTROLLER_ITEM = ITEMS.register("zero_point_energy_generator_controller", () -> new BlockItem(ZERO_POINT_ENERGY_GENERATOR_CONTROLLER.get(), new Item.Properties()));
     public static final RegistryObject<Item> ZERO_POINT_GENERATOR_CASING_ITEM = ITEMS.register("zero_point_generator_casing", () -> new BlockItem(ZERO_POINT_GENERATOR_CASING.get(), new Item.Properties()));
@@ -67,7 +69,8 @@ public final class ModRegistries {
                     ZPMHolderBlockEntity::new,
                     ATLANTIS_ZPM_HUB.get(),
                     ANCIENT_ZPM_ARRAY.get(),
-                    ANCIENT_ZPM_COLUMN.get()
+                    ANCIENT_ZPM_COLUMN.get(),
+                    ANCIENT_ZPM_PEDESTAL.get()
             ).build(null)
     );
 

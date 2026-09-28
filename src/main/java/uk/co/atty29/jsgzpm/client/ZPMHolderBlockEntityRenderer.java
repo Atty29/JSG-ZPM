@@ -15,6 +15,7 @@ import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
 import uk.co.atty29.jsgzpm.blockentity.ZPMHolderBlockEntity;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
 import uk.co.atty29.jsgzpm.holder.HubGeometry;
+import uk.co.atty29.jsgzpm.holder.PedestalGeometry;
 import uk.co.atty29.jsgzpm.holder.WallHolderGeometry;
 import uk.co.atty29.jsgzpm.holder.ZPMSlotState;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
@@ -31,6 +32,10 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
         Direction facing = holder.getBlockState().getValue(ZPMHolderBlock.FACING);
         Direction side = facing.getClockWise();
 
+        if (layout == ZPMHolderLayout.PEDESTAL && holder.getBlockState().getValue(ZPMHolderBlock.LIT)) {
+            PedestalLightRenderer.render(poseStack, buffers, facing);
+        }
+
         for (int slot = 0; slot < ZPMHolderBlockEntity.SLOT_COUNT; slot++) {
             ItemStack zpm = holder.getZPM(slot);
             if (zpm.isEmpty()) continue;
@@ -44,6 +49,8 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
                 x += side.getStepX() * HubGeometry.sideOffset(slot) + facing.getStepX() * HubGeometry.forwardOffset(slot);
                 z += side.getStepZ() * HubGeometry.sideOffset(slot) + facing.getStepZ() * HubGeometry.forwardOffset(slot);
                 y = HubGeometry.DOWN_CENTRE_Y + (1.0D - progress) * HubGeometry.TRAVEL;
+            } else if (layout == ZPMHolderLayout.PEDESTAL) {
+                y = PedestalGeometry.MODULE_CENTRE_Y;
             } else {
                 double sideways = WallHolderGeometry.sideOffset(layout, slot, progress);
                 double forward = WallHolderGeometry.forwardOffset(layout, progress);
@@ -55,13 +62,14 @@ public final class ZPMHolderBlockEntityRenderer implements BlockEntityRenderer<Z
             poseStack.pushPose();
             poseStack.translate(x, y, z);
             poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
-            if (layout != ZPMHolderLayout.HUB) {
+            if (layout == ZPMHolderLayout.ARRAY || layout == ZPMHolderLayout.COLUMN) {
                 // Local +Z points out of the facing after the existing yaw rotation.
                 poseStack.mulPose(Axis.ZP.rotationDegrees(WallHolderGeometry.rollDegrees(layout)));
                 poseStack.mulPose(Axis.XP.rotationDegrees(WallHolderGeometry.tiltDegrees(layout)));
             }
             // The new item is 1.05 blocks tall; retain the other holders' installed height.
-            float scale = layout == ZPMHolderLayout.HUB ? HubGeometry.MODULE_SCALE : WallHolderGeometry.MODULE_SCALE;
+            float scale = layout == ZPMHolderLayout.PEDESTAL ? PedestalGeometry.MODULE_SCALE
+                    : layout == ZPMHolderLayout.HUB ? HubGeometry.MODULE_SCALE : WallHolderGeometry.MODULE_SCALE;
             poseStack.scale(scale, scale, scale);
 
             ZPMSlotState state = holder.getSlotState(slot);

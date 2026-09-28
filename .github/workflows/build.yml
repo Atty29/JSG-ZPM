@@ -33,6 +33,11 @@ jobs:
           javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/ZPMHolderLayout.java src/main/java/uk/co/atty29/jsgzpm/holder/WallHolderGeometry.java tools/WallHolderGeometryCheck.java
           java -cp build/visual-checks WallHolderGeometryCheck
 
+      - name: Check pedestal geometry
+        run: |
+          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/PedestalGeometry.java src/main/java/uk/co/atty29/jsgzpm/client/PedestalLightGeometry.java tools/PedestalGeometryCheck.java
+          java -cp build/visual-checks PedestalGeometryCheck
+
       - name: Build
         run: gradle build --stacktrace
 
