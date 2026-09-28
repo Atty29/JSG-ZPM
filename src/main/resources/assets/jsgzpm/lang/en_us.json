@@ -8,10 +8,22 @@
   "block.jsgzpm.ancient_zpm_array": "Ancient ZPM Array",
   "block.jsgzpm.ancient_zpm_column": "Ancient ZPM Column",
   "block.jsgzpm.ancient_power_controller": "Ancient Power Controller",
+  "block.jsgzpm.zero_point_energy_generator_controller": "Zero Point Energy Generator",
+  "block.jsgzpm.zero_point_generator_casing": "Zero Point Generator Casing",
   "tooltip.jsgzpm.zpm.charge": "Charge: %s",
   "tooltip.jsgzpm.zpm.energy": "Stored Energy: %s / %s FE",
   "message.jsgzpm.holder.inserted": "ZPM inserted into slot %s",
   "message.jsgzpm.holder.removed": "ZPM removed from slot %s",
   "message.jsgzpm.holder.toggled": "ZPM slot %s moving",
-  "message.jsgzpm.controller.status": "Bank: %s holders (%s online) — ZPMs: %s active / %s installed — Energy: %s / %s FE"
+  "message.jsgzpm.controller.status": "Bank: %s holders (%s online) — ZPMs: %s active / %s installed — Energy: %s / %s FE",
+  "message.jsgzpm.generator.zpm_inserted": "ZPM inserted into generator slot %s",
+  "message.jsgzpm.generator.upgrade_inserted": "Efficiency crystal installed: %s/5 — %s%% efficient",
+  "message.jsgzpm.generator.locked_or_full": "Generator is locked or has no free compatible slot",
+  "message.jsgzpm.generator.item_removed": "Generator item removed",
+  "message.jsgzpm.generator.nothing_removable": "No removable generator items",
+  "message.jsgzpm.generator.structure_incomplete": "Generator structure incomplete: surround the controller with 8 generator casings",
+  "message.jsgzpm.generator.no_zpm": "No ZPMs installed",
+  "message.jsgzpm.generator.already_full": "All installed ZPMs are already fully charged",
+  "message.jsgzpm.generator.started": "Charging sequence started — %s%% efficiency",
+  "message.jsgzpm.generator.stopped": "Charging stopped — venting chamber"
 }

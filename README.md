@@ -1,55 +1,50 @@
 # JSG-ZPM
 
-JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**.
+JSG-ZPM is a Minecraft 1.20.1 Forge addon project for **Just Stargate Mod (JSG)**. It is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
 
-This repository is completely separate from Bulkhead Engineering, HBM-derived content, and MTR lifts/escalators.
+## Current status — Phase 5
 
-## Current status — Phase 4
+Implemented systems now include:
 
-Phases 1-3 are implemented, and Phase 4 adds coordinated large-bank power management.
-
-Current features:
-
-- Minecraft 1.20.1 / Forge 47.4.x / Java 17
-- mod id: `jsgzpm`
-- explicit runtime dependency on Just Stargate Mod (`jsg`)
-- server-configurable standard ZPM capacity, defaulting to `100,000,000,000 FE` (100 GFE)
-- Zero Point Module item with percentage and human-readable stored-energy tooltip
-- staged ZPM component recipes and custom final assembly with inherited JSG energy-crystal charge
-- Atlantis ZPM Hub, Ancient ZPM Array and Ancient ZPM Column
-- three independent ZPM slots per holder with raise/lower animation state and insertion/removal restrictions
-- sequential discharge within each holder
-- Ancient Power Controller for combining multiple holders into one managed power bank
-- configurable controller radius (default 32 blocks) and holder limit (default 64 holders / 192 ZPM slots)
-- controller scans only loaded chunks and never acts as a chunk loader
-- holders persist their controller claim across save/reload and suppress their own external FE output while networked
-- the controller becomes the single Forge Energy output for its claimed bank, preventing duplicate cable extraction paths
-- bank-wide sequential discharge keeps as few ZPMs partially depleted as possible
-- controller status readout reports linked/online holders, active/installed ZPMs and total available energy/capacity
-- dedicated-server-safe common/client separation
+- 100 GFE long-backed Zero Point Modules with readable charge tooltips
+- staged ZPM crafting with charge inherited from JSG energy crystals
+- Atlantis ZPM Hub, Ancient ZPM Array and Ancient ZPM Column with independent animated slots
+- Ancient Power Controller for coordinated large ZPM banks and sequential discharge
+- Zero Point Energy Generator 3×3 multiblock for recharging up to three ZPMs
+- generator mounting on floor, ceiling or any wall
+- manual Start/Stop charging sequence with shield sealing, cosmic-field state and vent/open sequence
+- five JSG Efficiency Upgrade Crystal slots
+- default generator efficiencies of 20%, 36%, 52%, 68%, 84% and 100%
+- external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
+- generator charging distributed across installed non-full ZPMs
+- server configuration for ZPM capacity, bank range/size and generator efficiency
 - automated GitHub Actions build validation
 
-Phase 3/4 visuals are original first-pass development assets. They will continue to be refined during the visual polish phase; no JSG models or textures are copied into this repository.
+The generator is built from one **Zero Point Energy Generator Controller** in the centre of a 3×3 plane plus eight **Zero Point Generator Casings**. The plane follows the face the controller is mounted to, so the machine works on floors, ceilings and walls.
 
-Not yet implemented: Zero Point Energy Generator, Atlantis Pegasus DHD, alarms, advanced power-management modes or final visual polish.
+### Generator controls (development interaction)
 
-## Ancient Power Controller
+- hold a ZPM and right-click the controller: insert into the next free ZPM slot
+- hold a JSG Efficiency Upgrade Crystal and right-click: install an efficiency upgrade
+- empty-hand right-click while idle: start charging
+- empty-hand right-click while running: stop and vent the chamber
+- sneak + empty-hand right-click while idle: remove an installed ZPM, then upgrades if no ZPM remains
 
-Place one controller near the ZPM holders that should form a bank. Every 40 ticks it scans loaded chunks inside its configured radius and claims unclaimed JSG-ZPM holders, up to the configured holder limit. Claimed holders no longer expose their own FE output; connect your power network to the controller instead.
+Charging only accepts FE after the eight casings are present, the shield has sealed and the cosmic field has formed. Installed items are locked during an active cycle. When all installed ZPMs reach full charge the generator stops automatically, vents the field and opens the shield.
 
-Right-click the controller to force an immediate rescan and show its current bank status.
+The current block models, shield and cosmic-field effects are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
 
-The default 32-block radius and 64-holder limit allow one controller to manage up to 192 ZPM slots without loading chunks that are otherwise inactive.
+Not yet implemented: Atlantis Pegasus DHD, Atlantis alarm system, advanced bank modes or final visual polish.
 
 ## Development dependency
 
-JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 artifact from Tau'ri Development. Users will need a compatible JSG 1.20.1 installation at runtime.
+JSG-ZPM is an independent addon and does not redistribute JSG code or assets. Development is compiled against the published JSG 1.20.1 artifact from Tau'ri Development. Users need a compatible JSG 1.20.1 installation at runtime.
 
 JSG source/project: https://github.com/Tau-ri-Dev/Mod-JSG
 
 ## Build
 
-Use Java 17 and Gradle 8.14.4 or the Gradle wrapper once generated locally:
+Use Java 17 and Gradle 8.14.4:
 
 ```text
 gradle build

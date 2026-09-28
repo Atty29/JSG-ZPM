@@ -1,0 +1,1 @@
+{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"jsgzpm:zero_point_generator_casing"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}

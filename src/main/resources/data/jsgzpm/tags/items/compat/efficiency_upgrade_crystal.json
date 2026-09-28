@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "jsg:crystal_upgrade_efficiency", "required": false },
+    { "id": "jsg_core:crystal_upgrade_efficiency", "required": false }
+  ]
+}

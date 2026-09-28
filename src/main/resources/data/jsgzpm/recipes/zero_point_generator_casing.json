@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ICI",
+    "CGC",
+    "ICI"
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "C": { "tag": "forge:ingots/copper" },
+    "G": { "item": "minecraft:glass" }
+  },
+  "result": {
+    "item": "jsgzpm:zero_point_generator_casing"
+  }
+}

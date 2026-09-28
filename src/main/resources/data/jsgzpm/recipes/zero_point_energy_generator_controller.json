@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IRI",
+    "CTC",
+    "IGI"
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "R": { "item": "minecraft:redstone_block" },
+    "C": { "tag": "forge:ingots/copper" },
+    "T": { "tag": "forge:ingots/titanium" },
+    "G": { "item": "minecraft:glass" }
+  },
+  "result": {
+    "item": "jsgzpm:zero_point_energy_generator_controller"
+  }
+}
