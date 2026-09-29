@@ -16,6 +16,9 @@ public final class DHDGeometryCheck {
             // The old raised back row could be hit entirely above that cell.
             check(DHDGeometry.y(z)>0 && DHDGeometry.y(z)<1);
             check(z>-.5 && z<.5);
+            for(var point:uk.co.atty29.jsgzpm.holder.DHDLayout.BUTTONS[i])
+                check(point[1]>-.435+.02); // Entire top row clears the rear light trim.
+
             // Rotate to each world facing and inverse-transform the hit.
             for(int k=0;k<4;k++) {
                 double a=k*Math.PI/2,wx=x*Math.cos(a)-z*Math.sin(a),wz=x*Math.sin(a)+z*Math.cos(a);

@@ -15,7 +15,7 @@ import uk.co.atty29.jsgzpm.holder.DHDGeometry;
 import uk.co.atty29.jsgzpm.holder.DHDLayout;
 
 public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityRenderer<AtlantisPegasusDHDBlockEntity> {
-    private static final ResourceLocation LIGHT=new ResourceLocation("jsgzpm","textures/block/ancient/light.png");
+    private static final ResourceLocation GLASS=new ResourceLocation("jsgzpm","textures/block/ancient/crystal_warm.png");
     public AtlantisPegasusDHDBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public void render(AtlantisPegasusDHDBlockEntity dhd,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
         var player=Minecraft.getInstance().player;if(player==null)return;
@@ -34,12 +34,12 @@ public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityR
         for(int i=0;i<symbols.size();i++) {
             int id=JSGDHDCompat.symbolId(symbols.get(i));boolean active=i==dhd.getLastPressedIndex() || (i==DHDGeometry.CORE && dhd.isGateEngaged());
             for(int value:dialed)if(value==id)active=true;
-            int color=active?0xc5ecff:0x6b3d1c;
+            int color=active?0xc5ecff:0xffce86;
             if(id==hint){int configured=JSGDHDCompat.hintColor(id==origin||id==core,dialed.length>=6);if(configured>=0)color=configured;}
             if(i==DHDGeometry.CORE && !active && id!=hint)color=0x24616c;
             boolean glow=active||(id==hint && JSGDHDCompat.hintColor(id==origin||id==core,dialed.length>=6)>=0);
             double x=DHDGeometry.x(i),z=DHDGeometry.z(i);
-            var out=buffers.getBuffer(RenderType.entityTranslucentEmissive(LIGHT));
+            var out=buffers.getBuffer(RenderType.entityTranslucentEmissive(GLASS));
             var polygon=DHDLayout.BUTTONS[i];
             for(int k=1;k<polygon.length-1;k++) {
                 double[][] points={polygon[0],polygon[k],polygon[k+1],polygon[k+1]};
@@ -49,9 +49,9 @@ public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityR
                 ResourceLocation icon=JSGDHDCompat.icon(i);
                 if(icon!=null)icon=DHDSymbolTextures.get(icon);
                 if(icon!=null) {
-                    out=buffers.getBuffer(glow?RenderType.entityTranslucentEmissive(icon):RenderType.entityCutoutNoCull(icon));
-                    double r=.025;
-                    face(pose,out,front,right,new double[][]{{x-r,z-r},{x-r,z+r},{x+r,z+r},{x+r,z-r}},.003,glow?0xffffff:0xe8d9b5,glow?LightTexture.FULL_BRIGHT:light,x,z,1);
+                    out=buffers.getBuffer(RenderType.entityTranslucentEmissive(icon));
+                    double r=.031;
+                    face(pose,out,front,right,new double[][]{{x-r,z-r},{x-r,z+r},{x+r,z+r},{x+r,z-r}},.003,glow?0xffffff:0xfff1cb,LightTexture.FULL_BRIGHT,x,z,1);
                 }
             }
         }

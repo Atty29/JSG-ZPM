@@ -23,8 +23,17 @@ public final class DHDSymbolTextures {
         var minecraft=Minecraft.getInstance();
         try(var stream=minecraft.getResourceManager().open(source)) {
             NativeImage image=NativeImage.read(stream);
+            int minX=image.getWidth(),minY=image.getHeight(),maxX=-1,maxY=-1;
             for(int y=0;y<image.getHeight();y++)for(int x=0;x<image.getWidth();x++)
-                image.setPixelRGBA(x,y,(image.getPixelRGBA(x,y)&0xff000000)|0x00ffffff);
+                if((image.getPixelRGBA(x,y)>>>24)>16){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}
+            if(maxX>=minX) {
+                int size=Math.max(maxX-minX+1,maxY-minY+1)+4;
+                NativeImage cropped=new NativeImage(size,size,true);
+                int ox=(size-(maxX-minX+1))/2,oy=(size-(maxY-minY+1))/2;
+                for(int y=minY;y<=maxY;y++)for(int x=minX;x<=maxX;x++)
+                    cropped.setPixelRGBA(x-minX+ox,y-minY+oy,(image.getPixelRGBA(x,y)&0xff000000)|0x00ffffff);
+                image.close();image=cropped;
+            }
             result=minecraft.getTextureManager().register("jsgzpm_dhd_glyph",new DynamicTexture(image));
         }catch(IOException ignored){}
         CACHE.put(source,result);return result;

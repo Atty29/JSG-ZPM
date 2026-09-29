@@ -36,12 +36,12 @@ def build():
  for x in [-1.20,-.62,0,.62,1.20]:
   m.box((x-.022,.16,-.367),(x+.022,.67,-.337),'trim')
  # Raised back light and beveled perimeter.
- m.box((-1.39,.76,-.44),(1.39,.99,-.35),'panel')
- m.box((-1.25,.84,-.347),(1.25,.965,-.335),'light')
+ m.box((-1.39,.76,-.49),(1.39,.99,-.45),'panel')
+ m.box((-1.25,.84,-.447),(1.25,.965,-.435),'light')
  for sign in [-1,1]:m.box((sign*1.35-.045,.76,-.34),(sign*1.35+.045,.83,.37),'trim')
  # Sloped keypad face; all button and light vertices share this transform.
  pad=Mesh()
- prism(pad,[(.09,-.405),(1.16,-.405),(1.23,-.22),(1.23,.22),(1.08,.405),(.18,.405),(.03,.22),(.03,-.22)],-.075,-.017,'panel','binder')
+ prism(pad,[(.09,-.425),(1.16,-.425),(1.23,-.22),(1.23,.22),(1.08,.405),(.18,.405),(.03,.22),(.03,-.22)],-.075,-.017,'panel','binder')
  for i,poly in enumerate(buttons()):
   prism(pad,poly,-.017,-.005,'pedestal_metal')
   cx=sum(x for x,z in poly)/len(poly);cz=sum(z for x,z in poly)/len(poly)
