@@ -69,6 +69,11 @@ public final class JSGDHDCompat {
             if(v instanceof int[] a)visible=a;
         } else {
             address=staticCall("dev.tauri.jsg.api.item.NotebookPageSerialization","getDeserializedAddress",tag);
+            // Public 5.0 predates NotebookPageSerialization and constructs this address directly.
+            if(address==null && tag.contains("address",10) && tag.contains("symbolType")) {
+                try{address=Class.forName("dev.tauri.jsg.stargate.network.StargateAddress").getConstructor(CompoundTag.class).newInstance(tag.getCompound("address"));}
+                catch(ReflectiveOperationException|LinkageError ignored){}
+            }
             visible=tag.getIntArray("symbolsToDisplay");
         }
         var symbols=JSGGateCompat.getPressableSymbols();
