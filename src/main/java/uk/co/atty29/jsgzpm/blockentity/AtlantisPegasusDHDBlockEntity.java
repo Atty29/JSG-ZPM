@@ -23,7 +23,7 @@ import uk.co.atty29.jsgzpm.registry.ModRegistries;
  * JSG development builds.
  */
 public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
-    public static final int DISPLAY_BUTTON_COUNT = 42;
+    public static final int DISPLAY_BUTTON_COUNT = 37;
     private static final int AUTO_RELINK_INTERVAL = 100;
     private static final int INCOMING_CHECK_INTERVAL = 5;
 
@@ -35,6 +35,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     private int lastPressedIndex = -1;
     private int pressFlashTicks;
     private int relinkTicker;
+    private boolean gateEngaged;
+    public boolean isGateEngaged(){return gateEngaged;}
+    private int[] dialedSymbols=new int[0];
+    public int[] getDialedSymbols(){return dialedSymbols.clone();}
 
     public AtlantisPegasusDHDBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY.get(), pos, state);
@@ -64,6 +68,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
 
         if (level.getGameTime() % INCOMING_CHECK_INTERVAL == 0L) {
             BlockEntity gate = JSGGateCompat.getLinkedGate(serverLevel, dhd.linkedGatePos);
+            boolean engaged=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate);
+            if(engaged!=dhd.gateEngaged){dhd.gateEngaged=engaged;changed=true;}
+            int[] dialed=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.dialed(gate);
+            if(!java.util.Arrays.equals(dialed,dhd.dialedSymbols)){dhd.dialedSymbols=dialed;changed=true;}
             if (gate == null && dhd.linkedGatePos != null) {
                 dhd.linkedGatePos = null;
                 dhd.lastIncoming = false;
@@ -201,6 +209,8 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
         tag.putBoolean("GeneralAlarm", generalAlarmActive);
         tag.putBoolean("OffworldAlarm", offworldAlarmActive);
         tag.putBoolean("LastIncoming", lastIncoming);
+        tag.putBoolean("GateEngaged",gateEngaged);
+        tag.putIntArray("DialedSymbols",dialedSymbols);
         tag.putInt("LastPressedIndex", lastPressedIndex);
         tag.putInt("PressFlashTicks", pressFlashTicks);
     }
@@ -209,6 +219,8 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         linkedGatePos = tag.contains("LinkedGate") ? BlockPos.of(tag.getLong("LinkedGate")) : null;
+        gateEngaged=tag.getBoolean("GateEngaged");
+        dialedSymbols=tag.getIntArray("DialedSymbols");
         generalAlarmActive = tag.getBoolean("GeneralAlarm");
         offworldAlarmActive = tag.getBoolean("OffworldAlarm");
         lastIncoming = tag.getBoolean("LastIncoming");

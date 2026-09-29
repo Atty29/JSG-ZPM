@@ -62,7 +62,8 @@ public final class JSGGateCompat {
     public static boolean isPegasusGate(@Nullable BlockEntity blockEntity) {
         if (blockEntity == null) return false;
         String className = blockEntity.getClass().getName().toLowerCase(Locale.ROOT);
-        if (className.contains("stargate") && className.contains("pegasus")) return true;
+        if (!hasMethod(blockEntity,"getDialedAddress") && !hasMethod(blockEntity,"getDialingManager")) return false;
+        if (className.startsWith("dev.tauri.jsg.") && className.contains("stargate") && className.contains("pegasus") && className.contains("base")) return true;
 
         var key = ForgeRegistries.BLOCKS.getKey(blockEntity.getBlockState().getBlock());
         if (key == null) return false;
@@ -147,11 +148,47 @@ public final class JSGGateCompat {
     }
 
     public static boolean pressPegasusSymbol(@Nullable BlockEntity gate, int index, ServerPlayer player) {
-        if (gate == null) return false;
+        if (!isPegasusGate(gate)) return false;
         List<Object> symbols = getPressableSymbols();
         if (index < 0 || index >= symbols.size()) return false;
         Object symbol = symbols.get(index);
 
+        Object stateTarget=invokeNoArgs(gate,"getDialingManager");
+        if(stateTarget==null)stateTarget=gate;
+        Object state=invokeNoArgs(stateTarget,"getStargateState");
+        boolean core=Boolean.TRUE.equals(invokeBooleanNoArgs(symbol,"brb"));
+        if(Boolean.TRUE.equals(invokeBooleanNoArgs(state,"engaged"))) {
+            if(!core || !Boolean.TRUE.equals(invokeBooleanNoArgs(state,"initiating")))return false;
+            for(Method method:stateTarget.getClass().getMethods()) {
+                if(!method.getName().equals("attemptClose")||method.getParameterCount()!=1)continue;
+                Object[] reasons=method.getParameterTypes()[0].getEnumConstants();if(reasons==null)continue;
+                for(Object reason:reasons)if(((Enum<?>)reason).name().equals("REQUESTED")) {
+                    try{method.invoke(stateTarget,reason);return true;}catch(ReflectiveOperationException ignored){return false;}
+                }
+            }
+            return false;
+        }
+        if(isIncoming(gate))return false;
+        if(!Boolean.TRUE.equals(invokeBooleanNoArgs(state,"idle")) && !Boolean.TRUE.equals(invokeBooleanNoArgs(state,"dialing")))return false;
+        // Released Pegasus exposes the player-aware overload (also handles its core).
+        Object pegasus = invokeTwoArgsAssignable(gate, "addSymbolToAddressDHD", symbol, player);
+        if (pegasus != Invocation.NO_METHOD) return !(pegasus instanceof Boolean bool) || bool;
+        Object manager = invokeNoArgs(gate, "getDialingManager");
+        if (manager != null) {
+            try {
+                if (Boolean.TRUE.equals(invokeBooleanNoArgs(symbol,"brb")) &&
+                    Boolean.TRUE.equals(invokeBooleanNoArgs(invokeNoArgs(manager,"getStargateState"),"idle"))) {
+                    Object result=invokeNoArgs(manager,"attemptOpenDialed");
+                    return Boolean.TRUE.equals(invokeBooleanNoArgs(result,"ok"));
+                }
+                for(Method method:manager.getClass().getMethods()) {
+                    if(method.getName().equals("engageSymbolDHD") && method.getParameterCount()==3) {
+                        Object result=method.invoke(manager,symbol,false,false);
+                        return result!=null && result.toString().equals("OK");
+                    }
+                }
+            } catch(ReflectiveOperationException | IllegalArgumentException ignored) { return false; }
+        }
         // JSG 5.1 runtime path used by its public StargateClassicController.
         Object direct = invokeOneArgAssignable(gate, "addSymbolToAddressDHD", symbol);
         if (direct != Invocation.NO_METHOD) return !(direct instanceof Boolean bool) || bool;
@@ -185,7 +222,9 @@ public final class JSGGateCompat {
         return isPegasusGate(blockEntity) ? blockEntity : null;
     }
 
-    private static List<Object> getPressableSymbols() {
+    private static List<Object> cachedSymbols;
+    public static List<Object> getPressableSymbols() {
+        if(cachedSymbols!=null)return cachedSymbols;
         for (String className : PEGASUS_SYMBOL_CLASSES) {
             try {
                 Class<?> type = Class.forName(className);
@@ -194,9 +233,12 @@ public final class JSGGateCompat {
                 List<Object> symbols = new ArrayList<>();
                 for (Object constant : constants) {
                     Boolean pressable = invokeBooleanNoArgs(constant, "canBePressed");
-                    if (pressable == null || pressable) symbols.add(constant);
+                    if ((pressable == null || pressable) && !((Enum<?>)constant).name().startsWith("UNKNOW")) symbols.add(constant);
                 }
-                if (!symbols.isEmpty()) return symbols;
+                if (!symbols.isEmpty()) {
+                    symbols.sort(Comparator.comparingInt(JSGDHDCompat::symbolId));
+                    cachedSymbols=List.copyOf(symbols);return cachedSymbols;
+                }
             } catch (ClassNotFoundException | LinkageError ignored) {
                 // Try the next known JSG package layout.
             }

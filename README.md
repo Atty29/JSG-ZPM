@@ -72,7 +72,7 @@ The DHD is placed as a five-block floor-integrated horseshoe with an open step-i
 
 The DHD no longer subclasses JSG's private DHD implementation. Released JSG 5.1.x builds do not expose the 6.0-development `dev.tauri.jsg.common.block.dialhomedevice` classes, so JSG-ZPM now owns the console block/entity and operates the installed Pegasus gate through a release-safe compatibility bridge.
 
-**Notebook next-symbol guidance is temporarily disabled by this hotfix.** The previous renderer linked directly to JSG 6.0-development notebook/Core classes. It will be restored through the compatibility layer after the released JSG notebook data format is verified in-game.
+The waist-height console uses installed JSG Pegasus glyphs and reads address pages from either hand. Guidance follows the linked gate's dialed address, then highlights origin and core. Released 5.1 notebook serialization and the newer Core page API are accessed through reflection; no JSG assets are bundled. Runtime testing across individual releases remains necessary.
 
 ### Atlantis alarm network
 
@@ -87,7 +87,7 @@ Each emitter only checks its explicitly linked DHD, so large bases can use many 
 
 The current block models, ZPM visuals, generator shield/cosmic field, DHD console and alarm emitter are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
 
-Not yet implemented: restored notebook guidance on the released JSG runtime, and final model/texture/audio polish driven by in-game testing.
+Remaining validation: in-game DHD dialing, page guidance and final model/texture/audio polish across JSG releases.
 
 ## Testing development builds
 

@@ -89,3 +89,5 @@ New original dark-metal pedestal with two hollow silver rings, cyan vents/status
 Regenerate this asset separately with `python tools/build_pedestal_assets.py`; the approved hub/ZPM/array/column generator is unchanged. `PedestalGeometryCheck` validates cap alignment, shallow seating, bore clearance and generated emissive geometry. In-game charge/depletion/reload tests are listed in TESTING.md.
 
 The recharger now has a deep circular tube on its existing 3x3 mounting frame, three central ZPM sockets, radial white lights and green outer indicators. The front containment shield seals before gas fills the chamber. Light patterns sweep around the rim while active; stopping vents gas before reopening the shield. Leave two blocks clear in front.
+
+The Atlantis DHD is a waist-height bronze desk with 36 Pegasus diamond keys and a separate core. JSG glyph masks are loaded from the installed mod at runtime, preserving resource-pack changes. Page hint colors use JSG configuration.

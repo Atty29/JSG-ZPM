@@ -38,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /** Master/control block for the five-block Atlantis Pegasus DHD console. */
 public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 10, 16);
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 15.04, 16);
 
     public AtlantisPegasusDHDBlock() {
         super(BlockBehaviour.Properties.of()
@@ -195,11 +195,9 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
         Direction right = front.getClockWise();
         double dx = hit.getLocation().x - (pos.getX() + 0.5D);
         double dz = hit.getLocation().z - (pos.getZ() + 0.5D);
-        double localX = 0.5D + dx * right.getStepX() + dz * right.getStepZ();
-        double localZ = 0.5D + dx * front.getStepX() + dz * front.getStepZ();
-        int col = Mth.clamp((int) Math.floor(localX * 7.0D), 0, 6);
-        int row = Mth.clamp((int) Math.floor(localZ * 6.0D), 0, 5);
-        return row * 7 + col;
+        double x = dx * right.getStepX() + dz * right.getStepZ();
+        double z = dx * front.getStepX() + dz * front.getStepZ();
+        return uk.co.atty29.jsgzpm.holder.DHDGeometry.hit(x,z,hit.getLocation().y-pos.getY(),hit.getDirection()==Direction.UP);
     }
 
     private record PartPlacement(BlockPos pos, int index) {

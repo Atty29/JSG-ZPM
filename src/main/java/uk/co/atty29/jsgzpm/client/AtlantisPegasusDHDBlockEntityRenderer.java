@@ -1,62 +1,63 @@
 package uk.co.atty29.jsgzpm.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.blockentity.*;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import uk.co.atty29.jsgzpm.block.AtlantisPegasusDHDBlock;
 import uk.co.atty29.jsgzpm.blockentity.AtlantisPegasusDHDBlockEntity;
+import uk.co.atty29.jsgzpm.compat.*;
+import uk.co.atty29.jsgzpm.holder.DHDGeometry;
 
-/**
- * Release-safe first-pass symbol display for the Atlantis console.
- *
- * The previous implementation directly linked to JSG 6.0 development notebook
- * and symbol classes.  This renderer intentionally owns its visual state so a
- * normal JSG 5.1.x installation can load JSG-ZPM.  Notebook guidance can be
- * restored later through the same reflection compatibility layer used by the
- * functional DHD once its released NBT format is verified in-game.
- */
 public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityRenderer<AtlantisPegasusDHDBlockEntity> {
-    private final Font font;
-
-    public AtlantisPegasusDHDBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        this.font = context.getFont();
-    }
-
-    @Override
-    public void render(AtlantisPegasusDHDBlockEntity dhd, float partialTick, PoseStack poseStack,
-                       MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (dhd.getLevel() == null) return;
-
-        int activeIndex = dhd.getLastPressedIndex();
-        float rotation = dhd.getBlockState().getValue(AtlantisPegasusDHDBlock.FACING).toYRot();
-
-        poseStack.pushPose();
-        poseStack.translate(0.5D, 0.635D, 0.5D);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-rotation));
-        poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-        poseStack.scale(0.0105F, -0.0105F, 0.0105F);
-
-        for (int i = 0; i < AtlantisPegasusDHDBlockEntity.DISPLAY_BUTTON_COUNT; i++) {
-            int col = i % 7;
-            int row = i / 7;
-            float x = (col - 3) * 11.0F - 2.0F;
-            float y = (row - 2.5F) * 11.0F;
-            boolean active = i == activeIndex;
-            int colour = active ? 0xFF55E7FF : 0xFF55666F;
-            int light = active ? LightTexture.FULL_BRIGHT : packedLight;
-            font.drawInBatch("◆", x, y, colour, false, poseStack.last().pose(), bufferSource,
-                    Font.DisplayMode.NORMAL, 0, light);
+    private static final ResourceLocation LIGHT=new ResourceLocation("jsgzpm","textures/block/ancient/light.png");
+    public AtlantisPegasusDHDBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
+    @Override public void render(AtlantisPegasusDHDBlockEntity dhd,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
+        var player=Minecraft.getInstance().player;if(player==null)return;
+        var symbols=JSGGateCompat.getPressableSymbols();
+        if(symbols.size()!=37)return; // Unknown layouts fail closed rather than label the wrong symbol.
+        var page=JSGDHDCompat.page(player.getMainHandItem());
+        if(page==null)page=JSGDHDCompat.page(player.getOffhandItem());
+        int origin=-1,core=-1;
+        for(Object symbol:symbols){
+            if(Boolean.TRUE.equals(JSGDHDCompat.call(symbol,"origin")))origin=JSGDHDCompat.symbolId(symbol);
+            if(Boolean.TRUE.equals(JSGDHDCompat.call(symbol,"brb")))core=JSGDHDCompat.symbolId(symbol);
         }
-
-        if (dhd.isAnyAlarmActive()) {
-            int colour = dhd.isGeneralAlarmActive() ? 0xFFFF4545 : 0xFFFF8C32;
-            font.drawInBatch("ALARM", -17.0F, 42.0F, colour, false, poseStack.last().pose(), bufferSource,
-                    Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+        int[] dialed=dhd.getDialedSymbols();
+        int hint=page!=null&&dhd.hasLinkedGate()&&!dhd.isGateEngaged()?DHDGeometry.next(page.symbols(),page.visible(),dialed,origin,core):-1;
+        Direction front=dhd.getBlockState().getValue(AtlantisPegasusDHDBlock.FACING),right=front.getClockWise();
+        for(int i=0;i<symbols.size();i++) {
+            int id=JSGDHDCompat.symbolId(symbols.get(i));boolean active=i==dhd.getLastPressedIndex() || (i==DHDGeometry.CORE && dhd.isGateEngaged());
+            for(int value:dialed)if(value==id)active=true;
+            int color=active?0xffb653:0x786852;
+            if(id==hint){int configured=JSGDHDCompat.hintColor(id==origin||id==core,dialed.length>=6);if(configured>=0)color=configured;}
+            if(i==DHDGeometry.CORE && !active && id!=hint)color=0x24616c;
+            boolean glow=active||(id==hint && JSGDHDCompat.hintColor(id==origin||id==core,dialed.length>=6)>=0);
+            double x=DHDGeometry.x(i),z=DHDGeometry.z(i);
+            var out=buffers.getBuffer(RenderType.entityTranslucentEmissive(LIGHT));
+            quad(pose,out,front,right,x,z,.941,DHDGeometry.RX*.92,DHDGeometry.RZ*.92,color,true,LightTexture.FULL_BRIGHT);
+            if(i!=DHDGeometry.CORE) {
+                ResourceLocation icon=JSGDHDCompat.icon(i);
+                if(icon!=null)icon=DHDSymbolTextures.get(icon);
+                if(icon!=null) {
+                    out=buffers.getBuffer(glow?RenderType.entityTranslucentEmissive(icon):RenderType.entityCutoutNoCull(icon));
+                    quad(pose,out,front,right,x,z,.943,.029,.029,glow?color:0xd9bd83,false,glow?LightTexture.FULL_BRIGHT:light);
+                }
+            }
         }
-        poseStack.popPose();
     }
+    private static void quad(PoseStack pose,VertexConsumer out,Direction front,Direction right,double x,double z,double y,double rx,double rz,int color,boolean diamond,int light) {
+        double[][] points=diamond?new double[][]{{-rx,0},{0,rz},{rx,0},{0,-rz}}:new double[][]{{-rx,-rz},{-rx,rz},{rx,rz},{rx,-rz}};
+        for(int i=0;i<4;i++) {
+            double u=x+points[i][0],v=z+points[i][1];
+            out.vertex(pose.last().pose(),(float)(.5+u*right.getStepX()+v*front.getStepX()),(float)y,(float)(.5+u*right.getStepZ()+v*front.getStepZ()))
+                .color((color>>16)&255,(color>>8)&255,color&255,255).uv(i<2?0:1,i==0||i==3?0:1)
+                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.last().normal(),0,1,0).endVertex();
+        }
+    }
+    @Override public boolean shouldRenderOffScreen(AtlantisPegasusDHDBlockEntity dhd){return true;}
 }

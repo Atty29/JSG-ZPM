@@ -1,33 +1,48 @@
 {
+  "loader": "forge:obj",
+  "model": "jsgzpm:models/block/atlantis_pegasus_dhd.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "ambientocclusion": true,
   "textures": {
-    "panel": "jsgzpm:block/ancient_panel",
-    "dark": "jsgzpm:block/ancient_panel_dark",
-    "particle": "jsgzpm:block/ancient_panel"
+    "panel": "jsgzpm:block/ancient/panel",
+    "trim": "jsgzpm:block/ancient/trim",
+    "recess": "jsgzpm:block/ancient/recess",
+    "binder": "jsgzpm:block/ancient/binder",
+    "crystal": "jsgzpm:block/ancient/crystal",
+    "crystal_warm": "jsgzpm:block/ancient/crystal_warm",
+    "crystal_pale": "jsgzpm:block/ancient/crystal_pale",
+    "regulator": "jsgzpm:block/ancient/regulator",
+    "light": "jsgzpm:block/ancient/light",
+    "crystal_olive": "jsgzpm:block/ancient/crystal_olive",
+    "crystal_red": "jsgzpm:block/ancient/crystal_red",
+    "crystal_core": "jsgzpm:block/ancient/crystal_core",
+    "pedestal_dark": "jsgzpm:block/ancient/pedestal_dark",
+    "pedestal_metal": "jsgzpm:block/ancient/pedestal_metal",
+    "pedestal_cyan_off": "jsgzpm:block/ancient/pedestal_cyan_off",
+    "pedestal_white_off": "jsgzpm:block/ancient/pedestal_white_off",
+    "particle": "jsgzpm:block/ancient/panel"
   },
-  "elements": [
-    {
-      "from": [0, 0, 0],
-      "to": [16, 6, 16],
-      "faces": {
-        "north": {"texture": "#dark"},
-        "south": {"texture": "#dark"},
-        "east": {"texture": "#dark"},
-        "west": {"texture": "#dark"},
-        "up": {"texture": "#panel"},
-        "down": {"texture": "#dark"}
-      }
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
     },
-    {
-      "from": [1, 6, 1],
-      "to": [15, 10, 15],
-      "faces": {
-        "north": {"texture": "#dark"},
-        "south": {"texture": "#dark"},
-        "east": {"texture": "#dark"},
-        "west": {"texture": "#dark"},
-        "up": {"texture": "#panel"},
-        "down": {"texture": "#dark"}
-      }
+    "ground": {
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
     }
-  ]
+  }
 }

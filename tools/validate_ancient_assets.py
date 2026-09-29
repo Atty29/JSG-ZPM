@@ -154,7 +154,14 @@ for path in (ASSETS/'models').rglob('*.json'):
                 for y in [.06,.25,.75,.94]:
                     origin=(1-y-.03,x,y-.03)
                     assert any(ray_hit(origin,tuple(-v for v in axis),f) for f in faces), 'Open wedge face'
-    else:
+    elif obj.stem=='atlantis_pegasus_dhd':
+        assert 1.0<bounds[1][1]<1.08, 'DHD must be waist height'
+        assert bounds[0][0]>=-1 and bounds[0][1]<=2
+        assert {'panel','trim','light'}<=used_mats
+        for i in range(36):
+            x=.5+(i%6-2.5)*.145;z=.5-((i//6-2.5)*.115-.035)
+            assert any(ray_hit((x,1.1,z),(0,-1,0),f) for f in faces), 'Missing DHD button'
+    elif obj.stem=='atlantis_zpm_hub':
         # Side-console light walls must share exact 45-degree axes with the notches.
         diagonal_lights=0
         for f in light_faces:

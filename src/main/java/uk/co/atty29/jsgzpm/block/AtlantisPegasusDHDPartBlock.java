@@ -30,7 +30,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public final class AtlantisPegasusDHDPartBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 3);
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 14.4, 16);
 
     public AtlantisPegasusDHDPartBlock() {
         super(Properties.of()

@@ -43,6 +43,11 @@ jobs:
           javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/generator/RechargerGeometry.java src/main/java/uk/co/atty29/jsgzpm/client/RechargerMesh.java tools/RechargerGeometryCheck.java
           java -cp build/visual-checks RechargerGeometryCheck
 
+      - name: Check DHD buttons and guidance
+        run: |
+          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/DHDGeometry.java tools/DHDGeometryCheck.java
+          java -cp build/visual-checks DHDGeometryCheck
+
       - name: Build
         run: gradle build --stacktrace
 
