@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import struct
 import sys
 import zipfile
@@ -155,7 +156,7 @@ for path in (ASSETS/'models').rglob('*.json'):
                     origin=(1-y-.03,x,y-.03)
                     assert any(ray_hit(origin,tuple(-v for v in axis),f) for f in faces), 'Open wedge face'
     elif obj.stem=='atlantis_pegasus_dhd':
-        assert 1.0<bounds[1][1]<1.20, 'DHD must be waist height'
+        assert .95<bounds[1][1]<=1.0, 'DHD must be waist height'
         assert bounds[0][0]>=-1 and bounds[0][1]<=2
         assert {'panel','trim','light'}<=used_mats
         from build_dhd_assets import buttons
@@ -258,6 +259,14 @@ for name in ('recharger_mist','recharger_shield'):
     assert min(alpha)==0 and max(alpha)>90
     assert all(decoded[y*513]==0 for y in range(128))
     assert all(alpha[y*128+x]==0 for x,y in [(0,0),(127,0),(0,127),(127,127)])
+
+# Every machine, including invisible multiblock sections, must reject snow.
+registered=set(re.findall(r'BLOCKS.register\("([^" ]+)"', (ROOT/'src/main/java/uk/co/atty29/jsgzpm/registry/ModRegistries.java').read_text()))
+snow_file=ROOT/'src/main/resources/data/minecraft/tags/blocks/snow_layer_cannot_survive_on.json'
+snow=json.loads(snow_file.read_text())
+assert snow.get('replace') is False
+assert set(snow['values'])=={'jsgzpm:'+name for name in registered}
+required.add(snow_file)
 
 if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'

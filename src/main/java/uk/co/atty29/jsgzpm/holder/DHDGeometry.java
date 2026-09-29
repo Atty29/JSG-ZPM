@@ -3,7 +3,7 @@ package uk.co.atty29.jsgzpm.holder;
 public final class DHDGeometry {
     private DHDGeometry() {}
     public static final int SYMBOLS=36, CORE=36;
-    public static final double TOP=1.025, SLOPE=.34;
+    public static final double TOP=.90, SLOPE=.22;
     public static double y(double z){return TOP-SLOPE*z;}
     public static double x(int i){double sum=0;for(double[] p:DHDLayout.BUTTONS[i])sum+=p[0];return sum/DHDLayout.BUTTONS[i].length;}
     public static double z(int i){double sum=0;for(double[] p:DHDLayout.BUTTONS[i])sum+=p[1];return sum/DHDLayout.BUTTONS[i].length;}

@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "jsgzpm:atlantis_zpm_hub",
+    "jsgzpm:ancient_zpm_array",
+    "jsgzpm:ancient_zpm_column",
+    "jsgzpm:ancient_zpm_pedestal",
+    "jsgzpm:ancient_power_controller",
+    "jsgzpm:zero_point_energy_generator_controller",
+    "jsgzpm:zero_point_generator_casing",
+    "jsgzpm:atlantis_pegasus_dhd",
+    "jsgzpm:atlantis_pegasus_dhd_part",
+    "jsgzpm:atlantis_alarm_emitter"
+  ]
+}

@@ -38,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /** Master/control block for the five-block Atlantis Pegasus DHD console. */
 public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 18.5, 16);
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
     public AtlantisPegasusDHDBlock() {
         super(BlockBehaviour.Properties.of()
@@ -111,7 +111,7 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
             Direction f=frontDirection(state),r=f.getCounterClockWise();
             double dz=(eye.x-pos.getX()-.5)*f.getStepX()+(eye.z-pos.getZ()-.5)*f.getStepZ();
             double dx=(eye.x-pos.getX()-.5)*r.getStepX()+(eye.z-pos.getZ()-.5)*r.getStepZ();
-            double t=(.92-(eye.y-pos.getY()))/look.y;
+            double t=(.84-(eye.y-pos.getY()))/look.y;
             double x=dx+t*(look.x*r.getStepX()+look.z*r.getStepZ());
             double z=dz+t*(look.x*f.getStepX()+look.z*f.getStepZ());
             if(look.y<0 && t>=0 && t<6 && x> -1.30 && x<-.22 && Math.abs(z)<.38) {
