@@ -25,7 +25,15 @@ public final class DHDGeometryCheck {
         check(DHDGeometry.hit(-.8,.49,DHDGeometry.y(.49),true)==-1);
         check(Math.abs(DHDGeometry.x(36)-.63)<1e-6);
         check(Math.abs(DHDGeometry.z(36))<1e-6);
-        // The six removed triangles must be filled by the central hexagon.
+        // All 37 cells must be congruent equilateral triangles on the tilted plane.
+        for(var poly:uk.co.atty29.jsgzpm.holder.DHDLayout.BUTTONS) {
+            check(poly.length==3);
+            for(int j=0;j<3;j++){
+                var a=poly[j];var b=poly[(j+1)%3];
+                double dx=a[0]-b[0],dz=a[1]-b[1],dy=DHDGeometry.y(a[1])-DHDGeometry.y(b[1]);
+                check(Math.abs(Math.sqrt(dx*dx+dy*dy+dz*dz)-.18)<2e-6);
+            }
+        }
         // Every shared lattice edge has exactly two owners: no internal holes.
         var edges=new java.util.HashMap<String,Integer>();
         for(var poly:uk.co.atty29.jsgzpm.holder.DHDLayout.BUTTONS)for(int j=0;j<poly.length;j++) {
@@ -36,7 +44,7 @@ public final class DHDGeometryCheck {
             edges.merge(key,1,Integer::sum);
         }
         check(edges.values().stream().allMatch(n->n==1||n==2));
-        check(edges.values().stream().filter(n->n==1).count()==16);
+        check(edges.values().stream().filter(n->n==1).count()==15);
         int[] page={0,1,2,3,4,5,6,7},six={1,2,3,4,5,6},eight={1,2,3,4,5,6,7,8};
         for(int i=0;i<6;i++)check(DHDGeometry.next(page,six,Arrays.copyOf(page,i),14,38)==page[i]);
         check(DHDGeometry.next(page,six,Arrays.copyOf(page,6),14,38)==14);

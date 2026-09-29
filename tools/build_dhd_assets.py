@@ -6,25 +6,25 @@ PALETTE.update(MATERIALS)
 TOP=.90;SLOPE=.22
 
 def buttons():
- # A shared triangular lattice. Remove six cells whose union is exactly the core hexagon.
- result=[]
- w=.21;h=.125
- for row,count in enumerate([5,7,9,9,7,5]):
+ # A seven-unit equilateral triangle with its three two-unit corners removed.
+ # This gives 37 identical cells: 36 glyphs and the central triangular core.
+ # Compensate for the slope so the actual 3D faces, not just their XZ projection,
+ # have equal side lengths.
+ w=.18;h=w*math.sqrt(3)/2/math.sqrt(1+SLOPE*SLOPE)
+ result=[];core=None
+ for row in range(2,7):
+  count=2*row+1
   for col in range(count):
-   if row in (2,3) and col in (2,3,4):continue
-   x=.63+(col-(count-1)/2)*w/2;z=(row-2.5)*h
-   up=(col%2==0) if row<3 else (col%2!=0)
+   if row==5 and col in (0,10):continue
+   if row==6 and (col<3 or col>9):continue
+   x=.63+(col-row)*w/2
+   z=(row-14/3+.5)*h
+   up=col%2==0
    poly=[(x-w/2,z+(h/2 if up else -h/2)),(x+w/2,z+(h/2 if up else -h/2)),(x,z+(-h/2 if up else h/2))]
-   result.append(poly)
- cx=.525
- result.append([(cx-w/2,-h),(cx+w/2,-h),(cx+w,0),(cx+w/2,h),(cx-w/2,h),(cx-w,0)])
- # Translate the core to the keypad centre, distributing the surrounding columns
- # within the same outer bounds. Shared vertices keep every seam closed.
- def center_x(x):
-  if x<.315:return .105+(x-.105)*1.5
-  if x>.735:return .84+(x-.735)*.75
-  return x+.105
- return [[(center_x(x),z) for x,z in poly] for poly in result]
+   if row==4 and col==4:core=poly
+   else:result.append(poly)
+ assert len(result)==36 and core is not None
+ return result+[core]
 
 def build():
  m=Mesh()
@@ -48,7 +48,7 @@ def build():
   inner=[(cx+(x-cx)*.84,cz+(z-cz)*.84) for x,z in poly]
   prism(pad,inner,-.004,0,'crystal_warm','trim')
  # Triangle motif inside the central core.
- for a,b in zip([(.55,.052),(.71,.052),(.63,-.070)],[(.71,.052),(.63,-.070),(.55,.052)]):stroke(pad,a,b,.010,.001,.004,'light')
+ for a,b in zip([(.585,.026),(.675,.026),(.63,-.052)],[(.675,.026),(.63,-.052),(.585,.026)]):stroke(pad,a,b,.010,.001,.004,'light')
  for pts,mat in pad.faces:m.face([(x,TOP+y-SLOPE*z,z) for x,y,z in pts],mat)
  # Stepped clear control crystals to the left; etched original circuit traces.
  for row,count in enumerate([3,2,2]):
