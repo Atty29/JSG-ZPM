@@ -118,3 +118,9 @@ The project uses Forge 47.4.10 and Parchment 2023.09.03-1.20.1.
 ## License
 
 Project licensing is not finalized yet. Just Stargate Mod remains separately owned and licensed by Tau'ri Development; nothing in this repository grants rights to JSG code or assets.
+
+### Planned DHD upgrade inventory
+
+Add a normal-DHD-style maintenance GUI with persistent, server-owned upgrade slots. This is not implemented in the current visual build. Installed items must control actual DHD behaviour; opening a GUI or storing decorative items is not sufficient. Removing an upgrade must immediately revoke the associated capability, and save/load, item removal and multiplayer synchronisation must preserve the inventory safely.
+
+Compatibility must adapt to the installed JSG release: public 5.1 uses its DHD upgrade enum and reactor/control-crystal rules, while newer source uses IDHDUpgradeItem/IDHDUpgradeBehavior with attach/detach callbacks. Inspect each supported upgrade's native behaviour before implementing parity; do not grant all upgrades implicitly or assume the layouts are interchangeable. The current direct gate bridge still needs this functional integration.

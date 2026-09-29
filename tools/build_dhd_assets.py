@@ -18,7 +18,13 @@ def buttons():
    result.append(poly)
  cx=.525
  result.append([(cx-w/2,-h),(cx+w/2,-h),(cx+w,0),(cx+w/2,h),(cx-w/2,h),(cx-w,0)])
- return result
+ # Translate the core to the keypad centre, distributing the surrounding columns
+ # within the same outer bounds. Shared vertices keep every seam closed.
+ def center_x(x):
+  if x<.315:return .105+(x-.105)*1.5
+  if x>.735:return .84+(x-.735)*.75
+  return x+.105
+ return [[(center_x(x),z) for x,z in poly] for poly in result]
 
 def build():
  m=Mesh()
@@ -42,7 +48,7 @@ def build():
   inner=[(cx+(x-cx)*.84,cz+(z-cz)*.84) for x,z in poly]
   prism(pad,inner,-.004,0,'crystal_warm','trim')
  # Triangle motif inside the central core.
- for a,b in zip([(.445,.052),(.605,.052),(.525,-.070)],[(.605,.052),(.525,-.070),(.445,.052)]):stroke(pad,a,b,.010,.001,.004,'light')
+ for a,b in zip([(.55,.052),(.71,.052),(.63,-.070)],[(.71,.052),(.63,-.070),(.55,.052)]):stroke(pad,a,b,.010,.001,.004,'light')
  for pts,mat in pad.faces:m.face([(x,TOP+y-SLOPE*z,z) for x,y,z in pts],mat)
  # Stepped clear control crystals to the left; etched original circuit traces.
  for row,count in enumerate([3,2,2]):

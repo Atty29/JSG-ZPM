@@ -23,6 +23,8 @@ public final class DHDGeometryCheck {
             }
         }
         check(DHDGeometry.hit(-.8,.49,DHDGeometry.y(.49),true)==-1);
+        check(Math.abs(DHDGeometry.x(36)-.63)<1e-6);
+        check(Math.abs(DHDGeometry.z(36))<1e-6);
         // The six removed triangles must be filled by the central hexagon.
         // Every shared lattice edge has exactly two owners: no internal holes.
         var edges=new java.util.HashMap<String,Integer>();
