@@ -38,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /** Master/control block for the five-block Atlantis Pegasus DHD console. */
 public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 15.04, 16);
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 18.5, 16);
 
     public AtlantisPegasusDHDBlock() {
         super(BlockBehaviour.Properties.of()
@@ -105,7 +105,21 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
             return InteractionResult.CONSUME;
         }
 
-        int index = gridIndex(state, pos, hit);
+        int index = gridIndex(state, pos, player);
+        if(index<0) {
+            var eye=player.getEyePosition();var look=player.getLookAngle();
+            Direction f=frontDirection(state),r=f.getCounterClockWise();
+            double dz=(eye.x-pos.getX()-.5)*f.getStepX()+(eye.z-pos.getZ()-.5)*f.getStepZ();
+            double dx=(eye.x-pos.getX()-.5)*r.getStepX()+(eye.z-pos.getZ()-.5)*r.getStepZ();
+            double t=(.92-(eye.y-pos.getY()))/look.y;
+            double x=dx+t*(look.x*r.getStepX()+look.z*r.getStepZ());
+            double z=dz+t*(look.x*f.getStepX()+look.z*f.getStepZ());
+            if(look.y<0 && t>=0 && t<6 && x> -1.30 && x<-.22 && Math.abs(z)<.38) {
+                Component message=z<0?(x<-.76?dhd.setProtectionClosed(false):dhd.setProtectionClosed(true)):(x<-.76?dhd.toggleGeneralAlarm():dhd.resetAlarms());
+                player.sendSystemMessage(message);return InteractionResult.CONSUME;
+            }
+            return InteractionResult.CONSUME;
+        }
         if (!dhd.pressSymbol(index, serverPlayer)) {
             player.sendSystemMessage(Component.translatable("message.jsgzpm.dhd.no_button"));
         }
@@ -174,9 +188,7 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
         Direction right = front.getClockWise();
         return new PartPlacement[]{
                 new PartPlacement(master.relative(right.getOpposite()), 0),
-                new PartPlacement(master.relative(right), 1),
-                new PartPlacement(master.relative(front).relative(right.getOpposite()), 2),
-                new PartPlacement(master.relative(front).relative(right), 3)
+                new PartPlacement(master.relative(right), 1)
         };
     }
 
@@ -190,14 +202,20 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
         }
     }
 
-    private static int gridIndex(BlockState state, BlockPos pos, BlockHitResult hit) {
-        Direction front = frontDirection(state);
-        Direction right = front.getClockWise();
-        double dx = hit.getLocation().x - (pos.getX() + 0.5D);
-        double dz = hit.getLocation().z - (pos.getZ() + 0.5D);
-        double x = dx * right.getStepX() + dz * right.getStepZ();
-        double z = dx * front.getStepX() + dz * front.getStepZ();
-        return uk.co.atty29.jsgzpm.holder.DHDGeometry.hit(x,z,hit.getLocation().y-pos.getY(),hit.getDirection()==Direction.UP);
+    public static void removeLegacyWings(Level level,BlockPos pos,BlockState state) {
+        Direction f=frontDirection(state),r=f.getClockWise();
+        for(int i=2;i<4;i++) {
+            BlockPos old=pos.relative(f).relative(i==2?r.getOpposite():r);
+            BlockState b=level.getBlockState(old);
+            if(b.is(ModRegistries.ATLANTIS_PEGASUS_DHD_PART.get()) && b.getValue(AtlantisPegasusDHDPartBlock.PART)==i && b.getValue(AtlantisPegasusDHDPartBlock.FACING)==f)level.removeBlock(old,false);
+        }
+    }
+    private static int gridIndex(BlockState state,BlockPos pos,Player player) {
+        Direction f=frontDirection(state),r=f.getCounterClockWise();
+        var eye=player.getEyePosition();var look=player.getLookAngle();
+        double dx=eye.x-pos.getX()-.5,dz=eye.z-pos.getZ()-.5;
+        return uk.co.atty29.jsgzpm.holder.DHDGeometry.ray(dx*r.getStepX()+dz*r.getStepZ(),eye.y-pos.getY(),dx*f.getStepX()+dz*f.getStepZ(),
+            look.x*r.getStepX()+look.z*r.getStepZ(),look.y,look.x*f.getStepX()+look.z*f.getStepZ());
     }
 
     private record PartPlacement(BlockPos pos, int index) {

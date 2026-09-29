@@ -170,6 +170,8 @@ public final class JSGGateCompat {
         }
         if(isIncoming(gate))return false;
         if(!Boolean.TRUE.equals(invokeBooleanNoArgs(state,"idle")) && !Boolean.TRUE.equals(invokeBooleanNoArgs(state,"dialing")))return false;
+        if(!core && Boolean.FALSE.equals(JSGDHDCompat.call(gate,"canAddSymbolToList",symbol)))return false;
+        for(int id:JSGDHDCompat.entered(gate))if(id==JSGDHDCompat.symbolId(symbol))return false;
         // Released Pegasus exposes the player-aware overload (also handles its core).
         Object pegasus = invokeTwoArgsAssignable(gate, "addSymbolToAddressDHD", symbol, player);
         if (pegasus != Invocation.NO_METHOD) return !(pegasus instanceof Boolean bool) || bool;

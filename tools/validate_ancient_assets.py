@@ -155,12 +155,15 @@ for path in (ASSETS/'models').rglob('*.json'):
                     origin=(1-y-.03,x,y-.03)
                     assert any(ray_hit(origin,tuple(-v for v in axis),f) for f in faces), 'Open wedge face'
     elif obj.stem=='atlantis_pegasus_dhd':
-        assert 1.0<bounds[1][1]<1.08, 'DHD must be waist height'
+        assert 1.0<bounds[1][1]<1.20, 'DHD must be waist height'
         assert bounds[0][0]>=-1 and bounds[0][1]<=2
         assert {'panel','trim','light'}<=used_mats
-        for i in range(36):
-            x=.5+(i%6-2.5)*.145;z=.5-((i//6-2.5)*.115-.035)
-            assert any(ray_hit((x,1.1,z),(0,-1,0),f) for f in faces), 'Missing DHD button'
+        from build_dhd_assets import buttons
+        for poly in buttons():
+            x=.5-sum(p[0] for p in poly)/len(poly);z=.5-sum(p[1] for p in poly)/len(poly)
+            assert any(ray_hit((x,1.3,z),(0,-1,0),f) for f in faces), 'Missing DHD button'
+        for line in obj.read_text().splitlines():
+            if line.startswith('vt '):assert all(0<=float(v)<=1 for v in line.split()[1:]), 'DHD atlas UV bleed'
     elif obj.stem=='atlantis_zpm_hub':
         # Side-console light walls must share exact 45-degree axes with the notches.
         diagonal_lights=0

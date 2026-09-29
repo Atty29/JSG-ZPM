@@ -17,7 +17,7 @@ Implemented systems now include:
 - manual Start/Stop charging sequence with shield sealing, cosmic-field state and vent/open sequence
 - five JSG Efficiency Upgrade Crystal slots with 20%, 36%, 52%, 68%, 84% and 100% efficiency progression
 - external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
-- Atlantis Pegasus DHD implemented as a solid five-block C/horseshoe floor console
+- Atlantis Pegasus DHD implemented as a solid three-block Atlantis console
 - release-safe Pegasus Stargate discovery/linking and symbol dialling bridge
 - 42-position physical Pegasus-symbol control grid with button-press feedback
 - linked Stargate iris OPEN/CLOSE controls or shield ON/OFF controls as appropriate
@@ -62,7 +62,7 @@ Development interaction:
 
 ### Atlantis Pegasus DHD
 
-The DHD is placed as a five-block floor-integrated horseshoe with an open step-in position.
+The DHD is placed as a three-block straight desk with a continuous front and a keypad tilted toward the player.
 
 - centre console: Pegasus symbol controls for JSG gate dialling
 - side protection controls: iris open/close or shield off/on depending on the linked Stargate

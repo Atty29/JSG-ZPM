@@ -35,6 +35,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     private int lastPressedIndex = -1;
     private int pressFlashTicks;
     private int relinkTicker;
+    private boolean cleanedLegacy;
     private boolean gateEngaged;
     public boolean isGateEngaged(){return gateEngaged;}
     private int[] dialedSymbols=new int[0];
@@ -47,6 +48,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     public static void serverTick(Level level, BlockPos pos, BlockState state, AtlantisPegasusDHDBlockEntity dhd) {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
+        if(!dhd.cleanedLegacy) {
+            uk.co.atty29.jsgzpm.block.AtlantisPegasusDHDBlock.removeLegacyWings(level,pos,state);
+            dhd.cleanedLegacy=true;
+        }
         boolean changed = false;
         if (dhd.pressFlashTicks > 0) {
             dhd.pressFlashTicks--;
@@ -70,7 +75,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
             BlockEntity gate = JSGGateCompat.getLinkedGate(serverLevel, dhd.linkedGatePos);
             boolean engaged=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate);
             if(engaged!=dhd.gateEngaged){dhd.gateEngaged=engaged;changed=true;}
-            int[] dialed=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.dialed(gate);
+            int[] dialed=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate);
             if(!java.util.Arrays.equals(dialed,dhd.dialedSymbols)){dhd.dialedSymbols=dialed;changed=true;}
             if (gate == null && dhd.linkedGatePos != null) {
                 dhd.linkedGatePos = null;
@@ -103,6 +108,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
         }
         if (!JSGGateCompat.pressPegasusSymbol(gate, index, player)) return false;
 
+        dialedSymbols=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate);
         lastPressedIndex = index;
         pressFlashTicks = 20;
         syncCustomState();

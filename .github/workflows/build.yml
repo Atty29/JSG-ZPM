@@ -45,7 +45,7 @@ jobs:
 
       - name: Check DHD buttons and guidance
         run: |
-          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/DHDGeometry.java tools/DHDGeometryCheck.java
+          javac -d build/visual-checks src/main/java/uk/co/atty29/jsgzpm/holder/DHDGeometry.java src/main/java/uk/co/atty29/jsgzpm/holder/DHDLayout.java tools/DHDGeometryCheck.java
           java -cp build/visual-checks DHDGeometryCheck
 
       - name: Build

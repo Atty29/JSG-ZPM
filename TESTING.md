@@ -103,7 +103,7 @@ This checklist is for development builds. Test in a disposable world first.
 
 ## 7. Atlantis Pegasus DHD
 
-- Leave enough room for the five-block C/horseshoe footprint and place the **Atlantis Pegasus DHD**.
+- Leave enough room for the three-block straight footprint and place the **Atlantis Pegasus DHD**.
 - Confirm the centre/front remains open so a player can step into the console.
 - Place/link a compatible Pegasus Stargate and sneak-right-click the centre console to force a relink if necessary.
 - Confirm the console links only to a compatible Pegasus gate.
@@ -143,7 +143,7 @@ These are intentionally first-pass visuals and should be judged in-game:
 - Ancient Power Controller appearance and whether mode/status interaction feels obvious enough
 - Generator shield position on all six mounting orientations
 - generator cosmic-field scale and clipping
-- Atlantis DHD C-shape, console height and player step-in space
+- Atlantis DHD straight desk, console height and tilted keypad
 - Pegasus symbol spacing/readability
 - notebook guidance highlight visibility
 - Alarm Emitter scale and mounting appearance
@@ -220,4 +220,6 @@ See [ANCIENT_VISUALS.md](ANCIENT_VISUALS.md) for provenance, exact dimensions, r
 
 Recharger visual checks: assemble the controller and eight casings in the existing 3x3 plane. Leave two blocks clear in front. Insert three ZPMs, start charging with the existing interaction, and verify shield closure, gradual mist fill, sweeping lights, and visible central modules. Stop and check gas drains before the shield opens. Repeat wall/floor/ceiling mounting, chunk reload, full modules, empty slots, and casing removal. FE accounting and charging rules are unchanged.
 
-DHD: test every button in all four facings; gaps and side faces must not dial. Hold a Pegasus page in either hand and advance the correct address through origin and core. Wrong-type pages, missing symbols and mismatched prefixes must not guide. Test notebook selected-page changes, resource reload, chunk reload, another player dialing, outgoing closure, incoming rejection, gate replacement/removal, and nearby Milky Way/Universe gates. Check the existing wing shield and alarm controls. Compatibility was inspected against public 5.0.5.0-Beta and 5.1.0.0-Dev01102025 bytecode and the newer 1.20.1 source layout; these are not substitutes for runtime tests.
+DHD: test every button in all four facings; gaps and side faces must not dial. Hold a Pegasus page in either hand and advance the correct address through origin and core. Wrong-type pages, missing symbols and mismatched prefixes must not guide. Test notebook selected-page changes, resource reload, chunk reload, another player dialing, outgoing closure, incoming rejection, gate replacement/removal, and nearby Milky Way/Universe gates. Check the left-side shield and alarm controls. Compatibility was inspected against public 5.0.5.0-Beta and 5.1.0.0-Dev01102025 bytecode and the newer 1.20.1 source layout; these are not substitutes for runtime tests.
+
+DHD revision: rapidly enter an entire address and core while the first chevron is still moving. Each accepted key must stay lit and the page hint must advance immediately; native JSG must finish the queue in order. Test duplicates, overlong addresses, abort/incoming interruption and another DHD, checking that pending lights clear with the native queue. Inspect the complete desk for atlas texture bleed at all facings. Reload an old C-shaped console and confirm only its two legacy front wings disappear.

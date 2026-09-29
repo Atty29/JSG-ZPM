@@ -43,6 +43,37 @@ public final class JSGDHDCompat {
         if(address==null)address=call(call(gate,"getDialingManager"),"getDialedAddress");
         return ids(address);
     }
+    private static Object field(Object target,String name) {
+        if(target==null)return null;
+        for(Class<?> c=target.getClass();c!=null;c=c.getSuperclass()) {
+            try {var f=c.getDeclaredField(name);if(f.trySetAccessible())return f.get(target);}
+            catch(ReflectiveOperationException|RuntimeException ignored) {}
+        }
+        return null;
+    }
+    /** Read JSG's own pending input so hints advance before a chevron finishes. */
+    public static int[] entered(BlockEntity gate) {
+        if(!JSGGateCompat.isPegasusGate(gate))return new int[0];
+        LinkedHashSet<Integer> input=new LinkedHashSet<>();
+        for(int id:dialed(gate))if(id>=0)input.add(id);
+        Object manager=call(gate,"getDialingManager"), pending;
+        if(manager==null) {
+            if(Boolean.TRUE.equals(call(call(gate,"getStargateState"),"dialing"))) {
+                int id=symbolId(field(gate,"targetRingSymbol"));if(id>=0)input.add(id);
+            }
+            pending=field(gate,"toDialSymbols");
+        } else {
+            Object spin=call(manager,"getSpinHelper");
+            if(Boolean.TRUE.equals(call(spin,"isSpinning"))) {
+                int id=symbolId(call(spin,"getTargetSymbol"));if(id>=0)input.add(id);
+            }
+            pending=call(field(manager,"addressBuffer"),"first");
+        }
+        if(pending instanceof Iterable<?> symbols)for(Object symbol:symbols) {
+            int id=symbolId(symbol);if(id>=0)input.add(id);
+        }
+        return input.stream().mapToInt(Integer::intValue).toArray();
+    }
     public static ResourceLocation icon(int index) {
         var symbols=JSGGateCompat.getPressableSymbols();
         if(index<0||index>=symbols.size())return null;
