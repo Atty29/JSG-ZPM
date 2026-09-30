@@ -4,7 +4,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -108,7 +107,7 @@ public final class ModRegistries {
 
     public static final RegistryObject<RecipeSerializer<ZPMAssemblyRecipe>> ZPM_ASSEMBLY_SERIALIZER = RECIPE_SERIALIZERS.register(
             "zpm_assembly",
-            () -> new SimpleCraftingRecipeSerializer<>(ZPMAssemblyRecipe::new)
+            ZPMAssemblyRecipe.Serializer::new
     );
 
     private ModRegistries() {

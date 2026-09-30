@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "jsgzpm:block/ancient/pedestal_dark"
+    "all": "jsgzpm:block/generator_casing"
   }
 }

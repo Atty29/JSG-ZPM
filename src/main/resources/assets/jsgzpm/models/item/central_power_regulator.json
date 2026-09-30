@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/redstone"
+    "layer0": "jsgzpm:item/central_power_regulator"
   }
 }

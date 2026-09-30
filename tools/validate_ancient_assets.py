@@ -268,6 +268,34 @@ assert snow.get('replace') is False
 assert set(snow['values'])=={'jsgzpm:'+name for name in registered}
 required.add(snow_file)
 
+# Crafting resources and the controller's six visible facing variants.
+for name in ('zero_point_module','atlantis_zpm_hub','ancient_zpm_array','ancient_zpm_column'):
+    recipe_path=ROOT/'src/main/resources/data/jsgzpm/recipes'/(name+'.json')
+    recipe=json.loads(recipe_path.read_text());required.add(recipe_path)
+    assert len(recipe['pattern'])==3 and all(len(row)==3 for row in recipe['pattern'])
+    assert set(''.join(recipe['pattern']))-{' '}==set(recipe['key'])
+    assert recipe['result']['item']=='jsgzpm:'+name
+    for ingredient in recipe['key'].values():
+        resource=ingredient.get('item',ingredient.get('tag'))
+        if resource.startswith('jsgzpm:'):
+            if 'tag' in ingredient:
+                assert (ROOT/'src/main/resources/data/jsgzpm/tags/items'/(resource.split(':')[1]+'.json')).exists()
+    advancement=ROOT/'src/main/resources/data/jsgzpm/advancements/recipes/misc'/(name+'.json')
+    assert json.loads(advancement.read_text())['rewards']['recipes']==['jsgzpm:'+name]
+    required.add(advancement)
+for name in ('ancient_alarm_linker','crystal_binder','central_power_regulator','zero_point_containment_matrix'):
+    path=ASSETS/'textures/item'/(name+'.png');required.add(path)
+    raw=path.read_bytes();assert raw[:8]==b'\x89PNG\r\n\x1a\n' and raw[25]==6, 'Item must retain alpha'
+    model=ASSETS/'models/item'/(name+'.json');required.add(model)
+    assert json.loads(model.read_text())['textures']['layer0']=='jsgzpm:item/'+name
+for name in ('generator_front','generator_casing'):
+    required.add(ASSETS/'textures/block'/(name+'.png'))
+state_path=ASSETS/'blockstates/zero_point_energy_generator_controller.json';required.add(state_path)
+variants=json.loads(state_path.read_text())['variants']
+for facing,x,y in [('north',0,0),('east',0,90),('south',0,180),('west',0,270),('up',270,0),('down',90,0)]:
+    variant=variants['facing='+facing]
+    assert (variant.get('x',0),variant.get('y',0))==(x,y), facing
+
 if options.jar:
     jars=list((ROOT/'build/libs').glob('*.jar')); assert jars, 'No built JAR'
     for jar in jars:

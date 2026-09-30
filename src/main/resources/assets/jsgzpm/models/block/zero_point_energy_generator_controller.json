@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "all": "jsgzpm:block/ancient/pedestal_metal"
+    "north": "jsgzpm:block/generator_front",
+    "south": "jsgzpm:block/generator_casing",
+    "east": "jsgzpm:block/generator_casing",
+    "west": "jsgzpm:block/generator_casing",
+    "up": "jsgzpm:block/generator_casing",
+    "down": "jsgzpm:block/generator_casing",
+    "particle": "jsgzpm:block/generator_casing"
   }
 }

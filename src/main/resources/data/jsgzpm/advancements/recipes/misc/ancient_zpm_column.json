@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_regulator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "jsgzpm:central_power_regulator"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "jsgzpm:ancient_zpm_column"
+    ]
+  }
+}
