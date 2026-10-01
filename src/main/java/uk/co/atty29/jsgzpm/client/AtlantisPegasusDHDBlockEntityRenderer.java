@@ -33,8 +33,8 @@ public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityR
         if(hint>=0&&dialed.length>=6&&!dhd.inventory.has("crystal_glyph_dhd")&&hint!=origin&&hint!=core)hint=origin;
         Direction front=dhd.getBlockState().getValue(AtlantisPegasusDHDBlock.FACING),right=front.getCounterClockWise();
         for(int i=0;i<symbols.size();i++) {
-            int id=JSGDHDCompat.symbolId(symbols.get(i));boolean active=i==dhd.getLastPressedIndex() || (i==DHDGeometry.CORE && dhd.isGateEngaged());
-            for(int value:dialed)if(value==id)active=true;
+            int id=JSGDHDCompat.symbolId(symbols.get(i));boolean active=dhd.inventory.control() && (i==dhd.getLastPressedIndex() || (i==DHDGeometry.CORE && dhd.isGateEngaged()));
+            if(dhd.inventory.control())for(int value:dialed)if(value==id)active=true;
             int color=active?0xc5ecff:0xffce86;
             if(id==hint){int configured=JSGDHDCompat.hintColor(id==origin||id==core,dialed.length>=6);if(configured>=0)color=configured;}
             if(i==DHDGeometry.CORE && !active && id!=hint)color=0x24616c;

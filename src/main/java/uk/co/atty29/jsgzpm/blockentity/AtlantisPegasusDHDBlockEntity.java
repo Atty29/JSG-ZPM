@@ -138,10 +138,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity implements 
         boolean core=Boolean.TRUE.equals(uk.co.atty29.jsgzpm.compat.JSGDHDCompat.call(symbol,"brb"));
         boolean origin=Boolean.TRUE.equals(uk.co.atty29.jsgzpm.compat.JSGDHDCompat.call(symbol,"origin"));
         int entered=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate).length;
-        if(core && !uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate) && entered>7 && !inventory.has("crystal_glyph_dhd")) {
-            player.displayClientMessage(Component.translatable("message.jsgzpm.dhd.glyph_required"),true);return false;
-        }
-        if(!core && !origin && entered>=(inventory.has("crystal_glyph_dhd")?8:6)) {
+        if(!uk.co.atty29.jsgzpm.holder.DHDUpgradeRules.allows(inventory.control(),inventory.has("crystal_glyph_dhd"),core,origin,entered,uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate))) {
             player.displayClientMessage(Component.translatable("message.jsgzpm.dhd.glyph_required"),true);return false;
         }
         if (!JSGGateCompat.pressPegasusSymbol(gate, index, player)) return false;
