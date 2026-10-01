@@ -8,6 +8,7 @@ import json
 import math
 import struct
 import zlib
+from lantian_materials import detail
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/jsgzpm'
@@ -51,6 +52,7 @@ def png(path, name):
             elif name=='regulator':shade=shade*.3+12*math.sin(x/size*math.pi)*math.sin(y/size*math.pi)
             elif name=='light':shade=8+18*math.sin(x/size*math.pi)
             rgb=[max(0,min(255,round(v+shade))) for v in PALETTE[name]]
+            rgb=detail(name,x,y,rgb)
             if glass:
                 # Coloured glass body with bright, more opaque edge reflections.
                 u,v=x/(size-1),y/(size-1)
@@ -149,13 +151,13 @@ class Mesh:
                 active = mat
             lines.append('f ' + ' '.join(indices))
         path.with_suffix('.obj').write_text('\n'.join(lines)+'\n')
-        path.with_suffix('.mtl').write_text(''.join(f'newmtl {m}\nKd 1 1 1\nd 1\nmap_Kd #{m}\n\n' for m in PALETTE))
+        path.with_suffix('.mtl').write_text(''.join(f'newmtl {m}\nKa {"1 1 1" if m == "light" else "0 0 0"}\nKd 1 1 1\nd 1\nmap_Kd #{m}\n\n' for m in PALETTE))
 
 
 def model(stem, **extra):
     data = {'loader':'forge:obj', 'model':f'jsgzpm:models/{stem}.obj',
             'automatic_culling':False, 'shade_quads':True, 'flip_v':False,
-            'ambientocclusion':True,
+            'ambientocclusion':True, 'emissive_ambient':True,
             'textures':{m:f'jsgzpm:block/ancient/{m}' for m in PALETTE}}
     data['textures']['particle'] = 'jsgzpm:block/ancient/panel'
     data.update(extra)

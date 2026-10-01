@@ -29,7 +29,8 @@ public final class AtlantisPegasusDHDBlockEntityRenderer implements BlockEntityR
             if(Boolean.TRUE.equals(JSGDHDCompat.call(symbol,"brb")))core=JSGDHDCompat.symbolId(symbol);
         }
         int[] dialed=dhd.getDialedSymbols();
-        int hint=page!=null&&dhd.hasLinkedGate()&&!dhd.isGateEngaged()?DHDGeometry.next(page.symbols(),page.visible(),dialed,origin,core):-1;
+        int hint=page!=null&&dhd.inventory.control()&&dhd.hasLinkedGate()&&!dhd.isGateEngaged()?DHDGeometry.next(page.symbols(),page.visible(),dialed,origin,core):-1;
+        if(hint>=0&&dialed.length>=6&&!dhd.inventory.has("crystal_glyph_dhd")&&hint!=origin&&hint!=core)hint=origin;
         Direction front=dhd.getBlockState().getValue(AtlantisPegasusDHDBlock.FACING),right=front.getCounterClockWise();
         for(int i=0;i<symbols.size();i++) {
             int id=JSGDHDCompat.symbolId(symbols.get(i));boolean active=i==dhd.getLastPressedIndex() || (i==DHDGeometry.CORE && dhd.isGateEngaged());

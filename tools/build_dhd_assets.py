@@ -64,6 +64,10 @@ def build():
   prism(m,[(x-.13,z-.047),(x+.13,z-.047),(x+.16,z),(x+.13,z+.047),(x-.13,z+.047),(x-.16,z)],.762,.774,'crystal_warm','trim')
  m.faces=[([(.5-x,y,.5-z) for x,y,z in pts],mat) for pts,mat in m.faces]
  m.save('block/atlantis_pegasus_dhd')
+ mtl=ASSETS/'models/block/atlantis_pegasus_dhd.mtl'
+ text=mtl.read_text()
+ for material in ('panel','trim','recess','binder'):text=text.replace('newmtl '+material+'\n','newmtl '+material+'\nforge_TintIndex 1\n')
+ mtl.write_text(text)
  # Forge OBJ UVs address a stitched sprite, not a repeating standalone texture.
  # Fit continuous UVs into its interior; out-of-range UVs sample other atlas sprites.
  path=ASSETS/'models/block/atlantis_pegasus_dhd.obj';lines=path.read_text().splitlines()

@@ -1,79 +1,99 @@
 newmtl panel
+forge_TintIndex 1
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #panel
 
 newmtl trim
+forge_TintIndex 1
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #trim
 
 newmtl recess
+forge_TintIndex 1
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #recess
 
 newmtl binder
+forge_TintIndex 1
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #binder
 
 newmtl crystal
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal
 
 newmtl crystal_warm
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal_warm
 
 newmtl crystal_pale
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal_pale
 
 newmtl regulator
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #regulator
 
 newmtl light
+Ka 1 1 1
 Kd 1 1 1
 d 1
 map_Kd #light
 
 newmtl crystal_olive
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal_olive
 
 newmtl crystal_red
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal_red
 
 newmtl crystal_core
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #crystal_core
 
 newmtl pedestal_dark
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #pedestal_dark
 
 newmtl pedestal_metal
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #pedestal_metal
 
 newmtl pedestal_cyan_off
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #pedestal_cyan_off
 
 newmtl pedestal_white_off
+Ka 0 0 0
 Kd 1 1 1
 d 1
 map_Kd #pedestal_white_off

@@ -101,7 +101,7 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.CONSUME;
 
         if (player.isShiftKeyDown()) {
-            player.sendSystemMessage(dhd.relink());
+            net.minecraftforge.network.NetworkHooks.openScreen(serverPlayer,dhd,pos);
             return InteractionResult.CONSUME;
         }
 
@@ -120,10 +120,14 @@ public final class AtlantisPegasusDHDBlock extends BaseEntityBlock {
             }
             return InteractionResult.CONSUME;
         }
-        if (!dhd.pressSymbol(index, serverPlayer)) {
-            player.sendSystemMessage(Component.translatable("message.jsgzpm.dhd.no_button"));
-        }
+        dhd.pressSymbol(index, serverPlayer);
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public void onRemove(BlockState state,Level level,BlockPos pos,BlockState next,boolean moving) {
+        if(!state.is(next.getBlock()) && level.getBlockEntity(pos) instanceof AtlantisPegasusDHDBlockEntity dhd) dhd.dropInventory();
+        super.onRemove(state,level,pos,next,moving);
     }
 
     @Override

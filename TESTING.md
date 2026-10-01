@@ -227,3 +227,15 @@ DHD revision: rapidly enter an entire address and core while the first chevron i
 DHD reach/snow regression: stand directly in front at normal survival eye height and press every rear-row key in all four facings. All key surfaces and the selection box now fit inside the one-block vertical cell. Check the continuous triangular tiling and central triangle emblem. In snowfall, clear pre-existing snow layers once, then confirm no new layers form on any addon block (including DHD side sections, all holders, controllers, alarm emitters and recharger casings). Surrounding terrain must still accumulate snow normally.
 
 Equilateral keypad: all 37 cells, including the central core, must have equal side lengths on the tilted surface and alternate up/down with shared seams. Confirm all 36 installed JSG symbols remain individually clickable after the layout change.
+
+## DHD maintenance regression checks
+
+- Sneak-use the centre and both side parts in every facing: same maintenance inventory opens. Normal use still reaches every keypad button.
+- An empty console refuses dialing. Insert the Pegasus control crystal; reject the Milky Way crystal and arbitrary items. Remove it and verify further presses fail immediately.
+- Without glyph upgrade, only six address glyphs plus origin can be entered. Install the glyph upgrade for eight/nine-symbol addresses. Remove it before core activation and verify an extended address cannot open.
+- Shift-click each native upgrade in/out, drag stacks, and try duplicates: one of each only; no item loss. Verify two viewers see the same inventory.
+- Refined naquadah buckets fill the tank and return empty buckets. Other liquids are rejected. Capacity/efficiency upgrades use JSG's settings; removal changes capacity/output immediately.
+- Quit/reload with crystals and fuel installed; preserve both. Break any section and verify each installed item drops exactly once.
+- Check overlay tab appearance, control/link/reactor indicators, fuel tooltip and Relink.
+- Change world config capacity, restart, and check carried and installed ZPMs. Increase preserves charge; decrease clamps to the limit.
+- Inspect the new engraved panels and light strips in daylight and darkness.

@@ -110,6 +110,8 @@ public final class ModRegistries {
             ZPMAssemblyRecipe.Serializer::new
     );
 
+    public static final RegistryObject<MenuType<uk.co.atty29.jsgzpm.menu.AtlantisDHDMenu>> ATLANTIS_DHD_MENU = MENUS.register("atlantis_dhd", () -> net.minecraftforge.common.extensions.IForgeMenuType.create(uk.co.atty29.jsgzpm.menu.AtlantisDHDMenu::new));
+
     private ModRegistries() {
     }
 

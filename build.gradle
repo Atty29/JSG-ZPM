@@ -50,6 +50,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // JSG is a required runtime mod (declared in mods.toml), but is intentionally
@@ -98,3 +99,5 @@ tasks.named('jar', Jar).configure {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
+
+tasks.named("test", Test).configure { useJUnitPlatform() }

@@ -112,5 +112,6 @@
         0.3
       ]
     }
-  }
+  },
+  "emissive_ambient": true
 }

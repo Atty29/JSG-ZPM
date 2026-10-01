@@ -119,8 +119,16 @@ The project uses Forge 47.4.10 and Parchment 2023.09.03-1.20.1.
 
 Project licensing is not finalized yet. Just Stargate Mod remains separately owned and licensed by Tau'ri Development; nothing in this repository grants rights to JSG code or assets.
 
-### Planned DHD upgrade inventory
+### DHD maintenance and upgrades
 
-Add a normal-DHD-style maintenance GUI with persistent, server-owned upgrade slots. This is not implemented in the current visual build. Installed items must control actual DHD behaviour; opening a GUI or storing decorative items is not sufficient. Removing an upgrade must immediately revoke the associated capability, and save/load, item removal and multiplayer synchronisation must preserve the inventory safely.
+Sneak-right-click any console section to open the maintenance panel. It uses the installed public JSG DHD background, the same control/upgrade/fuel slot positions, and the same JSG items. The left overlay tab accepts biome override items and tints the console casing. Relink finds the closest loaded Pegasus gate.
 
-Compatibility must adapt to the installed JSG release: public 5.1 uses its DHD upgrade enum and reactor/control-crystal rules, while newer source uses IDHDUpgradeItem/IDHDUpgradeBehavior with attach/detach callbacks. Inspect each supported upgrade's native behaviour before implementing parity; do not grant all upgrades implicitly or assume the layouts are interchangeable. The current direct gate bridge still needs this functional integration.
+The Pegasus DHD control crystal is required for dialing. A DHD glyph crystal enables 8/9-symbol addresses; capacity and efficiency crystals change the refined-naquadah tank capacity and FE per mB using JSG's configured multipliers. Each upgrade is limited to one, and removal takes effect immediately. The reactor follows JSG's activation/deactivation thresholds. Inventories and fuel persist across reloads; installed items drop when the console is destroyed. The screen is addon-owned because native JSG menus cast to version-specific JSG block-entity classes. Public 1.20.1 upgrades are supported; unrecognized future upgrades are rejected.
+
+### Maximum ZPM charge
+
+Edit `[zpm] capacity` in `<world>/serverconfig/jsgzpm-server.toml` with the world stopped. The default is `100000000000` FE. Copy `config-examples/jsgzpm-server.toml` to the instance's `defaultconfigs` directory to change defaults for newly created worlds. The server syncs the authoritative setting to clients.
+
+Both existing and new ZPMs use the configured capacity. Increasing it leaves their stored energy unchanged; lowering it clamps energy above the new limit. The valid range is 1 through 9223372036854775807 FE.
+
+The shared Ancient materials now include recessed panel channels, highlighted bevels, fasteners and Lantian-alphabet labels spelling ENERGY, POWER, CONTROL and ATLANTIS. Light materials use per-material emission; other surfaces retain normal shading.

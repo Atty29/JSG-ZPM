@@ -21,7 +21,7 @@ public final class JSGZPMConfig {
 
         builder.push("zpm");
         ZPM_CAPACITY = builder
-                .comment("Maximum energy stored by a standard Zero Point Module, in FE.")
+                .comment("Maximum energy stored by every Zero Point Module, in FE.", "Applies to existing and newly crafted ZPMs. Lowering capacity clamps stored energy to the new limit.", "Server/world setting; clients receive the server value. Default: 100000000000 FE.")
                 .defineInRange("capacity", DEFAULT_ZPM_CAPACITY, 1L, Long.MAX_VALUE);
         builder.pop();
 

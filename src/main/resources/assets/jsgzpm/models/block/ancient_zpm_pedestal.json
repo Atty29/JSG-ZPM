@@ -45,5 +45,6 @@
         0.4
       ]
     }
-  }
+  },
+  "emissive_ambient": true
 }

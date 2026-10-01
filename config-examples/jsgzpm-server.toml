@@ -1,0 +1,14 @@
+# Copy into <world>/serverconfig/jsgzpm-server.toml while the world is closed.
+# For defaults in NEW worlds, copy into the instance defaultconfigs folder.
+[zpm]
+# Maximum charge in FE. Existing ZPMs also use this limit.
+# Lowering the limit removes energy above it; increasing it does not add energy.
+capacity = 100000000000
+
+[bank]
+controllerRadius = 32
+maxHolders = 64
+
+[generator]
+baseEfficiencyPercent = 20
+efficiencyPerUpgradePercent = 16

@@ -57,5 +57,7 @@
   "message.jsgzpm.alarm_linker.memory_cleared": "Alarm Linker memory cleared",
   "block.jsgzpm.ancient_zpm_pedestal": "Ancient ZPM Pedestal",
   "tooltip.jsgzpm.generator_facing": "Cyan ring marks the front. Build the casing ring in the plane of this face.",
-  "tooltip.jsgzpm.generator_casing": "Structural casing: any facing is valid."
+  "tooltip.jsgzpm.generator_casing": "Structural casing: any facing is valid.",
+  "message.jsgzpm.dhd.control_required": "Install a Pegasus DHD control crystal. Sneak-right-click to open the maintenance panel.",
+  "message.jsgzpm.dhd.glyph_required": "Install a DHD glyph crystal to dial an extended address."
 }

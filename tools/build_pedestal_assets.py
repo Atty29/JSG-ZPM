@@ -1,6 +1,7 @@
 """Original single-ZPM pedestal, with separate charge-controlled emissive faces."""
 from pathlib import Path
 import math,json,struct,zlib
+from lantian_materials import detail
 from build_ancient_assets import Mesh,prism,model,png,PALETTE,ASSETS,ROOT
 
 MATERIALS={'pedestal_dark':(23,28,31),'pedestal_metal':(118,132,139),
@@ -16,7 +17,7 @@ def build():
             row=bytearray([0])
             for x in range(256):
                 grain=((x*31+y*97+x*y*7)%11-5)*.3
-                row.extend(max(0,min(255,round(c+grain))) for c in base)
+                row.extend(detail(name,x,y,[max(0,min(255,round(c+grain))) for c in base]))
             rows.append(bytes(row))
         data=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('!2I5B',256,256,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b''.join(rows),9))+chunk(b'IEND',b'')
         (ASSETS/'textures/block/ancient'/f'{name}.png').write_bytes(data)
