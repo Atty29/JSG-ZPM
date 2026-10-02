@@ -16,13 +16,14 @@ public final class JSGZPM {
     public JSGZPM() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        uk.co.atty29.jsgzpm.config.CapacitySync.register();
         ModRegistries.register(modBus);
         ModCreativeTabs.register(modBus);
 
         ModLoadingContext.get().registerConfig(
-                ModConfig.Type.SERVER,
+                ModConfig.Type.COMMON,
                 JSGZPMConfig.SPEC,
-                "jsgzpm-server.toml"
+                "jsgzpm-common.toml"
         );
     }
 }

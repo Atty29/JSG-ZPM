@@ -1,0 +1,14 @@
+# Copy into <instance>/config/jsgzpm-common.toml while Minecraft/server is stopped.
+# Applies to all worlds in this instance. Multiplayer uses the server settings.
+[zpm]
+# Maximum charge in FE. Existing ZPMs also use this limit.
+# Lowering the limit removes energy above it; increasing it does not add energy.
+capacity = 100000000000
+
+[bank]
+controllerRadius = 32
+maxHolders = 64
+
+[generator]
+baseEfficiencyPercent = 20
+efficiencyPerUpgradePercent = 16

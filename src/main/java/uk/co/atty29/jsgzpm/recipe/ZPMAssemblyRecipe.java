@@ -1,41 +1,24 @@
 package uk.co.atty29.jsgzpm.recipe;
 
+import com.google.gson.JsonObject;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 import uk.co.atty29.jsgzpm.compat.JSGEnergyReader;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
 import uk.co.atty29.jsgzpm.registry.ModItemTags;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
-public final class ZPMAssemblyRecipe extends CustomRecipe {
-    private static final int[] ENERGY_SLOTS = {0, 2, 3, 5, 6, 8};
-
-    public ZPMAssemblyRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
-    }
-
-    @Override
-    public boolean matches(CraftingContainer inventory, Level level) {
-        if (inventory.getWidth() != 3 || inventory.getHeight() != 3) {
-            return false;
-        }
-
-        return inventory.getItem(0).is(ModItemTags.ENERGY_CRYSTAL_BASIC)
-                && inventory.getItem(1).is(ModRegistries.CENTRAL_POWER_REGULATOR.get())
-                && inventory.getItem(2).is(ModItemTags.ENERGY_CRYSTAL_BASIC)
-                && inventory.getItem(3).is(ModItemTags.ENERGY_CRYSTAL_ADVANCED)
-                && inventory.getItem(4).is(ModRegistries.CRYSTAL_BINDER.get())
-                && inventory.getItem(5).is(ModItemTags.ENERGY_CRYSTAL_ADVANCED)
-                && inventory.getItem(6).is(ModItemTags.ENERGY_CRYSTAL_ULTIMATE)
-                && inventory.getItem(7).is(ModRegistries.ZERO_POINT_CONTAINMENT_MATRIX.get())
-                && inventory.getItem(8).is(ModItemTags.ENERGY_CRYSTAL_ULTIMATE);
+/** A visible shaped recipe whose result inherits the input crystals' energy. */
+public final class ZPMAssemblyRecipe extends ShapedRecipe {
+    public ZPMAssemblyRecipe(ShapedRecipe recipe) {
+        super(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(),
+                recipe.getIngredients(), recipe.getResultItem(RegistryAccess.EMPTY), recipe.showNotification());
     }
 
     @Override
@@ -43,7 +26,11 @@ public final class ZPMAssemblyRecipe extends CustomRecipe {
         ItemStack output = new ItemStack(ModRegistries.ZERO_POINT_MODULE.get());
         long inheritedEnergy = 0L;
 
-        for (int slot : ENERGY_SLOTS) {
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack ingredient = inventory.getItem(slot);
+            if (!ingredient.is(ModItemTags.ENERGY_CRYSTAL_BASIC)
+                    && !ingredient.is(ModItemTags.ENERGY_CRYSTAL_ADVANCED)
+                    && !ingredient.is(ModItemTags.ENERGY_CRYSTAL_ULTIMATE)) continue;
             long crystalEnergy = JSGEnergyReader.getStoredEnergy(inventory.getItem(slot));
             if (Long.MAX_VALUE - inheritedEnergy < crystalEnergy) {
                 inheritedEnergy = Long.MAX_VALUE;
@@ -57,17 +44,26 @@ public final class ZPMAssemblyRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width >= 3 && height >= 3;
-    }
-
-    @Override
-    public @NotNull ItemStack getResultItem(RegistryAccess registryAccess) {
-        return new ItemStack(ModRegistries.ZERO_POINT_MODULE.get());
-    }
-
-    @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
         return ModRegistries.ZPM_ASSEMBLY_SERIALIZER.get();
+    }
+
+    public static final class Serializer implements RecipeSerializer<ZPMAssemblyRecipe> {
+        private final ShapedRecipe.Serializer delegate = new ShapedRecipe.Serializer();
+
+        @Override
+        public ZPMAssemblyRecipe fromJson(ResourceLocation id, JsonObject json) {
+            return new ZPMAssemblyRecipe(delegate.fromJson(id, json));
+        }
+
+        @Override
+        public ZPMAssemblyRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+            return new ZPMAssemblyRecipe(delegate.fromNetwork(id, buffer));
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buffer, ZPMAssemblyRecipe recipe) {
+            delegate.toNetwork(buffer, recipe);
+        }
     }
 }

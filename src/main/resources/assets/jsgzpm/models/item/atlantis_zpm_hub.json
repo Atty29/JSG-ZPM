@@ -1,1 +1,70 @@
-{"parent":"jsgzpm:block/atlantis_zpm_hub"}
+{
+  "loader": "forge:obj",
+  "model": "jsgzpm:models/block/atlantis_zpm_hub.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "ambientocclusion": true,
+  "textures": {
+    "panel": "jsgzpm:block/ancient/panel",
+    "trim": "jsgzpm:block/ancient/trim",
+    "recess": "jsgzpm:block/ancient/recess",
+    "binder": "jsgzpm:block/ancient/binder",
+    "crystal": "jsgzpm:block/ancient/crystal",
+    "crystal_warm": "jsgzpm:block/ancient/crystal_warm",
+    "crystal_pale": "jsgzpm:block/ancient/crystal_pale",
+    "regulator": "jsgzpm:block/ancient/regulator",
+    "light": "jsgzpm:block/ancient/light",
+    "crystal_olive": "jsgzpm:block/ancient/crystal_olive",
+    "crystal_red": "jsgzpm:block/ancient/crystal_red",
+    "crystal_core": "jsgzpm:block/ancient/crystal_core",
+    "particle": "jsgzpm:block/ancient/panel"
+  },
+  "parent": "minecraft:block/block",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    }
+  },
+  "emissive_ambient": true
+}

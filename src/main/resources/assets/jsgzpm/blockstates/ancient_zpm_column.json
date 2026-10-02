@@ -1,1 +1,39 @@
-{"multipart":[{"when":{"facing":"north"},"apply":{"model":"jsgzpm:block/ancient_zpm_receptacle"}},{"when":{"facing":"east"},"apply":{"model":"jsgzpm:block/ancient_zpm_receptacle","y":90}},{"when":{"facing":"south"},"apply":{"model":"jsgzpm:block/ancient_zpm_receptacle","y":180}},{"when":{"facing":"west"},"apply":{"model":"jsgzpm:block/ancient_zpm_receptacle","y":270}}]}
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "jsgzpm:block/ancient_zpm_column"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "jsgzpm:block/ancient_zpm_column",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "jsgzpm:block/ancient_zpm_column",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "jsgzpm:block/ancient_zpm_column",
+        "y": 270
+      }
+    }
+  ]
+}

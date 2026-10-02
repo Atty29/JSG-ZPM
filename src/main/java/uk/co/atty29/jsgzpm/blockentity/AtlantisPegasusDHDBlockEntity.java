@@ -22,8 +22,30 @@ import uk.co.atty29.jsgzpm.registry.ModRegistries;
  * do not need to contain the private DHD implementation classes used by newer
  * JSG development builds.
  */
-public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
-    public static final int DISPLAY_BUTTON_COUNT = 42;
+public final class AtlantisPegasusDHDBlockEntity extends BlockEntity implements net.minecraft.world.MenuProvider {
+    public final DHDInventory inventory = new DHDInventory(this);
+    private net.minecraftforge.common.util.LazyOptional<net.minecraftforge.items.IItemHandler> items = net.minecraftforge.common.util.LazyOptional.of(() -> inventory);
+    private net.minecraftforge.common.util.LazyOptional<net.minecraftforge.fluids.capability.IFluidHandler> fluids = net.minecraftforge.common.util.LazyOptional.of(() -> inventory.tank);
+    public void inventoryChanged() { syncCustomState(); }
+    @Override public Component getDisplayName() { return Component.translatable("block.jsgzpm.atlantis_pegasus_dhd"); }
+    @Override public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int id,net.minecraft.world.entity.player.Inventory player,net.minecraft.world.entity.player.Player who) {
+        return new uk.co.atty29.jsgzpm.menu.AtlantisDHDMenu(id,player,this);
+    }
+    @Override public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> cap,@Nullable net.minecraft.core.Direction side) {
+        if(cap==net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER)return items.cast();
+        if(cap==net.minecraftforge.common.capabilities.ForgeCapabilities.FLUID_HANDLER)return fluids.cast();
+        return super.getCapability(cap,side);
+    }
+    @Override public void invalidateCaps() { super.invalidateCaps();items.invalidate();fluids.invalidate(); }
+    @Override public void reviveCaps() { super.reviveCaps();items=net.minecraftforge.common.util.LazyOptional.of(()->inventory);fluids=net.minecraftforge.common.util.LazyOptional.of(()->inventory.tank); }
+    public void dropInventory() {
+        if(level==null||level.isClientSide)return;
+        for(int i=0;i<inventory.getSlots();i++) {
+            net.minecraft.world.Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY()+.5,worldPosition.getZ()+.5,inventory.getStackInSlot(i));
+            inventory.setStackInSlot(i,net.minecraft.world.item.ItemStack.EMPTY);
+        }
+    }
+    public static final int DISPLAY_BUTTON_COUNT = 37;
     private static final int AUTO_RELINK_INTERVAL = 100;
     private static final int INCOMING_CHECK_INTERVAL = 5;
 
@@ -35,6 +57,11 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     private int lastPressedIndex = -1;
     private int pressFlashTicks;
     private int relinkTicker;
+    private boolean cleanedLegacy;
+    private boolean gateEngaged;
+    public boolean isGateEngaged(){return gateEngaged;}
+    private int[] dialedSymbols=new int[0];
+    public int[] getDialedSymbols(){return dialedSymbols.clone();}
 
     public AtlantisPegasusDHDBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistries.ATLANTIS_PEGASUS_DHD_BLOCK_ENTITY.get(), pos, state);
@@ -43,6 +70,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     public static void serverTick(Level level, BlockPos pos, BlockState state, AtlantisPegasusDHDBlockEntity dhd) {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
+        if(!dhd.cleanedLegacy) {
+            uk.co.atty29.jsgzpm.block.AtlantisPegasusDHDBlock.removeLegacyWings(level,pos,state);
+            dhd.cleanedLegacy=true;
+        }
         boolean changed = false;
         if (dhd.pressFlashTicks > 0) {
             dhd.pressFlashTicks--;
@@ -64,6 +95,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
 
         if (level.getGameTime() % INCOMING_CHECK_INTERVAL == 0L) {
             BlockEntity gate = JSGGateCompat.getLinkedGate(serverLevel, dhd.linkedGatePos);
+            boolean engaged=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate);
+            if(engaged!=dhd.gateEngaged){dhd.gateEngaged=engaged;changed=true;}
+            int[] dialed=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate);
+            if(!java.util.Arrays.equals(dialed,dhd.dialedSymbols)){dhd.dialedSymbols=dialed;changed=true;}
             if (gate == null && dhd.linkedGatePos != null) {
                 dhd.linkedGatePos = null;
                 dhd.lastIncoming = false;
@@ -81,6 +116,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
             }
         }
 
+        dhd.inventory.tick();
         if (changed) dhd.syncCustomState();
     }
 
@@ -93,8 +129,21 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
             linkedGatePos = found;
             gate = JSGGateCompat.getLinkedGate(serverLevel, linkedGatePos);
         }
+        if(!inventory.control()) {
+            player.displayClientMessage(Component.translatable("message.jsgzpm.dhd.control_required"),true);return false;
+        }
+        var symbols=JSGGateCompat.getPressableSymbols();
+        if(index<0||index>=symbols.size())return false;
+        Object symbol=symbols.get(index);
+        boolean core=Boolean.TRUE.equals(uk.co.atty29.jsgzpm.compat.JSGDHDCompat.call(symbol,"brb"));
+        boolean origin=Boolean.TRUE.equals(uk.co.atty29.jsgzpm.compat.JSGDHDCompat.call(symbol,"origin"));
+        int entered=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate).length;
+        if(!uk.co.atty29.jsgzpm.holder.DHDUpgradeRules.allows(inventory.control(),inventory.has("crystal_glyph_dhd"),core,origin,entered,uk.co.atty29.jsgzpm.compat.JSGDHDCompat.engaged(gate))) {
+            player.displayClientMessage(Component.translatable("message.jsgzpm.dhd.glyph_required"),true);return false;
+        }
         if (!JSGGateCompat.pressPegasusSymbol(gate, index, player)) return false;
 
+        dialedSymbols=uk.co.atty29.jsgzpm.compat.JSGDHDCompat.entered(gate);
         lastPressedIndex = index;
         pressFlashTicks = 20;
         syncCustomState();
@@ -181,7 +230,7 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    private BlockEntity getServerGate() {
+    public BlockEntity getServerGate() {
         if (!(level instanceof ServerLevel serverLevel)) return null;
         return JSGGateCompat.getLinkedGate(serverLevel, linkedGatePos);
     }
@@ -197,10 +246,13 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+        tag.put("Upgrades",inventory.save());
         if (linkedGatePos != null) tag.putLong("LinkedGate", linkedGatePos.asLong());
         tag.putBoolean("GeneralAlarm", generalAlarmActive);
         tag.putBoolean("OffworldAlarm", offworldAlarmActive);
         tag.putBoolean("LastIncoming", lastIncoming);
+        tag.putBoolean("GateEngaged",gateEngaged);
+        tag.putIntArray("DialedSymbols",dialedSymbols);
         tag.putInt("LastPressedIndex", lastPressedIndex);
         tag.putInt("PressFlashTicks", pressFlashTicks);
     }
@@ -208,7 +260,10 @@ public final class AtlantisPegasusDHDBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        if(tag.contains("Upgrades"))inventory.load(tag.getCompound("Upgrades"));
         linkedGatePos = tag.contains("LinkedGate") ? BlockPos.of(tag.getLong("LinkedGate")) : null;
+        gateEngaged=tag.getBoolean("GateEngaged");
+        dialedSymbols=tag.getIntArray("DialedSymbols");
         generalAlarmActive = tag.getBoolean("GeneralAlarm");
         offworldAlarmActive = tag.getBoolean("OffworldAlarm");
         lastIncoming = tag.getBoolean("LastIncoming");

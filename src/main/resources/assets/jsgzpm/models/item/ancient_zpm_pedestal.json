@@ -1,0 +1,50 @@
+{
+  "loader": "forge:obj",
+  "model": "jsgzpm:models/block/ancient_zpm_pedestal.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "ambientocclusion": true,
+  "textures": {
+    "panel": "jsgzpm:block/ancient/panel",
+    "trim": "jsgzpm:block/ancient/trim",
+    "recess": "jsgzpm:block/ancient/recess",
+    "binder": "jsgzpm:block/ancient/binder",
+    "crystal": "jsgzpm:block/ancient/crystal",
+    "crystal_warm": "jsgzpm:block/ancient/crystal_warm",
+    "crystal_pale": "jsgzpm:block/ancient/crystal_pale",
+    "regulator": "jsgzpm:block/ancient/regulator",
+    "light": "jsgzpm:block/ancient/light",
+    "crystal_olive": "jsgzpm:block/ancient/crystal_olive",
+    "crystal_red": "jsgzpm:block/ancient/crystal_red",
+    "crystal_core": "jsgzpm:block/ancient/crystal_core",
+    "pedestal_dark": "jsgzpm:block/ancient/pedestal_dark",
+    "pedestal_metal": "jsgzpm:block/ancient/pedestal_metal",
+    "pedestal_cyan_off": "jsgzpm:block/ancient/pedestal_cyan_off",
+    "pedestal_white_off": "jsgzpm:block/ancient/pedestal_white_off",
+    "particle": "jsgzpm:block/ancient/pedestal_dark"
+  },
+  "parent": "minecraft:block/block",
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    }
+  },
+  "emissive_ambient": true
+}

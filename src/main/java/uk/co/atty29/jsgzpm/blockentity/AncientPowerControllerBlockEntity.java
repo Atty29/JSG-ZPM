@@ -442,7 +442,7 @@ public final class AncientPowerControllerBlockEntity extends BlockEntity {
 
         @Override
         public boolean canExtract() {
-            return getAutomaticAvailableEnergyLong() > 0L;
+            return true; // Output capability is independent of the current charge or reserve policy.
         }
 
         @Override

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IPI",
+    "PCP",
+    "IDI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "jsgzpm:central_power_regulator"
+    },
+    "C": {
+      "item": "jsgzpm:zero_point_containment_matrix"
+    },
+    "D": {
+      "item": "minecraft:polished_deepslate"
+    }
+  },
+  "result": {
+    "item": "jsgzpm:atlantis_zpm_hub"
+  }
+}

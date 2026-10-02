@@ -35,6 +35,7 @@ public final class ZPMEnergyProvider implements ICapabilitySerializable<Compound
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction side) {
         if (capability == ForgeCapabilities.ENERGY) {
+            storage.setCapacity(uk.co.atty29.jsgzpm.item.ZPMItem.getConfiguredCapacity());
             return energyCapability.cast();
         }
         return LazyOptional.empty();
@@ -47,6 +48,7 @@ public final class ZPMEnergyProvider implements ICapabilitySerializable<Compound
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
+        storage.setCapacity(uk.co.atty29.jsgzpm.item.ZPMItem.getConfiguredCapacity());
         storage.deserializeNBT(nbt);
     }
 }

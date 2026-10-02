@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/ender_eye"
+    "layer0": "jsgzpm:item/zero_point_containment_matrix"
   }
 }

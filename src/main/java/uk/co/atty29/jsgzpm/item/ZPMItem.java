@@ -104,6 +104,8 @@ public final class ZPMItem extends Item {
     }
 
     public static long getConfiguredCapacity() {
+        Long remote = uk.co.atty29.jsgzpm.config.CapacitySync.clientCapacity();
+        if (remote != null) return remote;
         try {
             return JSGZPMConfig.ZPM_CAPACITY.get();
         } catch (IllegalStateException ignored) {

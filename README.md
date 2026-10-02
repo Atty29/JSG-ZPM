@@ -17,7 +17,7 @@ Implemented systems now include:
 - manual Start/Stop charging sequence with shield sealing, cosmic-field state and vent/open sequence
 - five JSG Efficiency Upgrade Crystal slots with 20%, 36%, 52%, 68%, 84% and 100% efficiency progression
 - external Forge Energy input with no artificial transfer-rate cap beyond the connected network/API calls
-- Atlantis Pegasus DHD implemented as a solid five-block C/horseshoe floor console
+- Atlantis Pegasus DHD implemented as a solid three-block Atlantis console
 - release-safe Pegasus Stargate discovery/linking and symbol dialling bridge
 - 42-position physical Pegasus-symbol control grid with button-press feedback
 - linked Stargate iris OPEN/CLOSE controls or shield ON/OFF controls as appropriate
@@ -62,7 +62,7 @@ Development interaction:
 
 ### Atlantis Pegasus DHD
 
-The DHD is placed as a five-block floor-integrated horseshoe with an open step-in position.
+The DHD is placed as a three-block straight desk with a continuous front and a keypad tilted toward the player.
 
 - centre console: Pegasus symbol controls for JSG gate dialling
 - side protection controls: iris open/close or shield off/on depending on the linked Stargate
@@ -72,7 +72,7 @@ The DHD is placed as a five-block floor-integrated horseshoe with an open step-i
 
 The DHD no longer subclasses JSG's private DHD implementation. Released JSG 5.1.x builds do not expose the 6.0-development `dev.tauri.jsg.common.block.dialhomedevice` classes, so JSG-ZPM now owns the console block/entity and operates the installed Pegasus gate through a release-safe compatibility bridge.
 
-**Notebook next-symbol guidance is temporarily disabled by this hotfix.** The previous renderer linked directly to JSG 6.0-development notebook/Core classes. It will be restored through the compatibility layer after the released JSG notebook data format is verified in-game.
+The waist-height console uses installed JSG Pegasus glyphs and reads address pages from either hand. Guidance follows the linked gate's dialed address, then highlights origin and core. Released 5.1 notebook serialization and the newer Core page API are accessed through reflection; no JSG assets are bundled. Runtime testing across individual releases remains necessary.
 
 ### Atlantis alarm network
 
@@ -87,7 +87,7 @@ Each emitter only checks its explicitly linked DHD, so large bases can use many 
 
 The current block models, ZPM visuals, generator shield/cosmic field, DHD console and alarm emitter are first-pass original development visuals and will be refined after in-game visual testing. No JSG models or textures are copied into this repository.
 
-Not yet implemented: restored notebook guidance on the released JSG runtime, and final model/texture/audio polish driven by in-game testing.
+Remaining validation: in-game DHD dialing, page guidance and final model/texture/audio polish across JSG releases.
 
 ## Testing development builds
 
@@ -118,3 +118,21 @@ The project uses Forge 47.4.10 and Parchment 2023.09.03-1.20.1.
 ## License
 
 Project licensing is not finalized yet. Just Stargate Mod remains separately owned and licensed by Tau'ri Development; nothing in this repository grants rights to JSG code or assets.
+
+### DHD maintenance and upgrades
+
+Sneak-right-click any console section to open the maintenance panel. It uses the installed public JSG DHD background, the same control/upgrade/fuel slot positions, and the same JSG items. The left overlay tab accepts biome override items and tints the console casing. Relink finds the closest loaded Pegasus gate.
+
+The Pegasus DHD control crystal is required for dialing. A DHD glyph crystal enables 8/9-symbol addresses; capacity and efficiency crystals change the refined-naquadah tank capacity and FE per mB using JSG's configured multipliers. Each upgrade is limited to one, and removal takes effect immediately. The reactor follows JSG's activation/deactivation thresholds. Inventories and fuel persist across reloads; installed items drop when the console is destroyed. The screen is addon-owned because native JSG menus cast to version-specific JSG block-entity classes. Public 1.20.1 upgrades are supported; unrecognized future upgrades are rejected.
+
+### Maximum ZPM charge
+
+Edit `[zpm] capacity` in `<instance>/config/jsgzpm-common.toml` with Minecraft or the dedicated server stopped. The default is `100000000000` FE. All addon settings now apply to every world in that instance. An example is provided in `config-examples/jsgzpm-common.toml`. Multiplayer uses the server settings and synchronizes ZPM capacity to clients.
+
+To retain old custom settings, copy the contents of `<world>/serverconfig/jsgzpm-server.toml` into the new common file before starting. Old world-specific files and `defaultconfigs/jsgzpm-server.toml` are no longer read; they can be kept as backups. There is no automatic migration because different worlds may have different settings.
+
+Both existing and new ZPMs use the configured capacity. Increasing it leaves their stored energy unchanged; lowering it clamps energy above the new limit. The valid range is 1 through 9223372036854775807 FE.
+
+The shared Ancient materials now include recessed panel channels, highlighted bevels, fasteners and Lantian-alphabet labels spelling ENERGY, POWER, CONTROL and ATLANTIS. Light materials use per-material emission; other surfaces retain normal shading.
+
+Holder cable ports remain available when empty or linked to an Ancient Power Controller. A linked holder routes cable requests through the bank controller, preserving its discharge and reserve modes. If that controller is unloaded, output pauses until it is available again. Array and Column cable ports are on their middle block; Hub and Pedestal ports are on their main block.

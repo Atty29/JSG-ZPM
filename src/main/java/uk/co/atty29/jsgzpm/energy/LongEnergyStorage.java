@@ -15,7 +15,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 public class LongEnergyStorage implements IEnergyStorage, INBTSerializable<CompoundTag> {
     private static final String NBT_ENERGY = "Energy";
 
-    protected final long capacity;
+    protected long capacity;
     protected final long maxReceive;
     protected final long maxExtract;
     protected long energy;
@@ -37,6 +37,12 @@ public class LongEnergyStorage implements IEnergyStorage, INBTSerializable<Compo
         this.maxReceive = maxReceive;
         this.maxExtract = maxExtract;
         this.energy = clamp(initialEnergy, 0L, capacity);
+    }
+
+    public void setCapacity(long capacity) {
+        if(capacity<0)throw new IllegalArgumentException("Negative capacity");
+        this.capacity=capacity;
+        setEnergyStoredLong(energy);
     }
 
     public long receiveEnergyLong(long requested, boolean simulate) {

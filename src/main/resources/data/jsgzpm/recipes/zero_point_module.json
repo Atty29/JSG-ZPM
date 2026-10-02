@@ -1,4 +1,32 @@
 {
   "type": "jsgzpm:zpm_assembly",
-  "category": "misc"
+  "category": "misc",
+  "pattern": [
+    "BRB",
+    "ACA",
+    "UMU"
+  ],
+  "key": {
+    "B": {
+      "tag": "jsgzpm:compat/energy_crystal_basic"
+    },
+    "A": {
+      "tag": "jsgzpm:compat/energy_crystal_advanced"
+    },
+    "U": {
+      "tag": "jsgzpm:compat/energy_crystal_ultimate"
+    },
+    "R": {
+      "item": "jsgzpm:central_power_regulator"
+    },
+    "C": {
+      "item": "jsgzpm:crystal_binder"
+    },
+    "M": {
+      "item": "jsgzpm:zero_point_containment_matrix"
+    }
+  },
+  "result": {
+    "item": "jsgzpm:zero_point_module"
+  }
 }

@@ -30,7 +30,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public final class AtlantisPegasusDHDPartBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 3);
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
     public AtlantisPegasusDHDPartBlock() {
         super(Properties.of()
@@ -56,15 +56,8 @@ public final class AtlantisPegasusDHDPartBlock extends Block {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.CONSUME;
 
-        Component message = switch (state.getValue(PART)) {
-            case 0 -> dhd.setProtectionClosed(false); // Iris open / shield off
-            case 1 -> dhd.setProtectionClosed(true);  // Iris close / shield on
-            case 2 -> dhd.toggleGeneralAlarm();
-            case 3 -> dhd.resetAlarms();
-            default -> Component.translatable("message.jsgzpm.dhd.no_button");
-        };
-        serverPlayer.sendSystemMessage(message, true);
-        return InteractionResult.CONSUME;
+        BlockState master=level.getBlockState(masterPos);
+        return master.getBlock().use(master,level,masterPos,player,hand,hit);
     }
 
     @Override

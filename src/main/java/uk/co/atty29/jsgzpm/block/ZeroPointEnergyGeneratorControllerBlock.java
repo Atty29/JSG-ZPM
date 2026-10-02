@@ -40,6 +40,14 @@ public final class ZeroPointEnergyGeneratorControllerBlock extends BaseEntityBlo
     }
 
     @Override
+    public void appendHoverText(net.minecraft.world.item.ItemStack stack,
+            @org.jetbrains.annotations.Nullable net.minecraft.world.level.BlockGetter level,
+            java.util.List<net.minecraft.network.chat.Component> tooltip,
+            net.minecraft.world.item.TooltipFlag flag) {
+        tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.jsgzpm.generator_facing"));
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
