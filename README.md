@@ -132,3 +132,5 @@ Edit `[zpm] capacity` in `<world>/serverconfig/jsgzpm-server.toml` with the worl
 Both existing and new ZPMs use the configured capacity. Increasing it leaves their stored energy unchanged; lowering it clamps energy above the new limit. The valid range is 1 through 9223372036854775807 FE.
 
 The shared Ancient materials now include recessed panel channels, highlighted bevels, fasteners and Lantian-alphabet labels spelling ENERGY, POWER, CONTROL and ATLANTIS. Light materials use per-material emission; other surfaces retain normal shading.
+
+Holder cable ports remain available when empty or linked to an Ancient Power Controller. A linked holder routes cable requests through the bank controller, preserving its discharge and reserve modes. If that controller is unloaded, output pauses until it is available again. Array and Column cable ports are on their middle block; Hub and Pedestal ports are on their main block.

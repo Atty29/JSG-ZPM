@@ -239,3 +239,9 @@ Equilateral keypad: all 37 cells, including the central core, must have equal si
 - Check overlay tab appearance, control/link/reactor indicators, fuel tooltip and Relink.
 - Change world config capacity, restart, and check carried and installed ZPMs. Increase preserves charge; decrease clamps to the limit.
 - Inspect the new engraved panels and light strips in daylight and darkness.
+
+Holder cable regression:
+- Attach FE cables to an empty Hub/Pedestal or the middle block of an Array/Column, then insert and lower a charged ZPM (Pedestal seats immediately). Confirm the connection persists and a connected consumer receives power.
+- Place a power controller in range: existing holder cables must remain connected and draw through its selected bank mode. Check Emergency Reserve cannot drain the reserved holder through a holder cable.
+- Remove the controller: existing cables resume standalone output. Repeat after world reload, raising/lowering ZPMs, depletion and replacement.
+- Unload the controller while keeping a holder loaded: output pauses without draining the local reserve. Reload it and confirm output resumes.

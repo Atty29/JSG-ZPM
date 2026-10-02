@@ -23,6 +23,7 @@ import uk.co.atty29.jsgzpm.block.ZPMHolderBlock;
 import uk.co.atty29.jsgzpm.holder.ZPMHolderLayout;
 import uk.co.atty29.jsgzpm.holder.ZPMSlotState;
 import uk.co.atty29.jsgzpm.item.ZPMItem;
+import uk.co.atty29.jsgzpm.energy.OutputEnergyPort;
 import uk.co.atty29.jsgzpm.registry.ModRegistries;
 
 public final class ZPMHolderBlockEntity extends BlockEntity {
@@ -53,7 +54,8 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     private final float[] animationProgress = {0.0F, 0.0F, 0.0F};
     private final int[] supplyingTicks = {0, 0, 0};
 
-    private LazyOptional<IEnergyStorage> energyCapability = LazyOptional.of(HolderEnergyStorage::new);
+    private final IEnergyStorage localEnergy = new HolderEnergyStorage();
+    private LazyOptional<IEnergyStorage> energyCapability = createEnergyCapability();
     @Nullable
     private BlockPos networkController;
     private int networkValidationTicker;
@@ -191,7 +193,6 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         if (networkController != null && !networkController.equals(controllerPos)) return false;
         if (networkController == null) {
             networkController = controllerPos.immutable();
-            refreshEnergyCapability();
             sync();
         }
         return true;
@@ -200,7 +201,6 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     public void releaseController(BlockPos controllerPos) {
         if (networkController == null || !networkController.equals(controllerPos)) return;
         networkController = null;
-        refreshEnergyCapability();
         sync();
     }
 
@@ -277,7 +277,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
 
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ENERGY && networkController == null) return energyCapability.cast();
+        if (cap == ForgeCapabilities.ENERGY) return energyCapability.cast();
         return super.getCapability(cap, side);
     }
 
@@ -290,7 +290,7 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
     @Override
     public void reviveCaps() {
         super.reviveCaps();
-        energyCapability = LazyOptional.of(HolderEnergyStorage::new);
+        energyCapability = createEnergyCapability();
     }
 
     @Override
@@ -335,7 +335,6 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
             }
         }
         networkController = tag.contains("NetworkController") ? BlockPos.of(tag.getLong("NetworkController")) : null;
-        refreshEnergyCapability();
     }
 
     @Override
@@ -378,14 +377,23 @@ public final class ZPMHolderBlockEntity extends BlockEntity {
         BlockEntity blockEntity = chunk.getBlockEntity(networkController);
         if (!(blockEntity instanceof AncientPowerControllerBlockEntity)) {
             networkController = null;
-            refreshEnergyCapability();
             sync();
         }
     }
 
-    private void refreshEnergyCapability() {
-        energyCapability.invalidate();
-        energyCapability = LazyOptional.of(HolderEnergyStorage::new);
+    private LazyOptional<IEnergyStorage> createEnergyCapability() {
+        return LazyOptional.of(() -> new OutputEnergyPort(this::cableEnergyTarget));
+    }
+
+    @Nullable
+    private IEnergyStorage cableEnergyTarget() {
+        if (networkController == null) return localEnergy;
+        // Never bypass a bank's reserve policy, or force-load an absent controller.
+        if (level == null || !level.hasChunkAt(networkController)) return null;
+        if (level.getBlockEntity(networkController) instanceof AncientPowerControllerBlockEntity controller) {
+            return controller.getCapability(ForgeCapabilities.ENERGY).orElse(null);
+        }
+        return null;
     }
 
     private void updatePedestalLight() {
