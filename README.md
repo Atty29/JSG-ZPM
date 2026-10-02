@@ -127,7 +127,9 @@ The Pegasus DHD control crystal is required for dialing. A DHD glyph crystal ena
 
 ### Maximum ZPM charge
 
-Edit `[zpm] capacity` in `<world>/serverconfig/jsgzpm-server.toml` with the world stopped. The default is `100000000000` FE. Copy `config-examples/jsgzpm-server.toml` to the instance's `defaultconfigs` directory to change defaults for newly created worlds. The server syncs the authoritative setting to clients.
+Edit `[zpm] capacity` in `<instance>/config/jsgzpm-common.toml` with Minecraft or the dedicated server stopped. The default is `100000000000` FE. All addon settings now apply to every world in that instance. An example is provided in `config-examples/jsgzpm-common.toml`. Multiplayer uses the server settings and synchronizes ZPM capacity to clients.
+
+To retain old custom settings, copy the contents of `<world>/serverconfig/jsgzpm-server.toml` into the new common file before starting. Old world-specific files and `defaultconfigs/jsgzpm-server.toml` are no longer read; they can be kept as backups. There is no automatic migration because different worlds may have different settings.
 
 Both existing and new ZPMs use the configured capacity. Increasing it leaves their stored energy unchanged; lowering it clamps energy above the new limit. The valid range is 1 through 9223372036854775807 FE.
 

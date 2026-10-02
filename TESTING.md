@@ -245,3 +245,9 @@ Holder cable regression:
 - Place a power controller in range: existing holder cables must remain connected and draw through its selected bank mode. Check Emergency Reserve cannot drain the reserved holder through a holder cable.
 - Remove the controller: existing cables resume standalone output. Repeat after world reload, raising/lowering ZPMs, depletion and replacement.
 - Unload the controller while keeping a holder loaded: output pauses without draining the local reserve. Reload it and confirm output resumes.
+
+Global config regression:
+- Start with no common file: confirm config/jsgzpm-common.toml is generated, with no new world serverconfig file.
+- Stop Minecraft, set a custom capacity, then load two different worlds: both must use that capacity. An old world-specific config must not override it.
+- Join a dedicated server whose capacity differs from the client common file: tooltips and charge limits must use the server capacity. Disconnect and load a local world: its local common value must apply again.
+- Change the server capacity while running: existing connected clients should receive the updated value. Verify raising capacity preserves charge and lowering it clamps charge.

@@ -1,5 +1,5 @@
-# Copy into <world>/serverconfig/jsgzpm-server.toml while the world is closed.
-# For defaults in NEW worlds, copy into the instance defaultconfigs folder.
+# Copy into <instance>/config/jsgzpm-common.toml while Minecraft/server is stopped.
+# Applies to all worlds in this instance. Multiplayer uses the server settings.
 [zpm]
 # Maximum charge in FE. Existing ZPMs also use this limit.
 # Lowering the limit removes energy above it; increasing it does not add energy.
